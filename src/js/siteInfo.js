@@ -1,4 +1,4 @@
-const DOMAIN_NAME = "https://www.lamdenlink.com"
+const DOMAIN_NAME = "https://reverent-payne-429970.netlify.app/"
 
 export const site = {
     maintenance: false,
