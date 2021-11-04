@@ -12,9 +12,6 @@
     import { lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
     import { checkLamdenTokenApproval } from '../js/lamden-utils'
 
-    export let current
-    export let complete
-
     $: notAttempted = $lamdenWalletInfo.installed === undefined
     $: installed = $lamdenWalletInfo.installed || false
     $: connected = $hasNetworkApproval.approved || false
@@ -34,7 +31,7 @@
     }
 
     function getApprovalRequest(){
-        return $lamdenNetwork.clearingHouse
+        return $lamdenNetwork.app
     }
 
 	const handleWalletInfo = (info) => {
@@ -48,17 +45,6 @@
             lamdenWalletInfo.set(info)
         }
 		
-    }
-
-    const sendLamdenApproval = () => {
-        $lwc.sendConnection()
-    }
-    async function handleNextStep(){
-        swapInfo.update(curr => {
-            curr.lamden_address = $lamden_vk
-            return curr
-        })
-        if (tokenFromMe) await checkLamdenTokenApproval()
     }
 </script>
 
@@ -80,7 +66,6 @@
         color: var(--font-primary);
     }
     @media screen and (min-width: 430px) {
-
     }
 </style>
 
