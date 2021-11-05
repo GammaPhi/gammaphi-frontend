@@ -4,7 +4,6 @@
  
     checkTokenBalanceFunction,
     token_selected,
-    eth_token_balance,
     lamden_token_balance,
     popup_modal,
     message,
@@ -12,7 +11,6 @@
     isLoading
   } from "../stores/lamden";
   import {
-    checkEthereumTokenBalance,
     checkLamdenTokenBalance,
   } from "../js/utils";
   import DropDownArrow from "./SVG/DropDownSVG.svelte";
@@ -20,12 +18,6 @@
   export let network;
 
   let current_network;
-
-  $: {
-    if ($token_selected && current_network && current_network != network) {
-       checkEthereumTokenBalance($token_selected, $selectedAccount);
-    }
-  }
   
   let refresher = function (network) {
     if (current_network && current_network != network) {
@@ -37,13 +29,7 @@
 
 
   function checkTokenBalance(network) {
-    let check_func;
-    if (network == "Ethereum") {
-      check_func = checkEthereumTokenBalance;
-    } else {
-      check_func = checkLamdenTokenBalance;
-    }
-    checkTokenBalanceFunction.set(check_func);
+    checkTokenBalanceFunction.set(checkLamdenTokenBalance);
   }
 
   let openModal = function (network, loading) {
@@ -83,19 +69,11 @@
     </div>
   </fieldset>
   {#if $token_selected}
-    {#if network == "Ethereum"}
-      <div class="token-balance">
-        Your {network}
-        {$token_selected} balance is: {$eth_token_balance}
-        {$token_selected}
-      </div>
-    {:else if network == "Lamden"}
-      <div class="token-balance">
-        Your {network}
-        {$token_selected} balance is: {$lamden_token_balance}
-        {$token_selected}
-      </div>
-    {/if}
+    <div class="token-balance">
+      Your {network}
+      {$token_selected} balance is: {$lamden_token_balance}
+      {$token_selected}
+    </div>
   {/if}
 </div>
 

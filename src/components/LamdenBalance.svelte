@@ -23,7 +23,7 @@
 
     onMount(() => {
         
-        timer = setTimeout(refreshLamdenBalance, 10000)
+        timer = setTimeout(refreshLamdenBalance, 1000)
         refreshLamdenBalance()
 
         return () => {
@@ -48,5 +48,4 @@
 <div class="flex row align-center">
     <TokenLogo token={lamdenToken} clickable={false} size="tiny" />
     <p>{`${stringToFixed($lamdenCurrencyBalance, 8)} ${$networkInfo.network_symbol}`}</p>
-    <ResultLink type="address" hash={$lamden_vk} title={$lamden_vk} network={$networkInfo}/>
 </div>

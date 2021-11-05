@@ -40,7 +40,8 @@
 
 <style>
     .navigation-bar {
-		color: var(--bg-primary);
+		color: var(--primary-color);
+		background-color: black;
 		position: absolute;
 		padding: 1em 1.5em;
 		width: 100%;

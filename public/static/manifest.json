@@ -1,8 +1,8 @@
 {
 	"background_color": "#ffffff",
 	"theme_color": "#333333",
-	"name": "Lamden Link",
-	"short_name": "lamden_link",
+	"name": "Lamden Phi",
+	"short_name": "lamden_phi",
 	"display": "minimal-ui",
 	"start_url": "/",
 	"icons": [

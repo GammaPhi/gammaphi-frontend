@@ -1,8 +1,8 @@
 <style>
     .banner-container{
         background-image: url('/static/images/banner.jpeg');
-        height: 40vh;
-        min-height: 40vh;
+        height: 30vh;
+        min-height: 30vh;
         background-size: cover;
         background-position-x: center;
         background-repeat: no-repeat;
@@ -14,7 +14,7 @@
         width: 100%;
         text-align: center;
         font-size: 10vw;
-        color: #5f4c94;
+        color: black;
         padding: 1rem 0;
         border-top: 1px solid #95c0f1;
         border-bottom: 1px solid #95c0f1;

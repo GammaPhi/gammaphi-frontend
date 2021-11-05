@@ -4,10 +4,6 @@ import { lamdenNetwork, selectedToken  } from '../stores/globalStores'
 import { lamden_vk, lamdenCurrencyBalance, lwc, lamdenTokenApprovalAmount } from '../stores/lamdenStores'
 import { TransactionResultHandler } from './lamdenTxResultsHandler'
 
-export const start_burn = () => {
-
-}
-
 export async function checkLamdenTokenBalance() {
     let lamdenNetworkInfo = get(lamdenNetwork)
     let token_contract = get(selectedToken).address
@@ -40,6 +36,7 @@ export async function checkTokenBalance(token) {
         return new BN(0)
     }
 }
+
 
 export async function checkLamdenBalance() {
     let lamdenNetworkInfo = get(lamdenNetwork)

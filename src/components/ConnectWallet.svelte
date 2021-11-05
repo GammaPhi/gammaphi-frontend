@@ -3,7 +3,6 @@
 
     // Components
     import LamdenBalance from './LamdenBalance.svelte'
-    import LamdenTokenInput from './LamdenTokenInput.svelte'
 
     // Misc
     import BN from 'bignumber.js'

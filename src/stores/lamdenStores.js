@@ -10,7 +10,7 @@ export const lamdenTokenBalance = writable(new BN(0))
 export const phiCurrencyBalance = writable(new BN(0))
 export const lamdenTokenApprovalAmount = writable(new BN(0))
 
-
-// Results Trackers
+// Coin Flip 
+export const coinFlipInputValue = writable(new BN(0))
 export const coinFlipApprovalTxStatus = writable({})
 export const coinFlipTxStatus = writable({})

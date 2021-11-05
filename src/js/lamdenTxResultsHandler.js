@@ -14,19 +14,14 @@ export const TransactionResultHandler = () => {
 					resultsObj.status = "Transaction sent, pending result"
 				}
 				if (typeof txResults.txBlockResult.status !== 'undefined') {
-					if (txResults.txBlockResult.status === 0) {
-						callback(txResults)
-						return
-					}
 					if (txResults.txBlockResult.status === 1) {
 						parseTxErrors(txResults.txBlockResult.errors)
 					}
 				}
 			}
-
 		}
-
-		resultsTracker.set({loading: false, ...resultsObj})
+		resultsTracker.set({loading: false, txResults: txResults, ...resultsObj})
+		callback(txResults)
     }
     
 	function parseTxErrors(errors){

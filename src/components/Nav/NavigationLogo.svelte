@@ -13,7 +13,7 @@
 
 <style>
     a{
-        color: var(--color-gray-5);
+        color: var(--color-gray-4);
         font-size: clamp(16px, 1.5vw, 45px);
         font-weight: 800;
     }
@@ -21,11 +21,11 @@
         color: var(--primary-color);
     }
     a:visited{
-        color: var(--color-gray-5);
+        color: var(--color-gray-3);
     }
     .nav-brand-logo {
         min-width: initial;
-        color: var(--color-gray-5);
+        color: var(--color-gray-4);
         width: 23px;
         margin-right: 10px;
     }
