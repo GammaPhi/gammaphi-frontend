@@ -14,3 +14,8 @@ export const lamdenTokenApprovalAmount = writable(new BN(0))
 export const coinFlipInputValue = writable(new BN(0))
 export const coinFlipApprovalTxStatus = writable({})
 export const coinFlipTxStatus = writable({})
+
+// Purchase PHI
+export const purchasePhiInputValue = writable(new BN(0))
+export const lamdenApprovalTxStatus = writable({})
+export const purchasePhiTxStatus = writable({})

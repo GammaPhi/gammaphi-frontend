@@ -35,9 +35,15 @@
                     } else {
                         console.log(txResults.txBlockResult.state[1].value.__fixed__)
                         console.log(txResults.txBlockResult.state[3].value.__fixed__)
-                        phiCurrencyBalance.set(txResults.txBlockResult.state[1].value.__fixed__)
-                        lamdenCurrencyBalance.set(txResults.txBlockResult.state[3].value.__fixed__)
-                        status.set('ready')
+                        let previousPhi = BN($phiCurrencyBalance)
+                        phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
+                        let currentPhi = BN($phiCurrencyBalance)
+                        lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))
+                        if (previousPhi < currentPhi) {
+                            status.set('win')
+                        } else {
+                            status.set('loss')
+                        }
                     }
                 })
             }
@@ -90,6 +96,16 @@
         readonly={false}
     /></label>
 </div>
+
+{#if $status === 'win'}
+<div class="row align-center buttons">
+    You win!
+</div>
+{:else if $status === 'loss'}
+<div class="row align-center buttons">
+    You lost :(
+</div>
+{/if}
 
 {#if $errors !== null}
     {#each $errors as error}

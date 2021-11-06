@@ -8,8 +8,8 @@
     import BN from 'bignumber.js'
     import WalletController from 'lamden_wallet_controller';
     import { selectedNetwork, lamdenNetwork } from '../stores/globalStores.js';
-    import { lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
-    import { checkLamdenTokenApproval } from '../js/lamden-utils'
+    import { lamdenWalletInfo, lamden_vk, lwc, phiCurrencyBalance, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
+    import { checkTokenBalance } from '../js/lamden-utils'
 
     $: notAttempted = $lamdenWalletInfo.installed === undefined
     $: installed = $lamdenWalletInfo.installed || false
@@ -33,11 +33,12 @@
         return $lamdenNetwork.app
     }
 
-	const handleWalletInfo = (info) => {
+	const handleWalletInfo = async (info) => {
         if (info.approvals){
             if (Object.keys(info.approvals).includes($selectedNetwork)){
                 hasNetworkApproval.set({approved: true})
                 lamden_vk.set($lwc.walletAddress)
+                phiCurrencyBalance.set(await checkTokenBalance('phi'))
             }
         }
         if (!info.errors){

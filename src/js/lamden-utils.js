@@ -54,41 +54,17 @@ export async function checkLamdenBalance() {
     }
 }
 
-export async function checkLamdenTokenApproval() {
+export function sendLamdenApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let token = get(selectedToken)
-    let token_contract = token.address
-    let clearinghouse = token.lamden_clearinghouse
-    let vk = get(lamden_vk)
-
-    try {
-        const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/${token_contract}/balances/${vk}:${clearinghouse}`, {
-                method: 'GET',
-            },
-        ).catch((e) => console.log({e}))
-        let value = await getValueFromResponse(res)
-        lamdenTokenApprovalAmount.set(value)
-    } catch (error) {
-        lamdenTokenApprovalAmount.set(new BN(0))
-    }
-}
-
-
-export function sendLamdenApproval (resultsTracker, callback){
-    let lamdenNetworkInfo = get(lamdenNetwork)
-    let token = get(selectedToken)
-
-    let swapInfoStore = get(swapInfo)
     let walletController = get(lwc)
 
     const txInfo = {
-        networkType: lamdenNetworkInfo.clearingHouse.networkType,
-        contractName: token.address,
+        networkType: lamdenNetworkInfo.games.coinFlip.networkType,
+        contractName: 'currency',
         methodName: 'approve',
         kwargs: {
-            amount: { __fixed__: swapInfoStore.tokenAmount.toString() },
-            to: token.lamden_clearinghouse,
+            amount: { __fixed__: amount.toString() },
+            to: lamdenNetworkInfo.games.coinFlip.contractName,
         },
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
@@ -96,6 +72,22 @@ export function sendLamdenApproval (resultsTracker, callback){
     walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
 }
 
+export function sendPhiPurchase (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let walletController = get(lwc)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.coinFlip.networkType,
+        contractName: lamdenNetworkInfo.games.coinFlip.contractName,
+        methodName: 'purchase_round_1',
+        kwargs: {
+            amount_tau: { __fixed__: amount.toString() }
+        },
+        stampLimit: lamdenNetworkInfo.stamps.coinFlip,
+    }
+
+    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+}
 
 export function sendCoinFlipApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)

@@ -35,7 +35,7 @@ export const testnet = {
         games: {
             coinFlip: {
                 networkType: "testnet",
-                contractName: "con_test_eh_game_v3",
+                contractName: "con_test_eh_game_v6",
             }
         },
         coins: {
@@ -46,10 +46,10 @@ export const testnet = {
         },
         app: {
             appName: "Lamden Phi", // Your DAPPS's name
-            version: "1.0.0", // any version to start, increment later versions to update connection info
+            version: "0.0.1", // any version to start, increment later versions to update connection info
             logo: "/static/logo-512.png", // or whatever the location of your logo
             background: "/static/wallet/background.jpg", // or whatever the location of your logo
-            contractName: "con_test_eh_game_v3", // Will never change
+            contractName: "con_test_eh_game_v6", // Will never change
             networkType: "testnet", // other option is 'mainnet' 
         },
         networkName: "Lamden Testnet",
