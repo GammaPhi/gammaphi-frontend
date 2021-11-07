@@ -22,6 +22,11 @@
     function placeBet() {
         status.set('betting')
         errors.set(null)
+        if (BN($phiCurrencyBalance) < BN($coinFlipInputValue)) {
+            errors.set(['You do not have enough PHI to make this bet.'])
+            status.set('ready')
+            return
+        }
         sendCoinFlipApproval($coinFlipInputValue, coinFlipApprovalTxStatus, (txResults)=>{
             if ($coinFlipApprovalTxStatus.errors?.length > 0) {
                 status.set('error')
