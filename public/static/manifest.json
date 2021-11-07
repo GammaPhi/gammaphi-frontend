@@ -1,8 +1,8 @@
 {
 	"background_color": "#ffffff",
 	"theme_color": "#333333",
-	"name": "Lamden Phi",
-	"short_name": "lamden_phi",
+	"name": "GammaPhi",
+	"short_name": "gammaphi",
 	"display": "minimal-ui",
 	"start_url": "/",
 	"icons": [
