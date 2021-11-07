@@ -29,6 +29,7 @@ export const testnet = {
     lamden: {
         apiLink: "https://testnet.lamden.io/api",
         blockexplorer: "https://testnet.lamden.io",
+        masterNodeLink: "https://testnet-master-1.lamden.io",
         blockexplorer_tx: "transactions",
         blockexplorer_address: "addresses",
         wallet_install_url: "https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim",

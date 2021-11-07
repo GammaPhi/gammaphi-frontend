@@ -21,6 +21,20 @@ export async function checkLamdenTokenBalance() {
     }
 }
 
+export async function checkContractVariable(variableName) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.coinFlip.contractName}/${variableName}`, {
+                method: 'GET',
+            },
+        )
+        return await getValueFromResponse(res)
+    } catch (error) {
+        return new BN(0)
+    }
+}
+
 export async function checkTokenBalance(token) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     let vk = get(lamden_vk)
