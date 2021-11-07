@@ -1,9 +1,9 @@
 <script>
 
-// Components
-import ConnectWallet from '../components/ConnectWallet.svelte'
-import CoinFlip from '../components/Games/CoinFlip.svelte';
-
+	// Components
+	import ConnectWallet from '../components/ConnectWallet.svelte'
+	import PurchasePhi from '../components/PurchasePhi.svelte';
+	
 </script>
 
 <style>
@@ -14,7 +14,7 @@ import CoinFlip from '../components/Games/CoinFlip.svelte';
 </style>
 
 <div class="buttons">
-	<CoinFlip />
+	<PurchasePhi />
 </div>
 
 <div class="buttons flex">
@@ -22,3 +22,4 @@ import CoinFlip from '../components/Games/CoinFlip.svelte';
 </div>
 
 
+	

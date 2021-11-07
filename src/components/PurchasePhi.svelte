@@ -9,6 +9,7 @@
     import PhiTokenBalance from './PhiTokenBalance.svelte'
     import { checkTokenBalance } from '../js/lamden-utils'
     import { stringToFixed, determinePrecision } from '../js/global-utils'
+    import BNInputField from './Inputs/BNInputField.svelte'
 
     $: connected = true; //$hasNetworkApproval.approved || false
     let startingValue = BN('100')
@@ -44,21 +45,6 @@
         })
     }
     
-    // DOM ELEMENT BINDINGS
-    let inputElm;
-    const handleInputChange = (e) => {
-        let validateValue = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')
-        if (validateValue !== e.target.value) {
-            inputElm.value = validateValue
-        }else{
-            let value = new BN(e.target.value)
-            if (determinePrecision(value) > 8){
-                value = new BN(stringToFixed(value, 8))
-                inputElm.value = stringToFixed(value, 8)
-            }
-        }
-        purchasePhiInputValue.set(inputElm.value)
-    }
 </script>
 
 
@@ -68,9 +54,6 @@
 		margin: 1rem auto 1rem;
         text-align: center;
 	}
-    .primaryInput {
-        margin-top: 1rem;
-    }
     h2.buttons {
         margin-bottom: 2rem;
     }
@@ -82,13 +65,13 @@
 
 {#if connected}
 <div class="row align-center buttons">
-    <label class="label">How many TAU do you want to spend?<br/>
-    <input class="primaryInput"
-        bind:this={inputElm}
-        on:input={handleInputChange}
-        value={startingValue}
-        readonly={false}
-    /></label>
+    <BNInputField 
+        onInputChange={(value)=>purchasePhiInputValue.set(value)}
+        startingValue={startingValue}
+        inputClass="primaryInput"
+        labelClass="label"
+        labelText="How many TAU do you want to spend?"
+    />
 </div>
 
 {#if $errors !== null}

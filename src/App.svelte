@@ -1,8 +1,11 @@
 <script lang="ts">
 import { Router, Route } from "svelte-routing";
 
-// Components
+// Pages
 import Home from "./pages/Home.svelte";
+import Purchase from "./pages/Purchase.svelte";
+
+// Components
 import Banner from "./components/Banner.svelte";
 import NavBar from "./components/Nav/NavigationBar.svelte";
 import Footer from "./components/Footer.svelte";
@@ -59,6 +62,7 @@ function unregisterOldServiceWorkers(){
 <NavBar />
 <main>
 	<Route path="/" component={Home} />
+	<Route path="/purchase" component={Purchase} />
 </main>
 <Footer />
 </Router>

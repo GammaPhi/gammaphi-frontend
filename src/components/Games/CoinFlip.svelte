@@ -7,8 +7,8 @@
     import { coinFlipInputValue, phiCurrencyBalance, coinFlipApprovalTxStatus, coinFlipTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../stores/lamdenStores.js';
     import { sendCoinFlipApproval, sendCoinFlip } from '../../js/lamden-utils.js'
     import PhiTokenBalance from '../PhiTokenBalance.svelte'
-    import { checkTokenBalance } from '../../js/lamden-utils'
-    import { stringToFixed, determinePrecision } from '../../js/global-utils'
+    import BNInputField from '../Inputs/BNInputField.svelte'
+    import CoinAnimation from './CoinFlip/CoinAnimation.svelte'
 
     $: connected = true; //$hasNetworkApproval.approved || false
     let startingValue = BN('10')
@@ -41,29 +41,13 @@
                         lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))
                         if (previousPhi < currentPhi) {
                             status.set('win')
-                        } else {
+                        } else {                            
                             status.set('loss')
                         }
                     }
                 })
             }
         })
-    }
-    
-    // DOM ELEMENT BINDINGS
-    let inputElm;
-    const handleInputChange = (e) => {
-        let validateValue = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')
-        if (validateValue !== e.target.value) {
-            inputElm.value = validateValue
-        }else{
-            let value = new BN(e.target.value)
-            if (determinePrecision(value) > 8){
-                value = new BN(stringToFixed(value, 8))
-                inputElm.value = stringToFixed(value, 8)
-            }
-        }
-        coinFlipInputValue.set(inputElm.value)
     }
 </script>
 
@@ -74,9 +58,6 @@
 		margin: 1rem auto 1rem;
         text-align: center;
 	}
-    .primaryInput {
-        margin-top: 1rem;
-    }
     h2.buttons {
         margin-bottom: 2rem;
     }
@@ -88,24 +69,18 @@
 
 {#if connected}
 <div class="row align-center buttons">
-    <label class="label">Amount to Bet <br/>
-    <input class="primaryInput"
-        bind:this={inputElm}
-        on:input={handleInputChange}
-        value={startingValue}
-        readonly={false}
-    /></label>
+    <BNInputField 
+        onInputChange={(value)=>coinFlipInputValue.set(value)}
+        startingValue={startingValue}
+        inputClass="primaryInput"
+        labelClass="label"
+        labelText="Amount to Bet"
+    />
 </div>
 
-{#if $status === 'win'}
 <div class="row align-center buttons">
-    You win!
+    <CoinAnimation onClick={placeBet} status={status} />
 </div>
-{:else if $status === 'loss'}
-<div class="row align-center buttons">
-    You lost :(
-</div>
-{/if}
 
 {#if $errors !== null}
     {#each $errors as error}
@@ -115,9 +90,6 @@
     {/each}
 {/if}
 
-<div class="row align-center buttons">
-    <button on:click={placeBet}>Flip</button>
-</div>
 <div class="row align-center buttons">
     <PhiTokenBalance />
 </div>
