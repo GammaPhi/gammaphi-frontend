@@ -17,11 +17,14 @@
     }
     .head {
       background-color: var(--primary-color);
+      background-image: url('/static/images/coin.png');
+
       z-index: 10;
     }
     .tail {
       background-color: var(--accent-color);
       transform: rotateX(-180deg);
+      background-image: url('/static/images/coin.png');
     }
 
     .flipHead {
@@ -80,7 +83,7 @@
         } else if ($status === 'approved' || $status === 'betting') {
             return 'flipping'
         } else {
-            return ''
+            return 'flipHead'
         }
     })
   </script>
