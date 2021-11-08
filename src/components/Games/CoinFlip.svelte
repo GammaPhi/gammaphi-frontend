@@ -31,6 +31,11 @@
             status.set('ready')
             return
         }
+        if (BN("1") > BN($coinFlipInputValue) || BN("1000") < BN($coinFlipInputValue)) {
+            errors.set(['You can only bet between 1 and 1000 PHI'])
+            status.set('ready')
+            return
+        }
         sendCoinFlipApproval($coinFlipInputValue, coinFlipApprovalTxStatus, (txResults)=>{
             if ($coinFlipApprovalTxStatus.errors?.length > 0) {
                 status.set('error')
@@ -113,7 +118,7 @@
 </div>
 
 <div class="row align-center buttons">
-    <CoinAnimation onClick={placeBet} status={status} title="Click here to spin" />
+    <CoinAnimation onClick={placeBet} status={status} />
 </div>
 
 <div class="row align-center buttons">
