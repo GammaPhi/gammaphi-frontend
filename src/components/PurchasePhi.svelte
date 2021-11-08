@@ -66,7 +66,7 @@
 </h2>
 
 <h3 class="row align-center buttons">
-    Remaining PHI available for purchase: {$remainingPhi}
+    PHI Available: {$remainingPhi}
 </h3>
 
 {#if connected}
