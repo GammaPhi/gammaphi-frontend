@@ -9,6 +9,9 @@
     import PhiTokenBalance from '../PhiTokenBalance.svelte'
     import BNInputField from '../Inputs/BNInputField.svelte'
     import CoinAnimation from './CoinFlip/CoinAnimation.svelte'
+    import { stringToFixed } from '../../js/global-utils'
+
+    import RangeSlider from "svelte-range-slider-pips";
 
     $: connected = true; //$hasNetworkApproval.approved || false
     let startingValue = BN('10')
@@ -18,6 +21,7 @@
     })
     const status = writable("ready");
     const errors = writable(null);
+    const odds = writable(0.5);
 
     function placeBet() {
         status.set('betting')
@@ -33,7 +37,7 @@
                 errors.set($coinFlipApprovalTxStatus.errors)
             } else {
                 status.set('approved')
-                sendCoinFlip($coinFlipInputValue, coinFlipTxStatus, (txResults)=>{
+                sendCoinFlip($coinFlipInputValue, BN($odds), coinFlipTxStatus, (txResults)=>{
                     if ($coinFlipTxStatus.errors?.length > 0) {
                         status.set('error')
                         errors.set($coinFlipTxStatus.errors)
@@ -63,6 +67,11 @@
 		margin: 1rem auto 1rem;
         text-align: center;
 	}
+    .slider{
+		width: 250px;
+		margin: 1rem auto 1rem;
+        text-align: center;
+	}
     h2.buttons {
         margin-bottom: 2rem;
     }
@@ -74,7 +83,8 @@
 
 {#if connected}
 <div class="row align-center buttons">
-    <BNInputField 
+    <BNInputField
+         
         onInputChange={(value)=>coinFlipInputValue.set(value)}
         startingValue={startingValue}
         inputClass="primaryInput"
@@ -83,8 +93,31 @@
     />
 </div>
 
+<div class="row align-center slider">
+    Set your own odds
+    <RangeSlider 
+        range={false}
+        min={0.001}
+        step={0.001}
+        max={0.999}
+        on:change={(e)=>odds.set(e.detail.value)}
+    />
+</div>
+
 <div class="row align-center buttons">
-    <CoinAnimation onClick={placeBet} status={status} />
+    Odds of winning: 1/{stringToFixed(1/$odds, 4)}
+</div>
+
+<div class="row align-center buttons">
+    Payout: {stringToFixed($coinFlipInputValue/$odds, 4)} PHI
+</div>
+
+<div class="row align-center buttons">
+    <CoinAnimation onClick={placeBet} status={status} title="Click here to spin" />
+</div>
+
+<div class="row align-center buttons">
+    Click the coin to spin
 </div>
 
 {#if $errors !== null}

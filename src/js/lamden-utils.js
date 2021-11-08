@@ -121,7 +121,7 @@ export function sendCoinFlipApproval (amount, resultsTracker, callback){
     walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
 }
 
-export function sendCoinFlip (amount, resultsTracker, callback){
+export function sendCoinFlip (amount, odds, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
     let walletController = get(lwc)
 
@@ -130,7 +130,8 @@ export function sendCoinFlip (amount, resultsTracker, callback){
         contractName: lamdenNetworkInfo.games.coinFlip.contractName,
         methodName: 'flip_phi',
         kwargs: {
-            amount: { __fixed__: amount.toString() }
+            amount: { __fixed__: amount.toString() },
+            odds: { __fixed__: odds.toString() },
         },
         stampLimit: lamdenNetworkInfo.stamps.coinFlip,
     }

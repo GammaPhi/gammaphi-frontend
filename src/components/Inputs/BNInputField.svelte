@@ -31,6 +31,7 @@ const handleInputChange = (e) => {
 <style>
     .primaryInput {
         margin-top: 1rem;
+        text-align: center;
     }
 </style>
 

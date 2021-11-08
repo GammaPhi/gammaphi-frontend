@@ -74,6 +74,7 @@
     import { writable, derived, get } from "svelte/store";
     export let status;
     export let onClick;
+    export let title;
 
     const flipClass = derived(status, $status => {
         if ($status === 'win') {
@@ -88,7 +89,7 @@
     })
   </script>
 
-<div class="coin {$flipClass}" on:click={onClick}>
+<div title={title} class="coin {$flipClass}" on:click={onClick}>
     <div class="side head"></div>
     <div class="side tail"></div>
 </div>
