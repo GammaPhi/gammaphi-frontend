@@ -72,7 +72,7 @@ export const testnet = {
             }
         },
         app: {
-            appName: "GammaPhi", // Your DAPPS's name
+            appName: "Gamma Phi", // Your DAPPS's name
             version: "0.0.1", // any version to start, increment later versions to update connection info
             logo: "/static/logo-512.png", // or whatever the location of your logo
             background: "/static/wallet/background.jpg", // or whatever the location of your logo

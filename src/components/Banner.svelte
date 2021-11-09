@@ -38,5 +38,5 @@
 </style>
 
 <div class="banner-container">
-    <h1>GammaPhi</h1>
+    <h1>Gamma Phi</h1>
 </div>
