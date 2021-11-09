@@ -8,7 +8,7 @@ const gameInfo = [
     {
         name: 'PHI Flip',
         link: '/coinflip',
-        description: "A truly fair coin flip game that let's users set their own odds."
+        description: "A truly fair, zero-commision odds game."
     },
     {
         name: 'PHI Lottery',
