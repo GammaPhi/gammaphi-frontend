@@ -1,9 +1,6 @@
 <script>
 
 // Components
-import ConnectWallet from '../components/ConnectWallet.svelte'
-
-// Components
 const gameInfo = [
     {
         name: 'PHI Flip',
@@ -40,8 +37,6 @@ const gameInfo = [
 
 {/each}
 
-<div class="buttons flex">
-	<ConnectWallet complete={false} current={false} />
-</div>
 
 
+    

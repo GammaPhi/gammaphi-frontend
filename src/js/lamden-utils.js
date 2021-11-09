@@ -139,6 +139,41 @@ export function sendCoinFlip (amount, odds, resultsTracker, callback){
     walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
 }
 
+export function sendLotteryApproval (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let walletController = get(lwc)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.lottery.networkType,
+        contractName: lamdenNetworkInfo.coins.phi.contractName,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: lamdenNetworkInfo.games.lottery.contractName,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+}
+
+export function sendLottery (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let walletController = get(lwc)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.lottery.networkType,
+        contractName: lamdenNetworkInfo.games.lottery.contractName,
+        methodName: 'deposit_phi',
+        kwargs: {
+            amount: parseInt(amount, 10)
+        },
+        stampLimit: lamdenNetworkInfo.stamps.coinFlip,
+    }
+
+    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+}
+
 function handleTxResults(txResults, resultsTracker, callback){
     if (!txResults.data) 
         resultsTracker.set({loading:false, errors: ["Transaction result unavailable."]})

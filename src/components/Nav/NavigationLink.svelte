@@ -6,7 +6,7 @@
     
 </script>
 
-{#if link === "Home" || link === "Purchase" || link === 'About' || link === 'Games'}
+{#if link !== "Explorer" && link !== "Wallet" }
     <a href="{href}" class="nav-link" class:mobile={mobile}>{link}</a>
 {:else}
     <a href="{href}" target="_blank" rel="noopener noreferrer" class="nav-link" class:mobile={mobile}>{link}</a>

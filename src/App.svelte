@@ -4,6 +4,8 @@ import { Router, Route } from "svelte-routing";
 // Pages
 import Home from "./pages/Home.svelte";
 import Purchase from "./pages/Purchase.svelte";
+import Lottery from "./pages/Lottery.svelte";
+import CoinFlip from "./pages/CoinFlip.svelte";
 
 // Components
 import Banner from "./components/Banner.svelte";
@@ -63,6 +65,8 @@ function unregisterOldServiceWorkers(){
 <main>
 	<Route path="/" component={Home} />
 	<Route path="/purchase" component={Purchase} />
+	<Route path="/lottery" component={Lottery} />
+	<Route path="/coinflip" component={CoinFlip} />
 </main>
 <Footer />
 </Router>

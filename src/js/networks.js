@@ -59,6 +59,10 @@ export const testnet = {
             coinFlip: {
                 networkType: "testnet",
                 contractName: "con_test_eh_game_v9",
+            },
+            lottery: {
+                networkType: "testnet",
+                contractName: "con_test_eh_lottery_v4",
             }
         },
         coins: {

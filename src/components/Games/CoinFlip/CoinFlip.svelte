@@ -4,12 +4,12 @@
 
     // Misc
     import BN from 'bignumber.js'
-    import { coinFlipInputValue, phiCurrencyBalance, coinFlipApprovalTxStatus, coinFlipTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../stores/lamdenStores.js';
-    import { sendCoinFlipApproval, sendCoinFlip } from '../../js/lamden-utils.js'
-    import PhiTokenBalance from '../PhiTokenBalance.svelte'
-    import BNInputField from '../Inputs/BNInputField.svelte'
-    import CoinAnimation from './CoinFlip/CoinAnimation.svelte'
-    import { stringToFixed } from '../../js/global-utils'
+    import { coinFlipInputValue, phiCurrencyBalance, coinFlipApprovalTxStatus, coinFlipTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
+    import { sendCoinFlipApproval, sendCoinFlip } from '../../../js/lamden-utils.js'
+    import PhiTokenBalance from '../../PhiTokenBalance.svelte'
+    import BNInputField from '../../Inputs/BNInputField.svelte'
+    import CoinAnimation from './CoinAnimation.svelte'
+    import { stringToFixed } from '../../../js/global-utils'
 
     import RangeSlider from "svelte-range-slider-pips";
 
