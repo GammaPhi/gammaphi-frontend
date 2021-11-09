@@ -24,3 +24,8 @@ export const purchasePhiTxStatus = writable({})
 export const lotteryInputValue = writable(new BN(0))
 export const lotteryApprovalTxStatus = writable({})
 export const lotteryTxStatus = writable({})
+
+// Wheel Spin
+export const wheelSpinInputValue = writable(new BN(0))
+export const wheelSpinApprovalTxStatus = writable({})
+export const wheelSpinTxStatus = writable({})

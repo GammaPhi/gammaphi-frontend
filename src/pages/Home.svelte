@@ -1,9 +1,12 @@
 <script>
+import CoinFlip from './CoinFlip.svelte'
+import Lottery from './Lottery.svelte'
+import Purchase from './Purchase.svelte'
+import WheelSpin from './WheelSpin.svelte'
+import { navigateLink, page } from '../js/navigation-utils'
+import BackHomeButton from '../components/BackHomeButton.svelte'
 
-// Components
-import ConnectWallet from '../components/ConnectWallet.svelte'
-
-// Components
+// Games
 const gameInfo = [
     {
         name: 'PHI Flip',
@@ -11,11 +14,17 @@ const gameInfo = [
         description: "A truly fair, zero-commision odds game."
     },
     {
+        name: 'PHI Spin',
+        link: '/spin',
+        description: "A truly fair, zero-commission spin the wheel game."
+    },
+	{
         name: 'PHI Lottery',
         link: '/lottery',
         description: "A truly fair, zero-commission lottery game."
     }
 ]
+
 </script>
 
 <style>
@@ -29,10 +38,11 @@ const gameInfo = [
     }
 </style>
 
+{#if $page === '/'}
 {#each gameInfo as game}
 
 <div class="link">
-    <a href={game.link}>{game.name}</a>
+    <a on:click={navigateLink} href={game.link}>{game.name}</a>
 </div>
 <div class="buttons">
     {game.description}
@@ -40,8 +50,26 @@ const gameInfo = [
 
 {/each}
 
-<div class="buttons flex">
-	<ConnectWallet complete={false} current={false} />
-</div>
+{:else}
+	<div class="buttons">
+		<BackHomeButton />
+	</div>
 
+	{#if $page === '/coinflip'}
 
+	<CoinFlip />
+
+	{:else if $page === '/lottery'}
+
+	<Lottery />
+
+	{:else if $page === '/spin'}
+
+	<WheelSpin/>
+
+	{:else if $page === '/purchase'}
+
+	<Purchase />
+
+	{/if}
+{/if}

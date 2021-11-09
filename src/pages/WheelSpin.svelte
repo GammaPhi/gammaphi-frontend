@@ -1,7 +1,7 @@
 <script>
 
 // Components
-import Lottery from '../components/Games/Lottery/Lottery.svelte';
+import WheelSpin from '../components/Games/WheelSpin/WheelSpin.svelte';
 
 </script>
 
@@ -13,7 +13,8 @@ import Lottery from '../components/Games/Lottery/Lottery.svelte';
 </style>
 
 <div align="middle" class="buttons">
-    <Lottery />
+    <WheelSpin />
 </div>
+
 
     

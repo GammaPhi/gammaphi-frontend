@@ -168,7 +168,42 @@ export function sendLottery (amount, resultsTracker, callback){
         kwargs: {
             amount: parseInt(amount, 10)
         },
-        stampLimit: lamdenNetworkInfo.stamps.coinFlip,
+        stampLimit: lamdenNetworkInfo.stamps.lottery,
+    }
+
+    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+}
+
+export function sendWheelSpinApproval (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let walletController = get(lwc)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.wheelSpin.networkType,
+        contractName: lamdenNetworkInfo.coins.phi.contractName,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: lamdenNetworkInfo.games.wheelSpin.contractName,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+}
+
+export function sendWheelSpin (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let walletController = get(lwc)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.wheelSpin.networkType,
+        contractName: lamdenNetworkInfo.games.wheelSpin.contractName,
+        methodName: 'spin_wheel',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+        },
+        stampLimit: lamdenNetworkInfo.stamps.wheelSpin,
     }
 
     walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))

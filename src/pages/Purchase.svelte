@@ -1,7 +1,6 @@
 <script>
 
 	// Components
-	import ConnectWallet from '../components/ConnectWallet.svelte'
 	import PurchasePhi from '../components/PurchasePhi.svelte';
 	
 </script>
@@ -13,13 +12,6 @@
 	}
 </style>
 
-<div class="buttons">
+<div align="middle" class="buttons">
 	<PurchasePhi />
 </div>
-
-<div class="buttons flex">
-	<ConnectWallet complete={false} current={false} />
-</div>
-
-
-	

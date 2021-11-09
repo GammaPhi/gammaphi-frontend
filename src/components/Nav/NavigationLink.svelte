@@ -4,10 +4,12 @@
     export let href;  
     export let mobile = false      
     
+    import { navigateLink } from '../../js/navigation-utils'
+
 </script>
 
 {#if link !== "Explorer" && link !== "Wallet" }
-    <a href="{href}" class="nav-link" class:mobile={mobile}>{link}</a>
+    <a on:click={navigateLink} href="{href}" class="nav-link" class:mobile={mobile}>{link}</a>
 {:else}
     <a href="{href}" target="_blank" rel="noopener noreferrer" class="nav-link" class:mobile={mobile}>{link}</a>
 {/if}

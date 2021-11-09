@@ -1,7 +1,6 @@
 <script>
 
 // Components
-import ConnectWallet from '../components/ConnectWallet.svelte'
 import CoinFlip from '../components/Games/CoinFlip/CoinFlip.svelte';
 
 </script>
@@ -13,13 +12,8 @@ import CoinFlip from '../components/Games/CoinFlip/CoinFlip.svelte';
     }
 </style>
 
-<div class="buttons">
+<div align="middle" class="buttons">
     <CoinFlip />
 </div>
-
-<div class="buttons flex">
-    <ConnectWallet complete={false} current={false} />
-</div>
-
 
     

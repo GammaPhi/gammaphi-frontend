@@ -58,11 +58,15 @@ export const testnet = {
         games: {
             coinFlip: {
                 networkType: "testnet",
-                contractName: "con_test_eh_game_v9",
+                contractName: "con_test_eh_game_v11",
             },
             lottery: {
                 networkType: "testnet",
                 contractName: "con_test_eh_lottery_v4",
+            },
+            wheelSpin: {
+                networkType: "testnet",
+                contractName: "con_test_eh_game_v11",
             }
         },
         coins: {
@@ -83,9 +87,11 @@ export const testnet = {
         network_symbol: "DTAU",
         currentStampRatio: 13,
         stamps: {
-            burn: 65,
-            approval: 65,
-            coinFlip: 500
+            burn: 200,
+            approval: 200,
+            coinFlip: 1000,
+            wheelSpin: 1000,
+            lottery: 1000
         }
     }
 }

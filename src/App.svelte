@@ -6,6 +6,7 @@ import Home from "./pages/Home.svelte";
 import Purchase from "./pages/Purchase.svelte";
 import Lottery from "./pages/Lottery.svelte";
 import CoinFlip from "./pages/CoinFlip.svelte";
+import WheelSpin from "./pages/WheelSpin.svelte";
 
 // Components
 import Banner from "./components/Banner.svelte";
@@ -14,6 +15,7 @@ import Footer from "./components/Footer.svelte";
 
 // Misc
 import { onMount } from 'svelte'
+import ConnectWallet from "./components/ConnectWallet.svelte";
 
 onMount(() => {
 	unregisterOldServiceWorkers()
@@ -57,6 +59,11 @@ function unregisterOldServiceWorkers(){
 			max-width: 2800px;
 		}
 	}
+	
+	.buttons{
+		width: max-content;
+		margin: 2rem auto 1rem;
+	}
 </style>
 
 <Router>
@@ -64,9 +71,13 @@ function unregisterOldServiceWorkers(){
 <NavBar />
 <main>
 	<Route path="/" component={Home} />
-	<Route path="/purchase" component={Purchase} />
-	<Route path="/lottery" component={Lottery} />
-	<Route path="/coinflip" component={CoinFlip} />
+	<Route path="/purchase" component={Home} />
+	<Route path="/lottery" component={Home} />
+	<Route path="/coinflip" component={Home} />
+	<Route path="/spin" component={Home} />
+	<div class="buttons flex">
+		<ConnectWallet />
+	</div>
 </main>
 <Footer />
 </Router>

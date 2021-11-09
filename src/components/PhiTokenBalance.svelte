@@ -12,6 +12,7 @@
     // Misc
     import { checkTokenBalance } from '../js/lamden-utils'
     import { stringToFixed } from '../js/global-utils'
+    import { navigateLink } from '../js/navigation-utils'
 
     let timer = null
 
@@ -34,14 +35,20 @@
 </script>
 
 <style>
-	p{
-		text-align: center;
-		margin: 0.5rem 0.5em 0 0;
+    .buttons{
+        text-align: center;
+        width: max-content;
+        margin: 1rem auto 1rem;
 		color: var(--font-primary-dim);	
-		width: max-content;
-	}
+    }
 </style>
 
-<div class="flex row align-center">
-    <p>Balance: {`${stringToFixed($phiCurrencyBalance, 8)}`} PHI</p>
+<div class="buttons">
+    Balance: {`${stringToFixed($phiCurrencyBalance, 8)}`} PHI
 </div>
+
+{#if stringToFixed($phiCurrencyBalance, 8) === '0'}
+<div class="buttons">
+    No PHI? Purchase some <a on:click={navigateLink} href="/purchase">here</a>.
+</div>    
+{/if}
