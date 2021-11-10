@@ -42,7 +42,8 @@
     .navigation-bar {
 		color: var(--primary-color);
 		background-color: black;
-		position: absolute;
+		position: fixed;
+		z-index: 1000;
 		padding: 1em 1.5em;
 		width: 100%;
 		display: grid;
