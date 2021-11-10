@@ -91,7 +91,5 @@
 <div class="row align-center buttons">
     <button on:click={purchasePhi}>Purchase</button>
 </div>
-<div class="row align-center buttons">
-    <PhiTokenBalance />
-</div>
+
 {/if}
