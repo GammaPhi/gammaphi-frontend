@@ -4,18 +4,19 @@
 
     // Misc
     import BN from 'bignumber.js'
-    import { lotteryInputValue, phiCurrencyBalance, lotteryApprovalTxStatus, lotteryTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
-    import { sendLotteryApproval, sendLottery } from '../../../js/lamden-utils.js'
+    import { lotteryBalance, lotteryInputValue, phiCurrencyBalance, lotteryApprovalTxStatus, lotteryTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
+    import { checkLotteryTotal, sendLotteryApproval, sendLottery } from '../../../js/lamden-utils.js'
     import PhiTokenBalance from '../../PhiTokenBalance.svelte'
     import BNInputField from '../../Inputs/BNInputField.svelte'
     import { stringToFixed } from '../../../js/global-utils'
 
-
     $: connected = true; //$hasNetworkApproval.approved || false
-    let startingValue = BN('10')
+    let startingValue = new BN('10')
+    let currentJackpot = writable(new BN(0))
 
-	onMount(() => {
+	onMount(async () => {
         lotteryInputValue.set(startingValue)
+        currentJackpot.set(await checkLotteryTotal())
     })
     const status = writable("ready");
     const errors = writable(null);
@@ -41,10 +42,10 @@
                     } else {
                         console.log(txResults.txBlockResult.state[1].value.__fixed__)
                         console.log(txResults.txBlockResult.state[3].value.__fixed__)
-                        let previousPhi = BN($phiCurrencyBalance)
+                        console.log(txResults.txBlockResult.state[4].value.__fixed__)
                         phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
-                        let currentPhi = BN($phiCurrencyBalance)
-                        lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))                     
+                        lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))  
+                        lotteryBalance.set(BN(txResults.txBlockResult.state[4].value.__fixed__))                   
                     }
                 })
             }
@@ -65,23 +66,23 @@
 </style>
 
 <h2 class="row align-center buttons">
-    Feeling Luckier?
+    Current Jackpot: {$currentJackpot} PHI
 </h2>
 
 {#if connected}
-<div class="row align-center buttons">
+<div align="center" class="row align-center buttons">
     <BNInputField
         onInputChange={(value)=>lotteryInputValue.set(value)}
         startingValue={startingValue}
         inputClass="primaryInput"
         labelClass="label"
-        labelText="Number of Tickets"
+        labelText="How many lottery tickets do you want?"
     />
 </div>
 
 
-<div class="row align-center buttons">
-    <button on:click={getTickets} >Purchase</button>
+<div align="center" class="row align-center buttons">
+    <button on:click={getTickets} >Buy</button>
 </div>
 
 {#if $errors !== null}
@@ -93,6 +94,7 @@
 {/if}
 
 <div class="row align-center buttons">
-    <PhiTokenBalance />
+    You currently have {$lotteryBalance} lottery tickets
 </div>
+
 {/if}

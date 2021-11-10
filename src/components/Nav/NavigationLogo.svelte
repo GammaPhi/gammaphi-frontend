@@ -1,18 +1,26 @@
 <script>
+    import { onMount } from 'svelte';
+    import { writable } from 'svelte/store';
+    import { checkHousePHIBalance } from '../../js/lamden-utils';
     import Logo from '../SVG/TauSVG.svelte'
+    import BN from 'bignumber.js'
+    import { stringToFixed } from '../../js/global-utils'
+
+    let housePHIBalance = writable(BN(0))
+    onMount(async () => {
+        housePHIBalance.set(await checkHousePHIBalance())
+    })
 </script>
 
 <div class="flex row align-center container">
     <div class="flex align-center just-center nav-brand-logo">
         <Logo width="100%"/>
     </div>
-    <a href="https://lamden.io/en/" class="page-header" target="_blank" rel="noopener noreferrer">
-        Lamden.io
-    </a>
+    <p>House Balance: {`${stringToFixed($housePHIBalance, 2)}`} PHI</p>
 </div>
 
 <style>
-    a{
+    a, p{
         color: var(--color-gray-4);
         font-size: clamp(16px, 1.5vw, 45px);
         font-weight: 800;

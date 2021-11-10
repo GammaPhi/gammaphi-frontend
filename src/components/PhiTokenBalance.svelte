@@ -35,16 +35,14 @@
 </script>
 
 <style>
-    .buttons{
-        text-align: center;
-        width: max-content;
-        margin: 1rem auto 1rem;
-		color: var(--font-primary-dim);	
+    p{
+        margin-right: 1em;
     }
 </style>
 
-<div class="buttons">
-    Balance: {`${stringToFixed($phiCurrencyBalance, 8)}`} PHI
+<div class="flex row align-center">
+    <TokenLogo token="PHI" clickable={false} size="tiny" />
+    <p>{`${stringToFixed($phiCurrencyBalance, 8)}`} PHI</p>
 </div>
 
 {#if stringToFixed($phiCurrencyBalance, 8) === '0'}

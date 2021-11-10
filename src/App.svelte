@@ -3,10 +3,6 @@ import { Router, Route } from "svelte-routing";
 
 // Pages
 import Home from "./pages/Home.svelte";
-import Purchase from "./pages/Purchase.svelte";
-import Lottery from "./pages/Lottery.svelte";
-import CoinFlip from "./pages/CoinFlip.svelte";
-import WheelSpin from "./pages/WheelSpin.svelte";
 
 // Components
 import Banner from "./components/Banner.svelte";
@@ -75,6 +71,7 @@ function unregisterOldServiceWorkers(){
 	<Route path="/lottery" component={Home} />
 	<Route path="/coinflip" component={Home} />
 	<Route path="/spin" component={Home} />
+	<Route path="/about" component={Home} />
 	<div class="buttons flex">
 		<ConnectWallet />
 	</div>

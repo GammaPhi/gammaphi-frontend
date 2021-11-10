@@ -62,7 +62,7 @@ export const testnet = {
             },
             lottery: {
                 networkType: "testnet",
-                contractName: "con_test_eh_lottery_v4",
+                contractName: "con_test_eh_lottery_v5",
             },
             wheelSpin: {
                 networkType: "testnet",

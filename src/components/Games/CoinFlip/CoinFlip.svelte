@@ -133,7 +133,4 @@
     {/each}
 {/if}
 
-<div class="row align-center buttons">
-    <PhiTokenBalance />
-</div>
 {/if}

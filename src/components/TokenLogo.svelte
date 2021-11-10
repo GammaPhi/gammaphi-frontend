@@ -3,6 +3,7 @@
 
     // Logos
     import Token_TAU from './Tokens/Token_TAU.svelte'
+    import Token_PHI from './Tokens/Token_PHI.svelte'
 
     export let token = null;
     export let clickable = true;
@@ -16,7 +17,8 @@
     const TokenMap = {
         TAU: Token_TAU,
         DTAU: Token_TAU,
-        dTAU: Token_TAU
+        dTAU: Token_TAU,
+        PHI: Token_PHI
     }
 
     function handleClick(){

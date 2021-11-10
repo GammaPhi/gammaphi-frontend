@@ -35,10 +35,38 @@ export async function checkContractVariable(variableName) {
     }
 }
 
+export async function checkLotteryTotal() {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.lottery.contractName}/total`, {
+                method: 'GET',
+            },
+        )
+        return await getValueFromResponse(res)
+    } catch (error) {
+        return new BN(0)
+    }
+}
+
+export async function getLotteryBalance() {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let vk = get(lamden_vk)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.lottery.contractName}/balances?key=${vk}`, {
+                method: 'GET',
+            },
+        )
+        return await getValueFromResponse(res)
+    } catch (error) {
+        return new BN(0)
+    }
+}
+
 export async function checkTokenBalance(token) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     let vk = get(lamden_vk)
-
     try {
         const res = await fetch(
             `${lamdenNetworkInfo.apiLink}/states/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}`, {
@@ -51,6 +79,19 @@ export async function checkTokenBalance(token) {
     }
 }
 
+export async function checkHousePHIBalance() {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.coins.phi.contractName}/balances?key=${lamdenNetworkInfo.games.coinFlip.contractName}`, {
+                method: 'GET',
+            },
+        )
+        return await getValueFromResponse(res)
+    } catch (error) {
+        return new BN(0)
+    }
+}
 
 export async function checkLamdenBalance() {
     let lamdenNetworkInfo = get(lamdenNetwork)

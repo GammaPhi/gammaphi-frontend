@@ -256,11 +256,6 @@ a:visited {
     color: var(--success-color);
 }
 
-.lamden-link {
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
-}
-
 li {
     color: var(--warning-color);
     list-style-image: url("/static/images/icons/icon_nope.svg");

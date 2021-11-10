@@ -148,7 +148,7 @@
 </style>
 
 <h2 class="row align-center buttons">
-    Feeling Luckiest?
+    Feeling Lucky?
 </h2>
 
 <canvas id="canvas" width="250" height="300">
@@ -168,7 +168,7 @@
 
 
 <div class="row align-center buttons">
-    <button on:click={spinWheel} >Spin the Wheel</button>
+    <button on:click={spinWheel} >Spin</button>
 </div>
 
 {#if $errors !== null}
@@ -179,7 +179,4 @@
     {/each}
 {/if}
 
-<div class="row align-center buttons">
-    <PhiTokenBalance />
-</div>
 {/if}

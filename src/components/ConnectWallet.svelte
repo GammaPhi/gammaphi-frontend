@@ -8,8 +8,9 @@
     import BN from 'bignumber.js'
     import WalletController from 'lamden_wallet_controller';
     import { selectedNetwork, lamdenNetwork } from '../stores/globalStores.js';
-    import { lamdenWalletInfo, lamden_vk, lwc, phiCurrencyBalance, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
-    import { checkTokenBalance } from '../js/lamden-utils'
+    import { lotteryBalance, lamdenWalletInfo, lamden_vk, lwc, phiCurrencyBalance, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
+    import { checkTokenBalance, getLotteryBalance } from '../js/lamden-utils'
+    import PhiTokenBalance from './PhiTokenBalance.svelte';
 
     $: notAttempted = $lamdenWalletInfo.installed === undefined
     $: installed = $lamdenWalletInfo.installed || false
@@ -39,6 +40,7 @@
                 hasNetworkApproval.set({approved: true})
                 lamden_vk.set($lwc.walletAddress)
                 phiCurrencyBalance.set(await checkTokenBalance('phi'))
+                lotteryBalance.set(await getLotteryBalance())
             }
         }
         if (!info.errors){
@@ -71,6 +73,7 @@
 
 <div class="row align-center buttons">
     {#if $lamden_vk}
+        <PhiTokenBalance />
         <LamdenBalance />
     {/if}
 

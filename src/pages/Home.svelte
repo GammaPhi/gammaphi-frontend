@@ -5,6 +5,7 @@ import Purchase from './Purchase.svelte'
 import WheelSpin from './WheelSpin.svelte'
 import { navigateLink, page } from '../js/navigation-utils'
 import BackHomeButton from '../components/BackHomeButton.svelte'
+import About from './About.svelte';
 
 // Games
 const gameInfo = [
@@ -29,16 +30,18 @@ const gameInfo = [
 
 <style>
     .buttons{
-        width: max-content;
         margin: 1rem auto 1rem;
     }
     .link{
-        width: max-content;
         margin: 2rem auto 1rem;
     }
+	.about-link {
+		color: var(--accent-color)
+	}
 </style>
 
 {#if $page === '/'}
+<div class="buttons" align="middle">
 {#each gameInfo as game}
 
 <div class="link">
@@ -50,8 +53,13 @@ const gameInfo = [
 
 {/each}
 
+<div class="link">
+    <a class="about-link" on:click={navigateLink} href="/about">Learn more</a>
+</div>
+</div>
+
 {:else}
-	<div class="buttons">
+	<div class="buttons" align="middle">
 		<BackHomeButton />
 	</div>
 
@@ -70,6 +78,10 @@ const gameInfo = [
 	{:else if $page === '/purchase'}
 
 	<Purchase />
+
+	{:else if $page === '/about'}
+
+	<About />
 
 	{/if}
 {/if}
