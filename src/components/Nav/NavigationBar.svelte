@@ -55,7 +55,7 @@
     .hamburger-menu {
 		display: none;
 		position: fixed; /* Stay in place */
-		z-index: 1; /* Sit on top */
+		z-index: 1001; /* Sit on top */
 		padding-top: 100px; /* Location of the box */
 		left: 0;
 		top: -5rem;
