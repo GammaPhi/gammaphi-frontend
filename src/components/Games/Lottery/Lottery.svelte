@@ -56,21 +56,28 @@
 
 <style>
 	.buttons{
-		width: max-content;
 		margin: 1rem auto 1rem;
         text-align: center;
 	}
     h2.buttons {
         margin-bottom: 2rem;
     }
+
+    h4.buttons {
+        margin-bottom: 2rem;
+    }
 </style>
 
-<h2 class="row align-center buttons">
+<h2 class="buttons">
     Current Jackpot: {$currentJackpot} PHI
 </h2>
 
+<h4 align="center" class="buttons">
+    Winner is drawn weekly every Friday at 10:00 PM UTC.
+</h4>
+
 {#if connected}
-<div align="center" class="row align-center buttons">
+<div align="center" class="buttons">
     <BNInputField
         onInputChange={(value)=>lotteryInputValue.set(value)}
         startingValue={startingValue}

@@ -7,7 +7,6 @@ import CoinFlip from '../components/Games/CoinFlip/CoinFlip.svelte';
 
 <style>
     .buttons{
-        width: max-content;
         margin: 2rem auto 1rem;
     }
 </style>

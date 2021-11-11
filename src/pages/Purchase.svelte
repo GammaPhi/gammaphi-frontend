@@ -7,7 +7,6 @@
 
 <style>
 	.buttons{
-		width: max-content;
 		margin: 2rem auto 1rem;
 	}
 </style>
