@@ -12,15 +12,14 @@
     import { checkTokenBalance, getLotteryBalance } from '../js/lamden-utils'
     import PhiTokenBalance from './PhiTokenBalance.svelte';
 
-    $: notAttempted = $lamdenWalletInfo.installed === undefined
-    $: installed = $lamdenWalletInfo.installed || false
-    $: connected = $hasNetworkApproval.approved || false
-    $: locked = connected ? $lamdenWalletInfo.locked === true : true
-
 	onMount(() => {
         lwc.set(new WalletController(getApprovalRequest()))
 
         $lwc.events.on('newInfo', handleWalletInfo)
+
+        setTimeout(() => {
+            $lwc.walletIsInstalled()
+        }, 100)
 
 		return () => {
 			$lwc.events.removeListener(handleWalletInfo)
@@ -35,18 +34,10 @@
     }
 
 	const handleWalletInfo = async (info) => {
-        if (info.approvals){
-            if (Object.keys(info.approvals).includes($selectedNetwork)){
-                hasNetworkApproval.set({approved: true})
-                lamden_vk.set($lwc.walletAddress)
-                phiCurrencyBalance.set(await checkTokenBalance('phi'))
-                lotteryBalance.set(await getLotteryBalance())
-            }
-        }
-        if (!info.errors){
-            lamdenWalletInfo.set(info)
-        }
-		
+        hasNetworkApproval.set({approved: true})
+        lamden_vk.set($lwc.walletAddress)
+        phiCurrencyBalance.set(await checkTokenBalance('phi'))
+        lotteryBalance.set(await getLotteryBalance())
     }
 </script>
 
@@ -75,13 +66,7 @@
     {#if $lamden_vk}
         <PhiTokenBalance />
         <LamdenBalance />
-    {/if}
-
-    {#if notAttempted}
-        <button on:click={checkIfWalletIsInstalled}>Connect To Lamden Wallet</button>
     {:else}
-        {#if !installed}
-            <a class="install" href="{$lamdenNetwork.wallet_install_url}" target="_blank" rel="noopener noreferrer">Click to Install Lamden Wallet</a> 
-        {/if}
+        <button on:click={checkIfWalletIsInstalled}>Connect To Lamden Wallet</button>
     {/if}
 </div>
