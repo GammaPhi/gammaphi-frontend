@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
     import { checkHousePHIBalance } from '../../js/lamden-utils';
-    import Logo from '../SVG/TauSVG.svelte'
+    import Logo from '../Logos/LogoPhi.svelte'
     import BN from 'bignumber.js'
     import { stringToFixed } from '../../js/global-utils'
 

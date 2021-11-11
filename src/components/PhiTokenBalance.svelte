@@ -41,7 +41,7 @@
 </style>
 
 <div class="flex row align-center">
-    <TokenLogo token="PHI" clickable={false} size="tiny" />
+    <TokenLogo token={{symbol: "PHI"}} clickable={false} size="tiny" />
     <p>{`${stringToFixed($phiCurrencyBalance, 8)}`} PHI</p>
 </div>
 
