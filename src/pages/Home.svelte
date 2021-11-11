@@ -37,7 +37,9 @@ const gameInfo = [
         margin: 2rem auto 1rem;
     }
 	.about-link {
-		color: var(--accent-color)
+		color: var(--accent-color);
+		font-weight: bold;
+        border-bottom: 2px solid var(--accent-color);
 	}
 </style>
 

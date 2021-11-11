@@ -8,6 +8,10 @@ import { navigateLink, page } from '../js/navigation-utils'
         margin: 2rem auto 1rem;
         max-width: 550px;
     }
+    .about-link {
+        font-weight: bold;
+        border-bottom: 2px solid var(--accent-color);
+    }
 </style>
 
 <div align="center" class="buttons">
