@@ -70,6 +70,7 @@ function unregisterOldServiceWorkers(){
 	<Route path="/purchase" component={Home} />
 	<Route path="/lottery" component={Home} />
 	<Route path="/coinflip" component={Home} />
+	<Route path="/diceroll" component={Home} />
 	<Route path="/spin" component={Home} />
 	<Route path="/about" component={Home} />
 	<Route path="/roadmap" component={Home} />

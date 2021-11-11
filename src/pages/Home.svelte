@@ -7,6 +7,7 @@ import { navigateLink, page } from '../js/navigation-utils'
 import BackHomeButton from '../components/BackHomeButton.svelte'
 import About from './About.svelte';
 import Roadmap from './Roadmap.svelte';
+import DiceRoll from './DiceRoll.svelte'
 
 // Games
 const gameInfo = [
@@ -24,6 +25,11 @@ const gameInfo = [
         name: 'PHI Lottery',
         link: '/lottery',
         description: "A truly fair, zero-commission lottery game."
+    },
+	{
+        name: 'PHI Dice',
+        link: '/diceroll',
+        description: "A truly fair, zero-commission dice rolling game."
     }
 ]
 
@@ -77,6 +83,10 @@ const gameInfo = [
 	{:else if $page === '/spin'}
 
 	<WheelSpin/>
+
+	{:else if $page === '/diceroll'}
+
+	<DiceRoll/>
 
 	{:else if $page === '/purchase'}
 
