@@ -6,6 +6,7 @@ import WheelSpin from './WheelSpin.svelte'
 import { navigateLink, page } from '../js/navigation-utils'
 import BackHomeButton from '../components/BackHomeButton.svelte'
 import About from './About.svelte';
+import Roadmap from './Roadmap.svelte';
 
 // Games
 const gameInfo = [
@@ -82,6 +83,10 @@ const gameInfo = [
 	{:else if $page === '/about'}
 
 	<About />
+
+	{:else if $page === '/roadmap'}
+
+	<Roadmap />
 
 	{/if}
 {/if}

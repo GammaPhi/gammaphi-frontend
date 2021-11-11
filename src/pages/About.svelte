@@ -1,20 +1,11 @@
 <script>
 
-// Components
-import CoinFlip from '../components/Games/CoinFlip/CoinFlip.svelte';
-
 </script>
 
 <style>
     .buttons{
         margin: 2rem auto 1rem;
     }
-
-    @media only screen and (min-width: 650px) {
-		.buttons {
-
-        }
-	}
 </style>
 
 <div align="middle" class="buttons">

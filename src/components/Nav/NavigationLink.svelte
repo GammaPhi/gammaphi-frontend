@@ -4,12 +4,12 @@
     export let href;  
     export let mobile = false      
     
-    import { navigateLink } from '../../js/navigation-utils'
+    import { navigateLink, page } from '../../js/navigation-utils'
 
 </script>
 
 {#if link !== "Explorer" && link !== "Wallet" }
-    <a on:click={navigateLink} href="{href}" class="nav-link" class:mobile={mobile}>{link}</a>
+    <a on:click={navigateLink} href="{href}" class="nav-link {$page===href ? "active" : ""}" class:mobile={mobile}>{link}</a>
 {:else}
     <a href="{href}" target="_blank" rel="noopener noreferrer" class="nav-link" class:mobile={mobile}>{link}</a>
 {/if}
@@ -25,6 +25,11 @@
         margin: 0 1em;
     }
     .nav-link:hover {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+    }
+
+    .nav-link.active {
         color: var(--primary-color);
         border-bottom: 2px solid var(--primary-color);
     }
