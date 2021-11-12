@@ -1,31 +1,15 @@
 import BN from 'bignumber.js'
 import { get } from "svelte/store";
-import { lamdenNetwork, selectedToken  } from '../stores/globalStores'
+import { lamdenNetwork  } from '../stores/globalStores'
 import { lamden_vk, lamdenCurrencyBalance, lwc, lamdenTokenApprovalAmount } from '../stores/lamdenStores'
 import { TransactionResultHandler } from './lamdenTxResultsHandler'
 
-export async function checkLamdenTokenBalance() {
-    let lamdenNetworkInfo = get(lamdenNetwork)
-    let token_contract = get(selectedToken).address
-    let vk = get(lamden_vk)
 
-    try {
-        const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/${token_contract}/balances/${vk}`, {
-                method: 'GET',
-            },
-        )
-        return await getValueFromResponse(res)
-    } catch (error) {
-        return new BN(0)
-    }
-}
-
-export async function checkContractVariable(variableName) {
+export async function checkContractVariable(contract, variableName) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.coinFlip.contractName}/${variableName}`, {
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}`, {
                 method: 'GET',
             },
         )
@@ -109,17 +93,17 @@ export async function checkLamdenBalance() {
     }
 }
 
-export function sendLamdenApproval (amount, resultsTracker, callback){
+export function sendPhiPurchaseApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
     let walletController = get(lwc)
 
     const txInfo = {
-        networkType: lamdenNetworkInfo.games.coinFlip.networkType,
+        networkType: lamdenNetworkInfo.purchase.networkType,
         contractName: 'currency',
         methodName: 'approve',
         kwargs: {
             amount: { __fixed__: amount.toString() },
-            to: lamdenNetworkInfo.games.coinFlip.contractName,
+            to: lamdenNetworkInfo.purchase.contractName,
         },
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
@@ -132,13 +116,13 @@ export function sendPhiPurchase (amount, resultsTracker, callback){
     let walletController = get(lwc)
 
     const txInfo = {
-        networkType: lamdenNetworkInfo.games.coinFlip.networkType,
-        contractName: lamdenNetworkInfo.games.coinFlip.contractName,
+        networkType: lamdenNetworkInfo.purchase.networkType,
+        contractName: lamdenNetworkInfo.purchase.contractName,
         methodName: 'purchase_round_1',
         kwargs: {
             amount_tau: { __fixed__: amount.toString() }
         },
-        stampLimit: lamdenNetworkInfo.stamps.coinFlip,
+        stampLimit: lamdenNetworkInfo.stamps.purchase,
     }
 
     walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
@@ -175,6 +159,42 @@ export function sendCoinFlip (amount, odds, resultsTracker, callback){
             odds: { __fixed__: odds.toString() },
         },
         stampLimit: lamdenNetworkInfo.stamps.coinFlip,
+    }
+
+    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+}
+
+
+export function sendDiceRollApproval (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let walletController = get(lwc)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.diceRoll.networkType,
+        contractName: lamdenNetworkInfo.coins.phi.contractName,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: lamdenNetworkInfo.games.diceRoll.contractName,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+}
+
+export function sendDiceRoll (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let walletController = get(lwc)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.diceRoll.networkType,
+        contractName: lamdenNetworkInfo.games.diceRoll.contractName,
+        methodName: 'roll_dice',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+        },
+        stampLimit: lamdenNetworkInfo.stamps.diceRoll,
     }
 
     walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))

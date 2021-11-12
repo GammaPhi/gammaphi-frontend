@@ -1,6 +1,7 @@
 <script>
 
-    // Components
+// Components
+import DiceRoll from '../components/Games/DiceRoll/DiceRoll.svelte';
 
 </script>
 
@@ -11,7 +12,7 @@
 </style>
 
 <div align="middle" class="buttons">
-    Coming soon!
+    <DiceRoll />
 </div>
 
     

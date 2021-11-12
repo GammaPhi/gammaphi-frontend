@@ -48,33 +48,33 @@ import { navigateLink, page } from '../js/navigation-utils'
     </h2>
 
     <ul>
-    <li class="yes">
+        <li class="yes">
             1 Billion Maximum Supply
-    </li>
+        </li>
 
-    <li class="yes">
-        50% of supply is locked in the House
-    </li>
+        <li class="yes">
+            50% of supply is locked in the House
+        </li>
 
-    <li class="yes">
-        20% locked in liquity pools (after initial sales)
-    </li>
+        <li class="yes">
+            20% locked in liquity pools (after initial sales)
+        </li>
 
-    <li class="yes">
-        10% for presale
-    </li>
+        <li class="yes">
+            10% for presale
+        </li>
 
-    <li class="yes">
-        10% for public sale
-    </li>
+        <li class="yes">
+            10% for public sale
+        </li>
 
-    <li class="yes">
-        5% reserved for the development team
-    </li>
+        <li class="yes">
+            5% reserved for the development team
+        </li>
 
-    <li class="yes">
-        5% reserved for airdrops, marketing, and partnerships
-    </li>
+        <li class="yes">
+            5% reserved for airdrops, marketing, and partnerships
+        </li>
     </ul>
 </div>
 

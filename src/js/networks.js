@@ -1,13 +1,4 @@
 
-/*
-    BDT Mainnet info
-    {
-        name: 'BDT',
-        address: '0x7BCe667EF12023dc5f8577D015a2F09d99a5ef58',
-        decimals: 18
-    }
-*/
-
 export const mainnet = {
     lamden: {
         apiLink: "https://mainnet.lamden.io/api",
@@ -21,28 +12,48 @@ export const mainnet = {
         currentStampRatio: 65,
         games: {
             coinFlip: {
-                networkType: "testnet",
-                contractName: "con_test_eh_game_v9",
+                networkType: "mainnet",
+                contractName: "con_gamma_phi_house_v1",
+            },
+            lottery: {
+                networkType: "mainnet",
+                contractName: "con_gamma_phi_lottery_v1",
+            },
+            wheelSpin: {
+                networkType: "mainnet",
+                contractName: "con_gamma_phi_house_v1",
+            },
+            diceRoll: {
+                networkType: "mainnet",
+                contractName: "con_gamma_phi_house_v1",
             }
         },
         coins: {
             phi: {
-                networkType: "testnet",
-                contractName: "con_eh_game_token_1",
+                networkType: "mainnet",
+                contractName: "con_phi",
             }
         },
+        purchase: {
+            networkType: "mainnet",
+            contractName: "con_gamma_phi_sales_v1",
+        },
         app: {
-            appName: "GammaPhi", // Your DAPPS's name
-            version: "0.0.1", // any version to start, increment later versions to update connection info
+            appName: "Gamma Phi", // Your DAPPS's name
+            version: "1.0.1", // any version to start, increment later versions to update connection info
             logo: "/static/logo-512.png", // or whatever the location of your logo
             background: "/static/wallet/background.jpg", // or whatever the location of your logo
-            contractName: "con_test_eh_game_v9", // Will never change
-            networkType: "testnet", // other option is 'mainnet' 
+            contractName: "con_gamma_phi_house_v1", // Will never change
+            networkType: "mainnet", // other option is 'mainnet' 
         },
         stamps: {
-            burn: 65,
-            approval: 65,
-            coinFlip: 500
+            burn: 200,
+            approval: 200,
+            coinFlip: 1000,
+            wheelSpin: 1000,
+            diceRoll: 1000,
+            lottery: 1000,
+            purchase: 500,
         }
     }
 }
@@ -58,29 +69,37 @@ export const testnet = {
         games: {
             coinFlip: {
                 networkType: "testnet",
-                contractName: "con_test_eh_game_v11",
+                contractName: "con_gamma_phi_house_v1",
             },
             lottery: {
                 networkType: "testnet",
-                contractName: "con_test_eh_lottery_v5",
+                contractName: "con_gamma_phi_lottery_v1",
             },
             wheelSpin: {
                 networkType: "testnet",
-                contractName: "con_test_eh_game_v11",
-            }
+                contractName: "con_gamma_phi_house_v1",
+            },
+            diceRoll: {
+                networkType: "testnet",
+                contractName: "con_gamma_phi_house_v1",
+            },
+        },
+        purchase: {
+            networkType: "testnet",
+            contractName: "con_gamma_phi_sales_v1",
         },
         coins: {
             phi: {
                 networkType: "testnet",
-                contractName: "con_eh_game_token_1",
+                contractName: "con_phi",
             }
         },
         app: {
             appName: "Gamma Phi", // Your DAPPS's name
-            version: "0.0.1", // any version to start, increment later versions to update connection info
+            version: "1.0.1", // any version to start, increment later versions to update connection info
             logo: "/static/logo-512.png", // or whatever the location of your logo
             background: "/static/wallet/background.jpg", // or whatever the location of your logo
-            contractName: "con_test_eh_game_v9", // Will never change
+            contractName: "con_gamma_phi_house_v1", // Will never change
             networkType: "testnet", // other option is 'mainnet' 
         },
         networkName: "Lamden Testnet",
@@ -91,7 +110,9 @@ export const testnet = {
             approval: 200,
             coinFlip: 1000,
             wheelSpin: 1000,
-            lottery: 1000
+            diceRoll: 1000,
+            lottery: 1000,
+            purchase: 500,
         }
     }
 }

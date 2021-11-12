@@ -30,3 +30,9 @@ export const lotteryBalance = writable(new BN(0))
 export const wheelSpinInputValue = writable(new BN(0))
 export const wheelSpinApprovalTxStatus = writable({})
 export const wheelSpinTxStatus = writable({})
+
+// Dice Roll
+export const diceRollInputValue = writable(new BN(0))
+export const diceRollApprovalTxStatus = writable({})
+export const diceRollTxStatus = writable({})
+

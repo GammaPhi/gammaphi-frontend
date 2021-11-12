@@ -121,9 +121,7 @@
                         status.set('error')
                         errors.set($wheelSpinTxStatus.errors)
                     } else {
-                        console.log(txResults.txBlockResult.state[1].value.__fixed__)
-                        console.log(txResults.txBlockResult.state[3].value.__fixed__)
-                        let result = parseInt(txResults.resultInfo.message, 10);
+                        let result = parseInt(txResults.resultInfo.returnResult, 10);
                         console.log(result)
                         calculatePrize(result);
                         phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))

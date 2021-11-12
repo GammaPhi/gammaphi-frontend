@@ -94,7 +94,7 @@
         startingValue={startingValue}
         inputClass="primaryInput"
         labelClass="label"
-        labelText="Amount to Bet"
+        labelText="Your Wager"
     />
 </div>
 

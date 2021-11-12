@@ -12,7 +12,7 @@
     // Misc
     import { checkTokenBalance } from '../js/lamden-utils'
     import { stringToFixed } from '../js/global-utils'
-    import { navigateLink } from '../js/navigation-utils'
+    import { navigateLink, page } from '../js/navigation-utils'
 
     let timer = null
 
@@ -45,7 +45,7 @@
     <p>{`${stringToFixed($phiCurrencyBalance, 8)}`} PHI</p>
 </div>
 
-{#if stringToFixed($phiCurrencyBalance, 8) === '0'}
+{#if stringToFixed($phiCurrencyBalance, 8) === '0' && $page !== '/purchase'}
 <div class="buttons">
     No PHI? Purchase some <a on:click={navigateLink} href="/purchase">here</a>.
 </div>    
