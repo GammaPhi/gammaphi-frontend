@@ -62,11 +62,15 @@
     }
 </style>
 
-<div class="row align-center buttons">
+<div align="center" class="row align-center buttons">
     {#if $lamden_vk}
         <PhiTokenBalance />
         <LamdenBalance />
     {:else}
         <button on:click={checkIfWalletIsInstalled}>Connect To Lamden Wallet</button>
+        <p>
+            New to Lamden? Install a Lamden wallet
+            <a target="_blank" href="https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim">here</a>.
+        </p>
     {/if}
 </div>
