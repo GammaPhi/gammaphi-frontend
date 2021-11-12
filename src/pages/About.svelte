@@ -31,6 +31,10 @@ import { navigateLink, page } from '../js/navigation-utils'
         Gamma Phi is a suite of fair gambling games built on the Lamden blockchain.
     </p>
 
+    <p>
+        Gamma Phi is a play on the word "GameFi".
+    </p>
+
     <h3>
         What does "fair" mean?
     </h3>
@@ -43,9 +47,28 @@ import { navigateLink, page } from '../js/navigation-utils'
         So is this even gambling? Yes. It's the future of gambling.
     </p>
 
-    <h2>
-        $PHI Tokenomics
-    </h2>
+    <h3>
+        100% Open Source
+    </h3>
+
+    <a href="https://github.com/GammaPhi/gammaphi-contracts.git" target="_blank">
+        Smart Contracts
+    </a><br/><br/>
+    <a href="https://github.com/GammaPhi/gammaphi-frontend.git" target="_blank">
+        Frontend
+    </a>
+
+    <h3>$PHI</h3>
+
+    <p>
+        PHI is the native token of Gamma Phi. PHI powers all of the fair lottery games. 
+        You can purchase PHI
+        <a on:click={navigateLink} href="/purchase">here</a>.
+    </p>
+
+    <h3>
+        Tokenomics
+    </h3>
 
     <ul>
         <li class="yes">

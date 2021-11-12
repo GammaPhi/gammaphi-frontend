@@ -13,7 +13,7 @@
         bottom: 0;
         width: 100%;
         text-align: center;
-        font-size: 30px;
+        font-size: 40px;
         color: black;
         padding: 1rem 0;
         border-top: 1px solid #95c0f1;
@@ -24,12 +24,12 @@
 
     @media screen and (min-width: 650px) {
         h1{
-            font-size: 5vw;
+            font-size: 60px;
         }
         .banner-container{
             background-image: url('/static/images/banner.jpeg');
-            height: 30vh;
-            min-height: 30vh;
+            height: 300px;
+            min-height: 300px;
             background-size: cover;
             background-repeat: no-repeat;
             position: relative;

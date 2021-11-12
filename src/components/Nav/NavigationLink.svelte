@@ -19,7 +19,7 @@
     .nav-link {
         color: var(--color-gray-4);
         text-decoration: none;
-        font-size: clamp(16px, 1.2vw, 40px);
+        font-size: 16px; 
         font-weight: 800;
         border-bottom: 2px solid transparent;
         margin: 0 1em;
