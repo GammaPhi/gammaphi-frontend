@@ -73,30 +73,29 @@ import { navigateLink, page } from '../js/navigation-utils'
     <ul>
         <li class="yes">
             1 Billion Maximum Supply
+            (<a target="_blank" href="https://www.tauhq.com/transactions/c9bd501d46db6eacdaa1ba0f18bd6a89b2cc20129e348a9ecc904c8745ae2cce">View Txn</a>)
         </li>
 
         <li class="yes">
             50% of supply is locked in the House
+            (<a target="_blank" href="https://www.tauhq.com/transactions/e05fb11390626d35b326d3f6a46b95851043d1f251ec9d6e98a36778607d9147">View Txn</a>)
         </li>
 
         <li class="yes">
-            20% locked in liquity pools (after initial sales)
+            20% for public sale
+            (<a target="_blank" href="https://www.tauhq.com/transactions/5e7d5b9ee0db36092fccaebcf9005f4b88a3557cb682d905099acd3505313966">View Txn</a>)
         </li>
 
-        <li class="yes">
-            10% for presale
+        <li class="no-bullet">
+            10% locked in liquity pools (after initial sales)
         </li>
 
-        <li class="yes">
-            10% for public sale
+        <li class="no-bullet">
+            10% reserved for the development team
         </li>
 
-        <li class="yes">
-            5% reserved for the development team
-        </li>
-
-        <li class="yes">
-            5% reserved for airdrops, marketing, and partnerships
+        <li class="no-bullet">
+            10% reserved for airdrops, marketing, and partnerships
         </li>
     </ul>
 </div>

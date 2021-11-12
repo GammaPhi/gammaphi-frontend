@@ -22,7 +22,7 @@
 <style>
     a, p{
         color: var(--color-gray-4);
-        font-size: clamp(16px, 1.5vw, 45px);
+        font-size: 16px; 
         font-weight: 800;
     }
     .container:hover > a{
