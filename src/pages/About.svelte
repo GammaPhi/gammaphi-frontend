@@ -138,7 +138,7 @@ import { navigateLink, page } from '../js/navigation-utils'
 
     <ol>
         <li>
-            There are lots of scams out there. When in doubt, always use a burner wallet, and don't keep any more TAU in your burner wallet than you are willing to lose.
+            There are lots of scams out there. When in doubt, always use a burner wallet, and don't keep more tokens in your burner wallet than you are willing to lose.
         </li>
 
         <li>
@@ -171,6 +171,6 @@ import { navigateLink, page } from '../js/navigation-utils'
     </ol>
 
 
-    <p>Be safe out there.</p>
+    <h3>Be safe out there.</h3>
 
 </div>
