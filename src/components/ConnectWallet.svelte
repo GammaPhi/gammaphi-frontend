@@ -69,7 +69,7 @@
     {:else}
         <button on:click={checkIfWalletIsInstalled}>Connect To Lamden Wallet</button>
         <p>
-            New to Lamden? Install a Lamden wallet
+            New to Lamden? Create a Lamden wallet
             <a target="_blank" href="https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim">here</a>.
         </p>
     {/if}

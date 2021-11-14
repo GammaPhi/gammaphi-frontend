@@ -73,7 +73,6 @@ function unregisterOldServiceWorkers(){
 	<Route path="/diceroll" component={Home} />
 	<Route path="/spin" component={Home} />
 	<Route path="/about" component={Home} />
-	<Route path="/roadmap" component={Home} />
 	<div class="buttons flex">
 		<ConnectWallet />
 	</div>

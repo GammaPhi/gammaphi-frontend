@@ -6,7 +6,6 @@ import WheelSpin from './WheelSpin.svelte'
 import { navigateLink, page } from '../js/navigation-utils'
 import BackHomeButton from '../components/BackHomeButton.svelte'
 import About from './About.svelte';
-import Roadmap from './Roadmap.svelte';
 import DiceRoll from './DiceRoll.svelte'
 
 // Games

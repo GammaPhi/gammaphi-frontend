@@ -6,7 +6,6 @@
     { name: "Home", href: "/"},
     { name: "Purchase", href: "/purchase"},
     { name: "About", href: "/about"},
-    { name: "Roadmap", href: "/roadmap"},
   ];
 </script>
 
