@@ -28,8 +28,8 @@
         }
         .banner-container{
             background-image: url('/static/images/banner.jpeg');
-            height: 300px;
-            min-height: 300px;
+            height: 200px;
+            min-height: 200px;
             background-size: cover;
             background-repeat: no-repeat;
             position: relative;

@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import * as animateScroll from "svelte-scrollto";
 
 export const page = writable(window.location.pathname);
 
@@ -9,4 +10,5 @@ export function navigateLink(e) {
 	console.log(href);
 	history.pushState(history.state, '', href);
 	page.set(href);
+	animateScroll.scrollToTop();
 }
