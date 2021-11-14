@@ -136,36 +136,40 @@ import { navigateLink, page } from '../js/navigation-utils'
         Safety Tips (IMPORTANT!!!)
     </h3>
 
-    <p>
-        There are lots of scams out there. When in doubt, always use a burner wallet, and don't keep any more TAU in your burner wallet than you are willing to lose.
-    </p>
-
-    <p>
-        When playing Gamma Phi games, always make sure you the URL shows up as <a href="https://gammaphi.io/">https://gammaphi.io/</a>. Any other URL is almost guaranteed to be a scam.
-    </p>
-
-    <p>
-        Never interact with unknown smart contracts. Smart contract names are unique, so make sure you know which ones you are interacting with.
-    </p>
-
-    <p>
-        The only smart contracts you will find on Gamma Phi are:
-    </p>
-
-    <ul>
-        <li class="yes">
-            <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_phi.py" target="_blank">con_phi</a> (the contract for the PHI currency)
+    <ol>
+        <li>
+            There are lots of scams out there. When in doubt, always use a burner wallet, and don't keep any more TAU in your burner wallet than you are willing to lose.
         </li>
-        <li class="yes">
-            <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_sales_v1.py" target="_blank">con_gamma_phi_sales_v1</a> (the contract where you can purchase PHI during initial sales)
+
+        <li>
+            When playing Gamma Phi games, always make sure the base URL is <a href="https://gammaphi.io/">https://gammaphi.io/</a>. Any other URL is almost guaranteed to be a scam.
         </li>
-        <li class="yes">
-            <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_house_v1.py" target="_blank">con_gamma_phi_house_v1</a> (the contract where the House PHI is stored, and where the majority of game logic lives)
+
+        <li>
+            Never interact with unknown smart contracts. Smart contract names are unique, so make sure you know which ones you are interacting with.
         </li>
-        <li class="yes">
-            <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_lottery_v1.py" target="_blank">con_gamma_phi_lottery_v1</a> (the contract where lottery tickets are held before distribution)
+
+        <li>
+            The only smart contracts you will find on Gamma Phi are:
         </li>
-    </ul>
+    
+        <ul>
+            <li class="yes">
+                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_phi.py" target="_blank">con_phi</a> (the contract for the PHI currency)
+            </li>
+            <li class="yes">
+                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_sales_v1.py" target="_blank">con_gamma_phi_sales_v1</a> (the contract where you can purchase PHI during initial sales)
+            </li>
+            <li class="yes">
+                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_house_v1.py" target="_blank">con_gamma_phi_house_v1</a> (the contract where the House PHI is stored, and where the majority of game logic lives)
+            </li>
+            <li class="yes">
+                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_lottery_v1.py" target="_blank">con_gamma_phi_lottery_v1</a> (the contract where lottery tickets are held before distribution)
+            </li>
+        </ul>
+
+    </ol>
+
 
     <p>Be safe out there.</p>
 

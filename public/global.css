@@ -257,17 +257,22 @@ a:visited {
 }
 
 li {
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+ul li {
     color: var(--warning-color);
     list-style-image: url("/static/images/icons/icon_nope.svg");
     line-height: 1.5;
 }
 
-li.yes {
+ul li.yes {
     color: var(--success-color);
     list-style-image: url("/static/images/icons/icon_check.svg");
 }
 
-li.no-bullet{
+ul li.no-bullet{
     color: var(--font-primary-color);
     list-style-image: none;
     list-style-type: none;
