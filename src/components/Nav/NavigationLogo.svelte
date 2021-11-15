@@ -1,7 +1,10 @@
 <script>
     import { onMount } from 'svelte';
-    import { writable } from 'svelte/store';
-    import { checkHousePHIBalance } from '../../js/lamden-utils';
+    import { writable, get } from 'svelte/store';
+    import { lamdenNetwork  } from '../../stores/globalStores'
+
+    import { checkHousePHIBalance, checkContractVariable } from '../../js/lamden-utils';
+    import { remainingPhiR1, remainingPhiR2 } from '../../stores/lamdenStores'
     import Logo from '../Logos/LogoPhi.svelte'
     import BN from 'bignumber.js'
     import { stringToFixed } from '../../js/global-utils'
@@ -9,6 +12,9 @@
     let housePHIBalance = writable(BN(0))
     onMount(async () => {
         housePHIBalance.set(await checkHousePHIBalance())
+        let networkInfo = get(lamdenNetwork);
+        remainingPhiR1.set(await checkContractVariable(networkInfo.purchase.contractName, "round_1_quantity"))
+        remainingPhiR2.set(await checkContractVariable(networkInfo.purchase.contractName, "round_2_quantity"))
     })
 </script>
 

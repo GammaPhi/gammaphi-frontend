@@ -19,6 +19,8 @@ export const coinFlipTxStatus = writable({})
 export const purchasePhiInputValue = writable(new BN(0))
 export const lamdenApprovalTxStatus = writable({})
 export const purchasePhiTxStatus = writable({})
+export const remainingPhiR1 = writable('-');
+export const remainingPhiR2 = writable('-');
 
 // Lottery 
 export const lotteryInputValue = writable(new BN(0))
