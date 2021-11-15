@@ -5,6 +5,9 @@ export const page = writable(window.location.pathname);
 
 export function navigateLink(e) {
 	e.preventDefault();
+    var modal = document.getElementById("mobileMenu");
+	modal.style.display = "none";
+
 	let href = this.href.replace("https://", "").replace("http://","").replace(window.location.host, "")
 	console.log(window.location.hostname);
 	console.log(href);

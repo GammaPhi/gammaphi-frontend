@@ -38,7 +38,7 @@ import { navigateLink, page } from '../js/navigation-utils'
     </p>
 
     <p>
-        Gamma Phi is a play on the word "GameFi".
+        Gamma Phi is a play on the term "GameFi".
     </p>
 
     <h3>

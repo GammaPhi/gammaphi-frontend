@@ -1,9 +1,12 @@
 <script>
 
-  let openMobileMenu = function() {
-    var modal = document.getElementById("mobileMenu");
+  let openMobileMenu = function(e) {
+    e.stopPropagation();
 
+    var modal = document.getElementById("mobileMenu");
     var span = document.getElementsByClassName("mobile-close")[0];
+    var menu = document.getElementsByClassName("hamburger-content")[0];
+    var body = document.getElementsByTagName("body")[0];
 
     modal.style.display = "block";
 
@@ -11,16 +14,24 @@
       modal.style.display = "none";
     };
 
+    menu.onclick = function(e1) {
+      e1.stopPropagation();
+    };
+
+    modal.onclick = function() {
+      modal.style.display = "none";
+    }
+
     window.onclick = function (event) {
-      if (event.target == modal) {
+      //if (event.target == modal) {
         modal.style.display = "none";
-      }
+      //}
     };
   }
 
 </script>
 
-<div class="hamburger-container" on:click={() => openMobileMenu()}>
+<div class="hamburger-container" on:click={(e) => openMobileMenu(e)}>
   <svg
     width="27"
     height="18"
@@ -40,5 +51,6 @@
   .hamburger-container {
     background-color: gray;
     width: auto;
+    cursor: pointer;
   }
 </style>
