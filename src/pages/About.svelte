@@ -14,10 +14,16 @@ import { navigateLink, page } from '../js/navigation-utils'
     }
     
     h2, h3 {
-        margin-top: 2rem;
+        margin-top: 3rem;
+    }
+
+    p {
+        line-height: 25px;
     }
 
     li {
+        line-height: 25px;
+        margin-top: 1rem;
         text-align: left;
     }
 </style>
@@ -61,7 +67,7 @@ import { navigateLink, page } from '../js/navigation-utils'
     <h3>$PHI</h3>
 
     <p>
-        PHI is the native token of Gamma Phi. PHI powers all of the fair lottery games. 
+        PHI is the native token of Gamma Phi. PHI powers all of the fair lottery games.
     </p>
 
     <p>
@@ -146,10 +152,14 @@ import { navigateLink, page } from '../js/navigation-utils'
         </li>
 
         <li>
-            Never interact with unknown smart contracts. Smart contract names are unique, so make sure you know which ones you are interacting with.
+            Be careful with social media. 
+            The only official Twitter account is <a href="https://twitter.com/GammaPhi_Lamden" target="_blank">@GammaPhi_Lamden</a>. 
+            The only official Telegram channel is <a href="https://t.me/gammaphi_lamden" target="_blank">gammaphi_lamden</a>.
+            Do not interact with any other social media claiming to represent Gamma Phi.
         </li>
 
         <li>
+            Never interact with unknown smart contracts. Smart contract names are unique, so make sure you know which ones you are interacting with.
             The only smart contracts you will find on Gamma Phi are:
         </li>
     
@@ -171,6 +181,6 @@ import { navigateLink, page } from '../js/navigation-utils'
     </ol>
 
 
-    <h3>Be safe out there.</h3>
+    <h3>Be safe out there and have fun.</h3>
 
 </div>
