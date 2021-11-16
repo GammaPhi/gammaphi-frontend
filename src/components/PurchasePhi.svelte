@@ -35,7 +35,7 @@
                 errors.set($lamdenApprovalTxStatus.errors)
             } else {
                 status.set('approved')
-                sendPhiPurchase($purchasePhiInputValue/phiPerTau, purchasePhiTxStatus, (txResults)=>{
+                sendPhiPurchase($purchasePhiInputValue/phiPerTau, round, purchasePhiTxStatus, (txResults)=>{
                     if ($purchasePhiTxStatus.errors?.length > 0) {
                         status.set('error')
                         errors.set($purchasePhiTxStatus.errors)

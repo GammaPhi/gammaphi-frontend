@@ -111,14 +111,14 @@ export function sendPhiPurchaseApproval (amount, resultsTracker, callback){
     walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
 }
 
-export function sendPhiPurchase (amount, resultsTracker, callback){
+export function sendPhiPurchase (amount, round, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
     let walletController = get(lwc)
-
+    let method = (round === 1) ? 'purchase_round_1' : 'purchase_round_2';
     const txInfo = {
         networkType: lamdenNetworkInfo.purchase.networkType,
         contractName: lamdenNetworkInfo.purchase.contractName,
-        methodName: 'purchase_round_1',
+        methodName: method,
         kwargs: {
             amount_tau: { __fixed__: amount.toString() }
         },
