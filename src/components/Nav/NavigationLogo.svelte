@@ -11,10 +11,14 @@
 
     let housePHIBalance = writable(BN(0))
     onMount(async () => {
-        housePHIBalance.set(await checkHousePHIBalance())
+        checkHousePHIBalance().then((v)=>housePHIBalance.set(v))
         let networkInfo = get(lamdenNetwork);
-        remainingPhiR1.set(await checkContractVariable(networkInfo.purchase.contractName, "round_1_quantity"))
-        remainingPhiR2.set(await checkContractVariable(networkInfo.purchase.contractName, "round_2_quantity"))
+        checkContractVariable(networkInfo.purchase.contractName, "round_1_quantity").then((v)=>{
+            remainingPhiR1.set(v)
+        });
+        checkContractVariable(networkInfo.purchase.contractName, "round_2_quantity").then((v)=>{
+            remainingPhiR2.set(v)
+        });
     })
 </script>
 
