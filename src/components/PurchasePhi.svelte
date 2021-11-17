@@ -66,98 +66,90 @@
 		margin: 1rem auto 1rem;
         text-align: center;
 	}
-    h2.buttons, h3.buttons {
-        margin-bottom: 2rem;
-    }
-    .round1 {
-        margin-top: 3rem;
-    }
-    .round2 {
-        margin-top: 3rem;
-    }
 </style>
 
-<h2 class="row align-center buttons">
-    Purchase PHI
-</h2>
+<div class="card">
+    <h2 class="round1 row align-center buttons">
+        Round 1 (1 TAU == {phiPerTauR1} PHI)
+    </h2>
 
-<h3 class="round1 row align-center buttons">
-    Round 1 (1 TAU == {phiPerTauR1} PHI)
-</h3>
+    {#if $remainingPhiR1 !== BN(0)}
 
-{#if $remainingPhiR1 !== BN(0)}
+        <h3 class="row align-center buttons">
+            Remaining: {$remainingPhiR1} PHI
+        </h3>
 
-<h3 class="row align-center buttons">
-    Remaining: {$remainingPhiR1} PHI
-</h3>
-
-<div class="row align-center buttons">
-    <BNInputField 
-        onInputChange={(value)=>purchasePhiInputValue.set(value)}
-        startingValue={startingValue}
-        inputClass="primaryInput"
-        labelClass="label"
-        labelText="How many PHI would you like to purchase?"
-    />
-</div>
-
-{#if $errors !== null}
-    {#each $errors as error}
-        <div class="row align-center buttons error">
-            {error}
+        <div class="row align-center buttons">
+            <BNInputField 
+                onInputChange={(value)=>purchasePhiInputValue.set(value)}
+                startingValue={startingValue}
+                inputClass="primaryInput"
+                labelClass="label"
+                labelText="How many PHI would you like to purchase?"
+            />
         </div>
-    {/each}
-{/if}
 
-<div class="row align-center buttons">
-    <button on:click={()=>purchasePhi(1)}>Purchase</button>
-</div>
-{:else}
-<div class="row align-center buttons">
-    <button disabled={true}>Sold Out</button>
-</div>
-{/if}
+        {#if $errors !== null}
+            {#each $errors as error}
+                <div class="row align-center buttons error">
+                    {error}
+                </div>
+            {/each}
+        {/if}
 
-
-
-<h3 class="row align-center buttons round2">
-    Round 2 (1 TAU == {phiPerTauR2} PHI)
-</h3>
-
-<h3 class="row align-center buttons">
-    Remaining: {$remainingPhiR2} PHI
-</h3>
-
-{#if $remainingPhiR1 !== BN(0)}
-<p>
-    Round 2 hasn't started yet.
-</p>
-{:else}
-<div class="row align-center buttons">
-    <BNInputField 
-        onInputChange={(value)=>purchasePhiInputValue.set(value)}
-        startingValue={startingValue}
-        inputClass="primaryInput"
-        labelClass="label"
-        labelText="How many PHI would you like to purchase?"
-    />
-</div>
-
-{#if $errors !== null}
-    {#each $errors as error}
-        <div class="row align-center buttons error">
-            {error}
+        <div class="row align-center">
+            <button on:click={()=>purchasePhi(1)}>Purchase</button>
         </div>
-    {/each}
-{/if}
+    {:else}
+        <div class="row align-center">
+            <button disabled={true}>Sold Out</button>
+        </div>
+    {/if}
 
-{#if $remainingPhiR2 !== BN(0)}
-<div class="row align-center buttons">
-    <button on:click={()=>purchasePhi(2)}>Purchase</button>
 </div>
-{:else}
-<div class="row align-center buttons">
-    <button disabled={true}>Sold Out</button>
+
+<div class="card">
+
+    <h2 class="row align-center buttons round2">
+        Round 2 (1 TAU == {phiPerTauR2} PHI)
+    </h2>
+
+    <h3 class="row align-center buttons">
+        Remaining: {$remainingPhiR2} PHI
+    </h3>
+
+    {#if $remainingPhiR1 !== BN(0)}
+        <p>
+            Round 2 hasn't started yet.
+        </p>
+    {:else}
+        <div class="row align-center buttons">
+            <BNInputField 
+                onInputChange={(value)=>purchasePhiInputValue.set(value)}
+                startingValue={startingValue}
+                inputClass="primaryInput"
+                labelClass="label"
+                labelText="How many PHI would you like to purchase?"
+            />
+        </div>
+
+        {#if $errors !== null}
+            {#each $errors as error}
+                <div class="row align-center buttons error">
+                    {error}
+                </div>
+            {/each}
+        {/if}
+
+        {#if $remainingPhiR2 !== BN(0)}
+        <div class="row align-center">
+            <button on:click={()=>purchasePhi(2)}>Purchase</button>
+        </div>
+        {:else}
+        <div class="row align-center">
+            <button disabled={true}>Sold Out</button>
+        </div>
+        {/if}
+    {/if}
+
 </div>
-{/if}
-{/if}

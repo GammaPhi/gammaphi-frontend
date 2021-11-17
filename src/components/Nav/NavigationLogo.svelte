@@ -53,9 +53,4 @@
             width: 35px;
         }
     }
-    @media screen and (min-width: 2000px) {
-        .nav-brand-logo {
-            width: 55px;
-        }
-    }
 </style>

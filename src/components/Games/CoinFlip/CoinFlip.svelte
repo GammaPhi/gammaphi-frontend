@@ -68,7 +68,6 @@
 
 <style>
 	.buttons{
-		width: max-content;
 		margin: 1rem auto 1rem;
         text-align: center;
 	}
@@ -79,6 +78,9 @@
 	}
     h2.buttons {
         margin-bottom: 2rem;
+    }
+    .coin-holder {
+        margin-top: 1rem;
     }
 </style>
 
@@ -117,7 +119,7 @@
     Payout: {stringToFixed($coinFlipInputValue/$odds, 4)} PHI
 </div>
 
-<div class="row align-center buttons">
+<div class="coin-holder row align-center buttons">
     <CoinAnimation onClick={placeBet} status={status} />
 </div>
 

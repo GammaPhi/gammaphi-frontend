@@ -5,7 +5,6 @@ import { navigateLink, page } from '../js/navigation-utils'
 
 <style>
     .buttons{
-        margin: 2rem auto 1rem;
         max-width: 550px;
     }
     .about-link {
@@ -13,7 +12,7 @@ import { navigateLink, page } from '../js/navigation-utils'
         border-bottom: 2px solid var(--accent-color);
     }
     
-    h2, h3 {
+    h3 {
         margin-top: 3rem;
     }
 
@@ -28,6 +27,7 @@ import { navigateLink, page } from '../js/navigation-utils'
     }
 </style>
 
+<div align="center" class="card">
 <div align="center" class="buttons">
     <h2>
         About Gamma Phi
@@ -182,5 +182,5 @@ import { navigateLink, page } from '../js/navigation-utils'
 
 
     <h3>Be safe out there and have fun.</h3>
-
+</div>
 </div>
