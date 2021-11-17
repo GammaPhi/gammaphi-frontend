@@ -25,6 +25,34 @@ import { navigateLink, page } from '../js/navigation-utils'
         margin-top: 1rem;
         text-align: left;
     }
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    table {
+        width: 100%;
+    }
+    table td {
+        width: 50%;
+        height: 70px;
+        padding: 10px;
+        line-height: 25px;
+    }
+    table tr :nth-child(1) {
+        text-align: center;
+    }
+    table tr :nth-child(2) {
+        text-align: center;
+    }
+    table th {
+        padding-bottom: 5px;
+        height: 50px;
+    }
+    table tr {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
 </style>
 
 <div align="center" class="card">
@@ -96,7 +124,8 @@ import { navigateLink, page } from '../js/navigation-utils'
         </li>
 
         <li class="no-bullet">
-            10% locked in liquity pools (after initial sales)
+            10% locked in liquity pools (after initial sales via
+            <a target="_blank" href="https://nebulamden.finance/">Nebula's Time-Locked Vaults</a>)
         </li>
 
         <li class="no-bullet">
@@ -104,7 +133,7 @@ import { navigateLink, page } from '../js/navigation-utils'
         </li>
 
         <li class="no-bullet">
-            10% reserved for airdrops, marketing, and partnerships
+            10% reserved for contests, airdrops, marketing, and partnerships
         </li>
     </ul>
 
@@ -160,26 +189,60 @@ import { navigateLink, page } from '../js/navigation-utils'
 
         <li>
             Never interact with unknown smart contracts. Smart contract names are unique, so make sure you know which ones you are interacting with.
-            The only smart contracts you will find on Gamma Phi are:
+            The only smart contracts you will find on Gamma Phi are in the table below.
         </li>
-    
-        <ul>
-            <li class="yes">
-                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_phi.py" target="_blank">con_phi</a> (the contract for the PHI currency)
-            </li>
-            <li class="yes">
-                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_sales_v1.py" target="_blank">con_gamma_phi_sales_v1</a> (the contract where you can purchase PHI during initial sales)
-            </li>
-            <li class="yes">
-                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_house_v1.py" target="_blank">con_gamma_phi_house_v1</a> (the contract where the House PHI is stored, and where the majority of game logic lives)
-            </li>
-            <li class="yes">
-                <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_lottery_v1.py" target="_blank">con_gamma_phi_lottery_v1</a> (the contract where lottery tickets are held before distribution)
-            </li>
-        </ul>
-
     </ol>
 
+    <h3>
+        Contracts
+    </h3>
+
+    <table class="contracts">
+        <thead>
+            <tr>
+                <th>
+                    Contract
+                </th>
+                <th>
+                    Description
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_phi.py" target="_blank">con_phi</a>
+                </td>
+                <td>
+                    The contract for the PHI currency.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_sales_v1.py" target="_blank">con_gamma_phi_sales_v1</a>
+                </td>
+                <td>                    
+                    The contract where you can purchase PHI during initial sales.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_house_v1.py" target="_blank">con_gamma_phi_house_v1</a>
+                </td>
+                <td>                    
+                    The contract where the House PHI is stored, and where the majority of game logic lives.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_lottery_v1.py" target="_blank">con_gamma_phi_lottery_v1</a>
+                </td>
+                <td>
+                    The contract where lottery tickets are held before distribution.
+                </td>                
+            </tr>
+        </tbody>
+    </table>
 
     <h3>Be safe out there and have fun.</h3>
 </div>

@@ -262,8 +262,6 @@ li {
 }
 
 ul li {
-    color: var(--warning-color);
-    list-style-image: url("/static/images/icons/icon_nope.svg");
     line-height: 1.5;
 }
 
