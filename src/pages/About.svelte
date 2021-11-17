@@ -67,7 +67,7 @@ import { navigateLink, page } from '../js/navigation-utils'
     <h3>$PHI</h3>
 
     <p>
-        PHI is the native token of Gamma Phi. PHI powers all of the fair lottery games.
+        PHI is the Lamden token that powers Gamma Phi. PHI is used as the currency for all of the games on Gamma Phi.
     </p>
 
     <p>
