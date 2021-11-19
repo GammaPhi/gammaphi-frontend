@@ -1,6 +1,18 @@
 <script>
     import { onMount } from "svelte";
-   
+    import {Chart, PieController, DoughnutController, 
+       ArcElement, Legend, Tooltip
+    } from 'chart.js';
+    import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+    Chart.register(
+      PieController, 
+      DoughnutController,
+      ArcElement,
+      Tooltip,
+      Legend,
+    );
+
     const fontSize = 15;
 
     const chartData = {
@@ -77,22 +89,24 @@
               color: 'white',
               display: function(context) {
                 var dataset = context.dataset;
-                var count = dataset.data.length;
                 var value = dataset.data[context.dataIndex];
+                //return value;
                 return Math.round(value/10000000).toString() + "%";
               },
               font: {
                 weight: 'bold'
               },
               padding: 6,
-              formatter: Math.round
+              formatter: (value) => {return Math.round(value/10000000).toString() + "%";}
             }
         }
     };
     function createChart() {
+      //Chart.register(ChartDataLabels);
       var ctx = document.getElementById("myPieChart");
       var myChart = new Chart(ctx, {
-        type: "pie",
+        type: "doughnut",
+        plugins: [ChartDataLabels],
         data: chartData,
         options: chartOptions
       });
