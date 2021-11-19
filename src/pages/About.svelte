@@ -1,4 +1,5 @@
 <script>
+import TokenomicsChart from '../components/Roadmap/TokenomicsChart.svelte';
 import { navigateLink, page } from '../js/navigation-utils'
 
 </script>
@@ -13,6 +14,10 @@ import { navigateLink, page } from '../js/navigation-utils'
     }
     
     h3 {
+        margin-top: 3rem;
+    }
+
+    h2.tokenomics {
         margin-top: 3rem;
     }
 
@@ -96,9 +101,11 @@ import { navigateLink, page } from '../js/navigation-utils'
         <a on:click={navigateLink} href="/purchase">here</a>.
     </p>
 
-    <h3>
+    <h2 class="tokenomics">
         Tokenomics
-    </h3>
+    </h2>
+
+    <TokenomicsChart />
 
     <ul>
         <li class="yes">
