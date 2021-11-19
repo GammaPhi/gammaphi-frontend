@@ -21,6 +21,10 @@ import { navigateLink, page } from '../js/navigation-utils'
         margin-top: 3rem;
     }
 
+    h2.roadmap {
+        margin-top: 3rem;
+    }
+
     p {
         line-height: 25px;
     }
@@ -38,14 +42,26 @@ import { navigateLink, page } from '../js/navigation-utils'
         width: 100%;
     }
 
-    table td {
+    table.contracts td {
+        width: 100%;
+        padding: 10px;
+        padding-bottom: 15px;
+        line-height: 25px;
+        text-align: center;
+        height: 70px;
+    }
+
+    table.tokenomics {
+        margin-top: 2rem;
+    }
+
+    table.tokenomics td {
         width: 100%;
         padding: 10px;
         padding-bottom: 15px;
         line-height: 25px;
         text-align: center;
         height: 20px;
-        height: 70px;
     }
 
     table td a {
@@ -107,39 +123,53 @@ import { navigateLink, page } from '../js/navigation-utils'
 
     <TokenomicsChart />
 
-    <ul>
-        <li class="yes">
-            1 Billion Maximum Supply
-            (<a target="_blank" href="https://www.tauhq.com/transactions/c9bd501d46db6eacdaa1ba0f18bd6a89b2cc20129e348a9ecc904c8745ae2cce">View Txn</a>)
-        </li>
+    <table class="tokenomics">
+        <tbody>
+            <tr>
+                <td>
+                    1 Billion Maximum Supply
+                    (<a target="_blank" href="https://www.tauhq.com/transactions/c9bd501d46db6eacdaa1ba0f18bd6a89b2cc20129e348a9ecc904c8745ae2cce">View Txn</a>)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    50% of supply is locked in the House
+                    (<a target="_blank" href="https://www.tauhq.com/transactions/e05fb11390626d35b326d3f6a46b95851043d1f251ec9d6e98a36778607d9147">View Txn</a>)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    20% for public sale
+                    (<a target="_blank" href="https://www.tauhq.com/transactions/5e7d5b9ee0db36092fccaebcf9005f4b88a3557cb682d905099acd3505313966">View Txn</a>)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10% locked in liquity pools (after initial sales via
+                    <a target="_blank" href="https://nebulamden.finance/">Nebula's Time-Locked Vaults</a>)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10% reserved for the development team
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    5% reserved for community contests and airdrops
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    5% reserved for marketing and partnerships
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-        <li class="yes">
-            50% of supply is locked in the House
-            (<a target="_blank" href="https://www.tauhq.com/transactions/e05fb11390626d35b326d3f6a46b95851043d1f251ec9d6e98a36778607d9147">View Txn</a>)
-        </li>
-
-        <li class="yes">
-            20% for public sale
-            (<a target="_blank" href="https://www.tauhq.com/transactions/5e7d5b9ee0db36092fccaebcf9005f4b88a3557cb682d905099acd3505313966">View Txn</a>)
-        </li>
-
-        <li class="no-bullet">
-            10% locked in liquity pools (after initial sales via
-            <a target="_blank" href="https://nebulamden.finance/">Nebula's Time-Locked Vaults</a>)
-        </li>
-
-        <li class="no-bullet">
-            10% reserved for the development team
-        </li>
-
-        <li class="no-bullet">
-            10% reserved for contests, airdrops, marketing, and partnerships
-        </li>
-    </ul>
-
-    <h3>
+    <h2 class="roadmap">
         Roadmap
-    </h3>
+    </h2>
 
     <ul>
         <li class="yes">
@@ -192,10 +222,6 @@ import { navigateLink, page } from '../js/navigation-utils'
             The only smart contracts you will find on Gamma Phi are in the table below.
         </li>
     </ol>
-
-    <h3>
-        Contracts
-    </h3>
 
     <table class="contracts">
         <tbody>

@@ -9,8 +9,8 @@
       PieController, 
       DoughnutController,
       ArcElement,
+      
       Tooltip,
-      Legend,
     );
 
     const fontSize = 15;
@@ -70,15 +70,6 @@
 
         },
         plugins: {
-            legend: {
-                position: 'bottom',
-                labels: {
-                    boxHeight: fontSize,
-                    font: {
-                        size: fontSize
-                    }
-                }
-            },
             datalabels: {
               backgroundColor: function(context) {
                 return context.dataset.backgroundColor;
@@ -94,11 +85,20 @@
                 return Math.round(value/10000000).toString() + "%";
               },
               font: {
-                weight: 'bold'
+                weight: 'bold',
+                size: 15
               },
               padding: 6,
               formatter: (value) => {return Math.round(value/10000000).toString() + "%";}
             }
+        },
+        onResize: function(c, size) {
+          console.log(size);
+          if (size.width < 300) {
+              c.options.plugins.datalabels.font.size = 10;
+          } else {
+              c.options.plugins.datalabels.font.size = 15;
+          }
         }
     };
     function createChart() {
