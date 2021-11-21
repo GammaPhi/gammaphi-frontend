@@ -9,6 +9,7 @@ export const lamdenCurrencyBalance = writable(new BN(0))
 export const lamdenTokenBalance = writable(new BN(0))
 export const phiCurrencyBalance = writable(new BN(0))
 export const lamdenTokenApprovalAmount = writable(new BN(0))
+export const walletSelector = writable(localStorage.getItem("lamdenWallet") || sessionStorage.getItem("lamdenWallet") || null);
 
 // Coin Flip 
 export const coinFlipInputValue = writable(new BN(0))

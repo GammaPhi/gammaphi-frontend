@@ -192,9 +192,14 @@ import { navigateLink, page } from '../js/navigation-utils'
             Community voting on additional games to expand the Gamma Phi ecosystem
         </li>
 
-        <li class="no-bullet">
-            Beta platform release with improved UI and additional games
+        <li>
+            Multiplayer games
         </li>
+
+        <li class="no-bullet">
+            Beta platform release with improved UI
+        </li>
+
     </ul>
 
     <h3>

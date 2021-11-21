@@ -1,8 +1,11 @@
 import BN from 'bignumber.js'
 import { get } from "svelte/store";
 import { lamdenNetwork  } from '../stores/globalStores'
-import { lamden_vk, lamdenCurrencyBalance, lwc, lamdenTokenApprovalAmount } from '../stores/lamdenStores'
+import { lamden_vk, walletSelector, lamdenCurrencyBalance, lwc, lamdenTokenApprovalAmount } from '../stores/lamdenStores'
 import { TransactionResultHandler } from './lamdenTxResultsHandler'
+
+export const LAMDEN_MOBILE_WALLET_URL = "https://lamdenwallet.com";
+
 
 
 export async function checkContractVariable(contract, variableName) {
@@ -93,10 +96,67 @@ export async function checkLamdenBalance() {
     }
 }
 
+
+function openWalletPopup(url, callback) {
+    const eventHandler = (event) => {
+        if (event.origin !== LAMDEN_MOBILE_WALLET_URL)
+            return;
+        console.log(event.data);
+        console.log("Calling callback");
+        callback(event.data);
+        window.removeEventListener("message", eventHandler);
+    };
+    window.addEventListener("message", eventHandler, false);
+    window.open(
+        url,
+        "LamdenWallet",
+        //"popup"
+    );
+}
+
+export function loginMobile() {
+    var url = (
+        LAMDEN_MOBILE_WALLET_URL
+        + "?origin=" + encodeURIComponent(window.location.href)
+        + "&type=login"
+    );
+    openWalletPopup(url, (data)=>{
+        if (data.type && data.type==="vk") {
+            let walletController = get(lwc)
+            walletController.walletAddress = data.vk;
+            walletController.events.emit('newInfo', data);
+            return;
+        }
+    });
+}
+
+function sendTransaction(txInfo, resultsTracker, callback) {
+    let wallet = get(walletSelector);
+    if (wallet==="extension") {
+        let walletController = get(lwc)
+        walletController.sendTransaction(
+            txInfo, 
+            (txResults) => handleTxResults(txResults, resultsTracker, callback)
+        )
+    } else {
+        var url = (
+            LAMDEN_MOBILE_WALLET_URL
+            + "?contractName=" + encodeURIComponent(txInfo.contractName)
+            + "&methodName=" + encodeURIComponent(txInfo.methodName)
+            + "&stampLimit=" + encodeURIComponent(txInfo.stampLimit.toString())
+            + "&kwargs=" + encodeURIComponent(JSON.stringify(txInfo.kwargs))
+            + "&origin=" + encodeURIComponent(window.location.href)
+            + "&type=sign"
+        );
+        console.log(url);
+        openWalletPopup(url, (data)=>{
+            handleTxResults({data: data}, resultsTracker, callback)
+        })
+    }
+}
+
 export function sendPhiPurchaseApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
-
     const txInfo = {
         networkType: lamdenNetworkInfo.purchase.networkType,
         contractName: 'currency',
@@ -108,12 +168,11 @@ export function sendPhiPurchaseApproval (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendPhiPurchase (amount, round, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
     let method = (round === 1) ? 'purchase_round_1' : 'purchase_round_2';
     const txInfo = {
         networkType: lamdenNetworkInfo.purchase.networkType,
@@ -125,12 +184,11 @@ export function sendPhiPurchase (amount, round, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.purchase,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendCoinFlipApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.coinFlip.networkType,
@@ -143,12 +201,11 @@ export function sendCoinFlipApproval (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendCoinFlip (amount, odds, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.coinFlip.networkType,
@@ -161,13 +218,12 @@ export function sendCoinFlip (amount, odds, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.coinFlip,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 
 export function sendDiceRollApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.diceRoll.networkType,
@@ -180,12 +236,11 @@ export function sendDiceRollApproval (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendDiceRoll (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.diceRoll.networkType,
@@ -197,12 +252,11 @@ export function sendDiceRoll (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.diceRoll,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendLotteryApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.lottery.networkType,
@@ -215,12 +269,11 @@ export function sendLotteryApproval (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendLottery (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.lottery.networkType,
@@ -232,12 +285,11 @@ export function sendLottery (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.lottery,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendWheelSpinApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.wheelSpin.networkType,
@@ -250,12 +302,11 @@ export function sendWheelSpinApproval (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export function sendWheelSpin (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
-    let walletController = get(lwc)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.wheelSpin.networkType,
@@ -267,7 +318,7 @@ export function sendWheelSpin (amount, resultsTracker, callback){
         stampLimit: lamdenNetworkInfo.stamps.wheelSpin,
     }
 
-    walletController.sendTransaction(txInfo, (txResults) => handleTxResults(txResults, resultsTracker, callback))
+    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 function handleTxResults(txResults, resultsTracker, callback){

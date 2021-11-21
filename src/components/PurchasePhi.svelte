@@ -29,7 +29,10 @@
         } else {
             phiPerTau = phiPerTauR2;
         }
+        console.log("purchasing");
         sendPhiPurchaseApproval($purchasePhiInputValue/phiPerTau, lamdenApprovalTxStatus, (txResults)=>{
+            console.log("approval");
+            console.log($lamdenApprovalTxStatus);
             if ($lamdenApprovalTxStatus.errors?.length > 0) {
                 status.set('error')
                 errors.set($lamdenApprovalTxStatus.errors)

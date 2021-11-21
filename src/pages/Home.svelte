@@ -117,9 +117,5 @@ const gameInfo = [
 
 	<About />
 
-	{:else if $page === '/roadmap'}
-
-	<Roadmap />
-
 	{/if}
 {/if}

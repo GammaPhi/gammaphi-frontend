@@ -8,9 +8,10 @@
     import BN from 'bignumber.js'
     import WalletController from 'lamden_wallet_controller';
     import { selectedNetwork, lamdenNetwork } from '../stores/globalStores.js';
-    import { lotteryBalance, lamdenWalletInfo, lamden_vk, lwc, phiCurrencyBalance, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
-    import { checkTokenBalance, getLotteryBalance } from '../js/lamden-utils'
+    import { lotteryBalance, walletSelector, lamden_vk, lwc, phiCurrencyBalance, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
+    import { loginMobile, checkTokenBalance, getLotteryBalance, LAMDEN_MOBILE_WALLET_URL } from '../js/lamden-utils'
     import PhiTokenBalance from './PhiTokenBalance.svelte';
+    import { writable } from 'svelte/store';
 
 	onMount(() => {
         lwc.set(new WalletController(getApprovalRequest()))
@@ -18,7 +19,7 @@
         $lwc.events.on('newInfo', handleWalletInfo)
 
         setTimeout(() => {
-            $lwc.walletIsInstalled()
+            checkIfWalletIsInstalled()
         }, 100)
 
 		return () => {
@@ -26,8 +27,22 @@
 		}
     })
     function checkIfWalletIsInstalled(){
-		$lwc.walletIsInstalled()
+        if ($walletSelector === 'extension') {
+		    $lwc.walletIsInstalled()
+        } else if ($walletSelector === 'browser') {
+            loginMobile();
+        }
     }
+
+    let displayWalletConnectionOptions = writable(false);
+
+    const onConnectClick = () => {
+        if ($walletSelector) {
+            checkIfWalletIsInstalled();
+        } else {
+            displayWalletConnectionOptions.set(true);
+        }
+    };
 
     function getApprovalRequest(){
         return $lamdenNetwork.app
@@ -39,6 +54,23 @@
         phiCurrencyBalance.set(await checkTokenBalance('phi'))
         lotteryBalance.set(await getLotteryBalance())
     }
+
+    function connectToBrowserWallet() {
+        sessionStorage.setItem("lamdenWallet", "browser");
+        walletSelector.set("browser");
+        setTimeout(()=>{
+            checkIfWalletIsInstalled();
+        }, 50);
+    }
+
+    function connectToExtensionWallet() {
+        sessionStorage.setItem("lamdenWallet", "extension");
+        walletSelector.set("extension");
+        setTimeout(()=>{
+            checkIfWalletIsInstalled();
+        }, 50);
+    }
+
 </script>
 
 
@@ -48,18 +80,21 @@
         text-decoration: underline;
         cursor: pointer;
     }
-    a.install{
-        display: block;
-        margin-top: 1rem;
-    }
     a:hover{
         color: var(--accent-color);
     }
     a:visited{
         color: var(--font-primary);
     }
-    @media screen and (min-width: 430px) {
+
+    button.extension {
+        width: 200px;
     }
+
+    button.browser {
+        width: 200px;
+    }
+
 </style>
 
 <div align="center" class="row align-center buttons">
@@ -67,10 +102,18 @@
         <PhiTokenBalance />
         <LamdenBalance />
     {:else}
-        <button on:click={checkIfWalletIsInstalled}>Connect To Lamden Wallet</button>
+        {#if $displayWalletConnectionOptions}
+            <p>Select your wallet provider</p>
+            <button class="extension" on:click={connectToExtensionWallet}>Chrome extension</button>
+            <button class="browser" on:click={connectToBrowserWallet}>Browser wallet</button>    
+        {:else}
+            <button on:click={onConnectClick}>Connect To Lamden Wallet</button>
+        {/if}
         <p>
-            New to Lamden? Create a Lamden wallet
-            <a target="_blank" href="https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim">here</a>.
+            New to Lamden? Download the 
+            <a target="_blank" href="https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim">Chrome extension</a>
+            or create a 
+            <a target="_blank" href={LAMDEN_MOBILE_WALLET_URL}>browser wallet</a>.
         </p>
     {/if}
 </div>
