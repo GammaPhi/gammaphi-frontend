@@ -99,9 +99,23 @@ export async function checkLamdenBalance() {
 var popup = null;
 
 function openWalletPopup(url, message, callback) {
+    const uid = Date.now();
+    console.log("Current uid: "+uid.toString());
     const eventHandler = (event) => {
         if (event.origin !== LAMDEN_MOBILE_WALLET_URL)
             return;
+        if (event.data.uid && event.data.uid !== uid) {
+            console.log("Received wrong uid: "+event.data.uid);
+            return;
+        }
+        if (message !== null && event.data.payload) {
+            if (message.contractName !== event.data.payload.contract 
+                || message.methodName !== event.data.payload.function) {
+                console.log("Received wrong details: ");
+                console.log(event.data);
+                return;
+            }
+        }
         console.log(event.data);
         console.log("Calling callback");
         callback(event.data);
@@ -125,6 +139,7 @@ function openWalletPopup(url, message, callback) {
         console.log(message);
         popup.postMessage({
             jsonrpc: '2.0',
+            uid: uid,
             ...message
         }, LAMDEN_MOBILE_WALLET_URL);
     }
