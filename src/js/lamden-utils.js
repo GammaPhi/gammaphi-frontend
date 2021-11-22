@@ -114,11 +114,14 @@ function openWalletPopup(url, message, callback) {
             "LamdenWallet",
             //"popup"
         );
-        popup.onbeforeunload = function(){
-            popup = null;
-        };
+        if (popup !== null) {
+            popup.onbeforeunload = function(){
+                popup = null;
+            };
+        }
     } else {
-        popup.postMessage({
+        console.log("Wallet already open");
+        window.postMessage({
             jsonrpc: '2.0',
             ...message
         }, LAMDEN_MOBILE_WALLET_URL);
