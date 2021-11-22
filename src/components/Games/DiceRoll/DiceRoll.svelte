@@ -119,7 +119,7 @@
             <td>~ 3.7x</td>
         </tr>
         <tr>
-            <td>Straight</td>
+            <td>0 pair</td>
             <td>~ 1.5x</td>
         </tr>
         <tr>
