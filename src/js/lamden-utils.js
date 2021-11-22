@@ -121,6 +121,8 @@ function openWalletPopup(url, message, callback) {
         }*/
     } else {
         console.log("Wallet already open");
+        console.log("Posting message: ");
+        console.log(message);
         popup.postMessage({
             jsonrpc: '2.0',
             ...message
