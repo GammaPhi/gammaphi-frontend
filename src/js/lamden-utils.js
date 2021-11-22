@@ -114,6 +114,9 @@ function openWalletPopup(url, message, callback) {
             "LamdenWallet",
             //"popup"
         );
+        popup.onbeforeunload = function(){
+            popup = null;
+        };
     } else {
         popup.postMessage({
             jsonrpc: '2.0',
@@ -150,18 +153,18 @@ function sendTransaction(txInfo, resultsTracker, callback) {
         var params = {
             contractName: txInfo.contractName,
             methodName: txInfo.methodName,
-            stampLimit: txInfo.stampLimit,
-            kwargs: txInfo.kwargs,
+            stampLimit: txInfo.stampLimit.toString(),
+            kwargs: JSON.stringify(txInfo.kwargs),
             origin: window.location.href,
             type: "sign",
         }
         var url = (
             LAMDEN_MOBILE_WALLET_URL
-            + "?contractName=" + encodeURIComponent(txInfo.contractName)
-            + "&methodName=" + encodeURIComponent(txInfo.methodName)
-            + "&stampLimit=" + encodeURIComponent(txInfo.stampLimit.toString())
-            + "&kwargs=" + encodeURIComponent(JSON.stringify(txInfo.kwargs))
-            + "&origin=" + encodeURIComponent(window.location.href)
+            + "?contractName=" + encodeURIComponent(params.contractName)
+            + "&methodName=" + encodeURIComponent(params.methodName)
+            + "&stampLimit=" + encodeURIComponent(params.stampLimit)
+            + "&kwargs=" + encodeURIComponent(params.kwargs)
+            + "&origin=" + encodeURIComponent(params.origin)
             + "&type=sign"
         );
         console.log(url);
