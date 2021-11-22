@@ -95,6 +95,9 @@
         width: 200px;
     }
 
+    .buttons {
+        width: 100%;
+    }
 </style>
 
 <div align="center" class="row align-center buttons">

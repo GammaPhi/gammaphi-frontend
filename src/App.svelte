@@ -58,6 +58,7 @@ function unregisterOldServiceWorkers(){
 	
 	.buttons{
 		margin: 2rem auto 1rem;
+		width: 100%;
 	}
 </style>
 
