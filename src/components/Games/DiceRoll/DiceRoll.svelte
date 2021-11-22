@@ -119,7 +119,7 @@
             <td>~ 3.7x</td>
         </tr>
         <tr>
-            <td>0 pair</td>
+            <td>All unique</td>
             <td>~ 1.5x</td>
         </tr>
         <tr>
