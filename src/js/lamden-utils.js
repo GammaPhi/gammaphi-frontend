@@ -96,8 +96,9 @@ export async function checkLamdenBalance() {
     }
 }
 
+var popup = null;
 
-function openWalletPopup(url, callback) {
+function openWalletPopup(url, message, callback) {
     const eventHandler = (event) => {
         if (event.origin !== LAMDEN_MOBILE_WALLET_URL)
             return;
@@ -107,11 +108,18 @@ function openWalletPopup(url, callback) {
         window.removeEventListener("message", eventHandler);
     };
     window.addEventListener("message", eventHandler, false);
-    window.open(
-        url,
-        "LamdenWallet",
-        //"popup"
-    );
+    if (popup === null || message === null) {
+        popup = window.open(
+            url,
+            "LamdenWallet",
+            //"popup"
+        );
+    } else {
+        popup.postMessage({
+            jsonrpc: '2.0',
+            ...message
+        }, LAMDEN_MOBILE_WALLET_URL);
+    }
 }
 
 export function loginMobile() {
@@ -120,7 +128,7 @@ export function loginMobile() {
         + "?origin=" + encodeURIComponent(window.location.href)
         + "&type=login"
     );
-    openWalletPopup(url, (data)=>{
+    openWalletPopup(url, null, (data)=>{
         if (data.type && data.type==="vk") {
             let walletController = get(lwc)
             walletController.walletAddress = data.vk;
@@ -139,6 +147,14 @@ function sendTransaction(txInfo, resultsTracker, callback) {
             (txResults) => handleTxResults(txResults, resultsTracker, callback)
         )
     } else {
+        var params = {
+            contractName: txInfo.contractName,
+            methodName: txInfo.methodName,
+            stampLimit: txInfo.stampLimit,
+            kwargs: txInfo.kwargs,
+            origin: window.location.href,
+            type: "sign",
+        }
         var url = (
             LAMDEN_MOBILE_WALLET_URL
             + "?contractName=" + encodeURIComponent(txInfo.contractName)
@@ -149,7 +165,7 @@ function sendTransaction(txInfo, resultsTracker, callback) {
             + "&type=sign"
         );
         console.log(url);
-        openWalletPopup(url, (data)=>{
+        openWalletPopup(url, params, (data)=>{
             handleTxResults({data: data}, resultsTracker, callback)
         })
     }
