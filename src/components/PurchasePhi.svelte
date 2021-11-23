@@ -19,6 +19,7 @@
     })
     const status = writable("ready");
     const errors = writable(null);
+    const btnEnabled = derived(status, ($status)=>$status === 'ready' || $status === 'error');
 
     function purchasePhi(round) {
         status.set('betting')
@@ -101,7 +102,13 @@
         {/if}
 
         <div class="row align-center">
-            <button on:click={()=>purchasePhi(1)}>Purchase</button>
+            <button on:click={()=>purchasePhi(1)} disabled={!$btnEnabled}>
+                {#if $btnEnabled}
+                Purchase
+                {:else}
+                Purchasing...
+                {/if}
+            </button>
         </div>
     {:else}
         <div class="row align-center">
@@ -146,7 +153,13 @@
 
         {#if $remainingPhiR2 !== BN(0)}
         <div class="row align-center">
-            <button on:click={()=>purchasePhi(2)}>Purchase</button>
+            <button on:click={()=>purchasePhi(2)} disabled={!$btnEnabled}>
+                {#if $btnEnabled}
+                Purchase
+                {:else}
+                Purchasing...
+                {/if}
+            </button>
         </div>
         {:else}
         <div class="row align-center">

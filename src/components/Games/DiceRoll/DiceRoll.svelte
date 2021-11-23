@@ -25,6 +25,7 @@
     })
     const status = writable("ready");
     const errors = writable(null);
+    const btnEnabled = derived(status, ($status)=>$status === 'ready' || $status === 'error');
 
     function rollDice() {
         status.set('betting')
@@ -56,6 +57,7 @@
                         value5.set(result[4])
                         phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
                         lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))                     
+                        status.set('ready')
                     }
                 })
             }
@@ -160,7 +162,13 @@
 
 
 <div class="row align-center buttons">
-    <button on:click={rollDice} >Roll</button>
+    <button on:click={rollDice} disabled={!$btnEnabled}>
+    {#if $btnEnabled}
+        Roll
+    {:else}
+        Rolling...
+    {/if}
+    </button>
 </div>
 
 {#if $errors !== null}

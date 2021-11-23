@@ -16,28 +16,25 @@
     let theWheel = null;
     const numSegments = 24;
 
+    function drawTriangle()
+    {
+        // Get the canvas context the wheel uses.
+        let ctx = theWheel.ctx;
 
-	onMount(() => {
-        wheelSpinInputValue.set(startingValue)
+        ctx.strokeStyle = 'navy';     // Set line colour.
+        ctx.fillStyle   = 'aqua';     // Set fill colour.
+        ctx.lineWidth   = 2;
+        ctx.beginPath();              // Begin path.
+        ctx.moveTo(100, 5);           // Move to initial position.
+        ctx.lineTo(150, 5);           // Draw lines to make the shape.
+        ctx.lineTo(125, 40);
+        ctx.lineTo(100, 5);
+        ctx.stroke();                 // Complete the path by stroking (draw lines).
+        ctx.fill();                   // Then fill.
+    }
+    
 
-        function drawTriangle()
-        {
-            // Get the canvas context the wheel uses.
-            let ctx = theWheel.ctx;
-
-            ctx.strokeStyle = 'navy';     // Set line colour.
-            ctx.fillStyle   = 'aqua';     // Set fill colour.
-            ctx.lineWidth   = 2;
-            ctx.beginPath();              // Begin path.
-            ctx.moveTo(100, 5);           // Move to initial position.
-            ctx.lineTo(150, 5);           // Draw lines to make the shape.
-            ctx.lineTo(125, 40);
-            ctx.lineTo(100, 5);
-            ctx.stroke();                 // Complete the path by stroking (draw lines).
-            ctx.fill();                   // Then fill.
-        }
-        
-
+    const createWheel = () => {
         // Create new wheel object specifying the parameters at creation time.
         theWheel = new Winwheel({
             'numSegments'  : numSegments,     // Specify number of segments.
@@ -81,13 +78,22 @@
 
         // Usual pointer drawing code.
         drawTriangle();
+    }
+
+	onMount(() => {
+        wheelSpinInputValue.set(startingValue)
+
+        createWheel();
 
     })
     const status = writable("ready");
     const errors = writable(null);
+    const btnEnabled = derived(status, ($status)=>$status === 'ready' || $status === 'error');
 
     function calculatePrize(winningIdx)
     {
+        createWheel();
+
         let anglePerSegment = 360.0 / numSegments;
 
         // This formula always makes the wheel stop somewhere inside prize 3 at least
@@ -96,8 +102,9 @@
 
         // Important thing is to set the stopAngle of the animation before stating the spin.
         theWheel.animation.stopAngle = stopAt;
+        theWheel.animation.spins = 8;
+        theWheel.animation.duration = 5;
 
-        // May as well start the spin from here.
         theWheel.startAnimation();
     }
 
@@ -126,6 +133,7 @@
                         calculatePrize(result);
                         phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
                         lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))                     
+                        status.set('ready')
                     }
                 })
             }
@@ -166,7 +174,13 @@
 
 
 <div class="row align-center buttons">
-    <button on:click={spinWheel} >Spin</button>
+    <button on:click={spinWheel} disabled={!$btnEnabled}>
+    {#if $btnEnabled}
+        Spin
+    {:else}
+        Spinning...
+    {/if}
+    </button>
 </div>
 
 {#if $errors !== null}

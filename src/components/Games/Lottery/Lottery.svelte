@@ -20,6 +20,7 @@
     })
     const status = writable("ready");
     const errors = writable(null);
+    const btnEnabled = derived(status, ($status)=>$status === 'ready' || $status === 'error');
 
     function getTickets() {
         status.set('betting')
@@ -44,6 +45,7 @@
                         lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[6].value.__fixed__))  
                         lotteryBalance.set(BN(txResults.txBlockResult.state[1].value)) 
                         currentJackpot.set(BN(txResults.txBlockResult.state[5].value))                  
+                        status.set('ready')
                     }
                 })
             }
@@ -87,7 +89,13 @@
 
 
 <div align="center" class="row align-center buttons">
-    <button on:click={getTickets} >Buy</button>
+    <button on:click={getTickets} disabled={!$btnEnabled} >
+    {#if $btnEnabled}
+        Buy
+    {:else}
+        Buying...
+    {/if}
+    </button>
 </div>
 
 {#if $errors !== null}
