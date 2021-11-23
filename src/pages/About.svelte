@@ -104,6 +104,9 @@ import { navigateLink, page } from '../js/navigation-utils'
     </a><br/><br/>
     <a href="https://github.com/GammaPhi/gammaphi-frontend.git" target="_blank">
         Frontend
+    </a><br/><br/>
+    <a href="https://github.com/GammaPhi/lamden-mobile-wallet.git" target="_blank">
+        Mobile Wallet
     </a>
 
     <h3>$PHI</h3>
@@ -168,7 +171,7 @@ import { navigateLink, page } from '../js/navigation-utils'
     </table>
 
     <h2 class="roadmap">
-        Roadmap
+        Roadmap (work in progress)
     </h2>
 
     <ul>
@@ -178,6 +181,10 @@ import { navigateLink, page } from '../js/navigation-utils'
 
         <li class="yes">
             Stealth launch
+        </li>
+
+        <li class="yes">
+            Build mobile-compatible browser wallet
         </li>
 
         <li class="no-bullet">
@@ -192,7 +199,7 @@ import { navigateLink, page } from '../js/navigation-utils'
             Community voting on additional games to expand the Gamma Phi ecosystem
         </li>
 
-        <li>
+        <li class="no-bullet">
             Multiplayer games
         </li>
 

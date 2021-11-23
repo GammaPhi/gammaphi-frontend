@@ -98,12 +98,17 @@
     .buttons {
         width: 100%;
     }
+    .balances {
+        max-width: 500px;
+    }
 </style>
 
 <div align="center" class="row align-center buttons">
     {#if $lamden_vk}
-        <PhiTokenBalance />
-        <LamdenBalance />
+        <div class="balances">
+            <PhiTokenBalance />
+            <LamdenBalance />
+        </div>
     {:else}
         {#if $displayWalletConnectionOptions}
             <p>Select your wallet provider</p>
