@@ -36,7 +36,7 @@ export const mainnet = {
         },
         purchase: {
             networkType: "mainnet",
-            contractName: "con_gamma_phi_sales_v2",
+            contractName: "con_gamma_phi_sales_v3",
         },
         app: {
             appName: "Gamma Phi", // Your DAPPS's name
@@ -86,7 +86,7 @@ export const testnet = {
         },
         purchase: {
             networkType: "testnet",
-            contractName: "con_gamma_phi_sales_v2",
+            contractName: "con_gamma_phi_sales_v3",
         },
         coins: {
             phi: {

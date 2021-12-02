@@ -246,7 +246,7 @@ import { navigateLink, page } from '../js/navigation-utils'
             </tr>
             <tr>
                 <td>
-                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_sales_v2.py" target="_blank">con_gamma_phi_sales_v2</a>
+                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/con_gamma_phi_sales_v3.py" target="_blank">con_gamma_phi_sales_v3</a>
                     <br /> <br />
                     The contract where you can purchase PHI during initial sales.
                 </td>
