@@ -96,102 +96,12 @@ export async function checkLamdenBalance() {
     }
 }
 
-var popup = null;
-
-function openWalletPopup(url, message, callback) {
-    const uid = Date.now();
-    console.log("Current uid: "+uid.toString());
-    const eventHandler = (event) => {
-        if (event.origin !== LAMDEN_MOBILE_WALLET_URL)
-            return;
-        if (event.data.uid && event.data.uid !== uid) {
-            console.log("Received wrong uid: "+event.data.uid);
-            return;
-        }
-        if (message !== null && event.data.payload) {
-            if (message.contractName !== event.data.payload.contract 
-                || message.methodName !== event.data.payload.function) {
-                console.log("Received wrong details: ");
-                console.log(event.data);
-                return;
-            }
-        }
-        console.log(event.data);
-        console.log("Calling callback");
-        callback(event.data);
-        window.removeEventListener("message", eventHandler);
-    };
-    window.addEventListener("message", eventHandler, false);
-    if (popup === null || popup.closed || message === null) {
-        popup = window.open(
-            url,
-            "LamdenWallet",
-            //"popup"
-        );
-        /*if (popup !== null) {
-            popup.onbeforeunload = function(){
-                popup = null;
-            };
-        }*/
-    } else {
-        console.log("Wallet already open");
-        console.log("Posting message: ");
-        console.log(message);
-        popup.postMessage({
-            jsonrpc: '2.0',
-            uid: uid,
-            ...message
-        }, LAMDEN_MOBILE_WALLET_URL);
-    }
-}
-
-export function loginMobile() {
-    var url = (
-        LAMDEN_MOBILE_WALLET_URL
-        + "?origin=" + encodeURIComponent(window.location.href)
-        + "&type=login"
-    );
-    openWalletPopup(url, null, (data)=>{
-        if (data.type && data.type==="vk") {
-            let walletController = get(lwc)
-            walletController.walletAddress = data.vk;
-            walletController.events.emit('newInfo', data);
-            return;
-        }
-    });
-}
-
 function sendTransaction(txInfo, resultsTracker, callback) {
-    let wallet = get(walletSelector);
-    if (wallet==="extension") {
-        let walletController = get(lwc)
-        walletController.sendTransaction(
-            txInfo, 
-            (txResults) => handleTxResults(txResults, resultsTracker, callback)
-        )
-    } else {
-        var params = {
-            contractName: txInfo.contractName,
-            methodName: txInfo.methodName,
-            stampLimit: txInfo.stampLimit.toString(),
-            kwargs: JSON.stringify(txInfo.kwargs),
-            origin: window.location.href,
-            type: "sign",
-        }
-        var url = (
-            LAMDEN_MOBILE_WALLET_URL
-            + "?contractName=" + encodeURIComponent(params.contractName)
-            + "&methodName=" + encodeURIComponent(params.methodName)
-            + "&stampLimit=" + encodeURIComponent(params.stampLimit)
-            + "&kwargs=" + encodeURIComponent(params.kwargs)
-            + "&origin=" + encodeURIComponent(params.origin)
-            + "&type=sign"
-        );
-        console.log(url);
-        openWalletPopup(url, params, (data)=>{
-            handleTxResults({data: data}, resultsTracker, callback)
-        })
-    }
+    let walletController = get(lwc)
+    walletController.sendTransaction(
+        txInfo, 
+        (txResults) => handleTxResults(txResults, resultsTracker, callback)
+    )
 }
 
 export function sendPhiPurchaseApproval (amount, resultsTracker, callback){

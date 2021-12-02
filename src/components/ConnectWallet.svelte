@@ -6,10 +6,10 @@
 
     // Misc
     import BN from 'bignumber.js'
-    import WalletController from 'lamden_wallet_controller';
+    import WalletController from '../lamdenWalletController/walletController';
     import { selectedNetwork, lamdenNetwork } from '../stores/globalStores.js';
     import { lotteryBalance, walletSelector, lamden_vk, lwc, phiCurrencyBalance, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
-    import { loginMobile, checkTokenBalance, getLotteryBalance, LAMDEN_MOBILE_WALLET_URL } from '../js/lamden-utils'
+    import { checkTokenBalance, getLotteryBalance, LAMDEN_MOBILE_WALLET_URL } from '../js/lamden-utils'
     import PhiTokenBalance from './PhiTokenBalance.svelte';
     import { writable } from 'svelte/store';
 
@@ -27,11 +27,8 @@
 		}
     })
     function checkIfWalletIsInstalled(){
-        if ($walletSelector === 'extension') {
-		    $lwc.walletIsInstalled()
-        } else if ($walletSelector === 'browser') {
-            loginMobile();
-        }
+        $lwc.chromeExtension = $walletSelector === 'extension';
+        $lwc.walletIsInstalled();
     }
 
     let displayWalletConnectionOptions = writable(false);
