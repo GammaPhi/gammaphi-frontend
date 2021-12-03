@@ -6,10 +6,10 @@
 
     // Misc
     import BN from 'bignumber.js'
-    import WalletController from 'lamden_wallet_controller';
+    import WalletController from '../lamdenWalletController/walletController';
     import { selectedNetwork, lamdenNetwork } from '../stores/globalStores.js';
     import { lotteryBalance, walletSelector, lamden_vk, lwc, phiCurrencyBalance, hasNetworkApproval, lamdenTokenBalance } from '../stores/lamdenStores.js';
-    import { loginMobile, checkTokenBalance, getLotteryBalance, LAMDEN_MOBILE_WALLET_URL } from '../js/lamden-utils'
+    import { checkTokenBalance, getLotteryBalance, LAMDEN_MOBILE_WALLET_URL } from '../js/lamden-utils'
     import PhiTokenBalance from './PhiTokenBalance.svelte';
     import { writable } from 'svelte/store';
 
@@ -18,20 +18,17 @@
 
         $lwc.events.on('newInfo', handleWalletInfo)
 
-        setTimeout(() => {
-            checkIfWalletIsInstalled()
-        }, 100)
+        //setTimeout(() => {
+        //    checkIfWalletIsInstalled()
+        //}, 100)
 
 		return () => {
 			$lwc.events.removeListener(handleWalletInfo)
 		}
     })
-    function checkIfWalletIsInstalled(){
-        if ($walletSelector === 'extension') {
-		    $lwc.walletIsInstalled()
-        } else if ($walletSelector === 'browser') {
-            loginMobile();
-        }
+    async function checkIfWalletIsInstalled(){
+        $lwc.chromeExtension = $walletSelector === 'extension';
+        await $lwc.walletIsInstalled();
     }
 
     let displayWalletConnectionOptions = writable(false);
@@ -55,20 +52,16 @@
         lotteryBalance.set(await getLotteryBalance())
     }
 
-    function connectToBrowserWallet() {
-        sessionStorage.setItem("lamdenWallet", "browser");
+    async function connectToBrowserWallet() {
+        //sessionStorage.setItem("lamdenWallet", "browser");
         walletSelector.set("browser");
-        setTimeout(()=>{
-            checkIfWalletIsInstalled();
-        }, 50);
+        await checkIfWalletIsInstalled();
     }
 
-    function connectToExtensionWallet() {
-        sessionStorage.setItem("lamdenWallet", "extension");
+    async function connectToExtensionWallet() {
+        //sessionStorage.setItem("lamdenWallet", "extension");
         walletSelector.set("extension");
-        setTimeout(()=>{
-            checkIfWalletIsInstalled();
-        }, 50);
+        await checkIfWalletIsInstalled();
     }
 
 </script>
