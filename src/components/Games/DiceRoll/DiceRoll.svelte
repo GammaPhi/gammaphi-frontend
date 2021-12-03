@@ -4,7 +4,7 @@
 
     // Misc
     import BN from 'bignumber.js'
-    import { diceRollInputValue, phiCurrencyBalance, diceRollApprovalTxStatus, diceRollTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
+    import { diceRollInputValue, phiCurrencyApprovedBalance, phiCurrencyBalance, diceRollApprovalTxStatus, diceRollTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
     import { sendDiceRollApproval, sendDiceRoll } from '../../../js/lamden-utils.js'
     import PhiTokenBalance from '../../PhiTokenBalance.svelte'
     import BNInputField from '../../Inputs/BNInputField.svelte'
@@ -18,6 +18,36 @@
     let value3 = writable(6)
     let value4 = writable(6)
     let value5 = writable(6)
+
+    let rolling = false;
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+
+    const startRolling = () => {
+        rolling = true;
+        keepRolling();
+    };
+
+    const keepRolling = () => {
+        let dice = [value1, value2, value3, value4, value5];
+        for(var i = 0; i < dice.length; i++) {
+            let die = dice[i];
+            setTimeout(()=>{
+                if (rolling) {
+                    die.set(getRandomInt(6)+1);
+                }               
+            }, 200+Math.random()*1000);
+        }
+        if (rolling) {
+            setTimeout(keepRolling, 500);
+        }
+    }
+
+    const stopRolling = () => {
+        rolling = false;
+    }
 
 	onMount(() => {
         diceRollInputValue.set(startingValue)
@@ -34,34 +64,52 @@
             errors.set(['You do not have enough PHI to make this bet.'])
             status.set('ready')
             return
-        }       
-        sendDiceRollApproval($diceRollInputValue, diceRollApprovalTxStatus, (txResults)=>{
-            if ($diceRollApprovalTxStatus.errors?.length > 0) {
-                status.set('error')
-                errors.set($diceRollApprovalTxStatus.errors)
-            } else {
-                status.set('approved')
-                sendDiceRoll($diceRollInputValue, diceRollTxStatus, (txResults)=>{
-                    if ($diceRollTxStatus.errors?.length > 0) {
-                        status.set('error')
-                        errors.set($diceRollTxStatus.errors)
-                    } else {
-                        console.log(txResults.txBlockResult.state[1].value.__fixed__)
-                        console.log(txResults.txBlockResult.state[3].value.__fixed__)
-                        let result = JSON.parse(txResults.resultInfo.returnResult);
-                        console.log(result)
+        } 
+        startRolling();
+
+        let afterApproval = () => {
+            status.set('approved')
+            sendDiceRoll($diceRollInputValue, diceRollTxStatus, (txResults)=>{
+                if ($diceRollTxStatus.errors?.length > 0) {
+                    status.set('error')
+                    errors.set($diceRollTxStatus.errors)
+                    stopRolling();
+                } else {
+                    console.log(txResults.txBlockResult.state[1].value.__fixed__)
+                    console.log(txResults.txBlockResult.state[3].value.__fixed__)
+                    let result = JSON.parse(txResults.resultInfo.returnResult);
+                    console.log(result)
+                    stopRolling();
+                    setTimeout(() => {
                         value1.set(result[0])
                         value2.set(result[1])
                         value3.set(result[2])
                         value4.set(result[3])
-                        value5.set(result[4])
-                        phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
-                        lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))                     
-                        status.set('ready')
-                    }
-                })
-            }
-        })
+                        value5.set(result[4])                            
+                    }, 500);
+                    phiCurrencyApprovedBalance.set(BN(txResults.txBlockResult.state[0].value.__fixed__))
+                    phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
+                    lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))                     
+                    status.set('ready')
+                }
+            })
+        };
+
+        if (BN($phiCurrencyApprovedBalance) < BN($diceRollInputValue)) {
+            console.log("Requires approval");
+            sendDiceRollApproval($diceRollInputValue, diceRollApprovalTxStatus, (txResults)=>{
+                if ($diceRollApprovalTxStatus.errors?.length > 0) {
+                    status.set('error')
+                    errors.set($diceRollApprovalTxStatus.errors)
+                    stopRolling();
+                } else {
+                    afterApproval();
+                }
+            })
+        } else {
+            console.log("Preapproved!");
+            afterApproval();
+        }
     }
 </script>
 

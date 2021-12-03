@@ -35,12 +35,6 @@
         font-size: 16px; 
         font-weight: 800;
     }
-    .container:hover > a{
-        color: var(--primary-color);
-    }
-    a:visited{
-        color: var(--color-gray-3);
-    }
     .nav-brand-logo {
         min-width: initial;
         color: var(--color-gray-4);

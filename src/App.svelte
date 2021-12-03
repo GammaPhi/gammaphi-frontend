@@ -13,6 +13,9 @@ import Footer from "./components/Footer.svelte";
 import { onMount } from 'svelte'
 import ConnectWallet from "./components/ConnectWallet.svelte";
 
+// Stores
+import { lamden_vk } from './stores/lamdenStores.js';
+
 onMount(() => {
 	unregisterOldServiceWorkers()
 })
@@ -60,24 +63,34 @@ function unregisterOldServiceWorkers(){
 		margin: 2rem auto 1rem;
 		width: 100%;
 	}
+	.top {
+		width: 100%;
+		margin: 1rem auto 1rem;
+	}
 </style>
 
 <Router>
-<Banner />
-<NavBar />
-<main>
-	<Route path="/" component={Home} />
-	<Route path="/purchase" component={Home} />
-	<Route path="/lottery" component={Home} />
-	<Route path="/coinflip" component={Home} />
-	<Route path="/diceroll" component={Home} />
-	<Route path="/spin" component={Home} />
-	<Route path="/about" component={Home} />
-	<div class="buttons flex">
-		<ConnectWallet />
-	</div>
-</main>
-<Footer />
+	<NavBar />
+	<Banner />
+	<main>
+		{#if !$lamden_vk}
+		<div class="top flex">
+			<ConnectWallet showHelp={false} />
+		</div>
+		{/if}
+		<Route path="/" component={Home} />
+		<Route path="/purchase" component={Home} />
+		<Route path="/lottery" component={Home} />
+		<Route path="/coinflip" component={Home} />
+		<Route path="/diceroll" component={Home} />
+		<Route path="/spin" component={Home} />
+		<Route path="/about" component={Home} />
+		<Route path="/approve" component={Home} />
+		<div class="buttons flex">
+			<ConnectWallet />
+		</div>
+	</main>
+	<Footer />
 </Router>
 
 

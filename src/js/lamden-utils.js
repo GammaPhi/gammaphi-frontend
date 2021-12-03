@@ -66,6 +66,22 @@ export async function checkTokenBalance(token) {
     }
 }
 
+export async function checkTokenApprovedBalance(token, contract) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let contractName = lamdenNetworkInfo.games[contract].contractName;
+    let vk = get(lamden_vk)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/states/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}:${contractName}`, {
+                method: 'GET',
+            },
+        )
+        return await getValueFromResponse(res)
+    } catch (error) {
+        return new BN(0)
+    }
+}
+
 export async function checkHousePHIBalance() {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
