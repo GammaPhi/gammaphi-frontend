@@ -18,9 +18,9 @@
 
         $lwc.events.on('newInfo', handleWalletInfo)
 
-        setTimeout(() => {
-            checkIfWalletIsInstalled()
-        }, 100)
+        //setTimeout(() => {
+        //    checkIfWalletIsInstalled()
+        //}, 100)
 
 		return () => {
 			$lwc.events.removeListener(handleWalletInfo)
@@ -53,7 +53,7 @@
     }
 
     function connectToBrowserWallet() {
-        sessionStorage.setItem("lamdenWallet", "browser");
+        //sessionStorage.setItem("lamdenWallet", "browser");
         walletSelector.set("browser");
         setTimeout(()=>{
             checkIfWalletIsInstalled();
@@ -61,7 +61,7 @@
     }
 
     function connectToExtensionWallet() {
-        sessionStorage.setItem("lamdenWallet", "extension");
+        //sessionStorage.setItem("lamdenWallet", "extension");
         walletSelector.set("extension");
         setTimeout(()=>{
             checkIfWalletIsInstalled();
