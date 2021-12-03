@@ -26,9 +26,9 @@
 			$lwc.events.removeListener(handleWalletInfo)
 		}
     })
-    function checkIfWalletIsInstalled(){
+    async function checkIfWalletIsInstalled(){
         $lwc.chromeExtension = $walletSelector === 'extension';
-        $lwc.walletIsInstalled();
+        await $lwc.walletIsInstalled();
     }
 
     let displayWalletConnectionOptions = writable(false);
@@ -52,20 +52,16 @@
         lotteryBalance.set(await getLotteryBalance())
     }
 
-    function connectToBrowserWallet() {
+    async function connectToBrowserWallet() {
         //sessionStorage.setItem("lamdenWallet", "browser");
         walletSelector.set("browser");
-        setTimeout(()=>{
-            checkIfWalletIsInstalled();
-        }, 50);
+        await checkIfWalletIsInstalled();
     }
 
-    function connectToExtensionWallet() {
+    async function connectToExtensionWallet() {
         //sessionStorage.setItem("lamdenWallet", "extension");
         walletSelector.set("extension");
-        setTimeout(()=>{
-            checkIfWalletIsInstalled();
-        }, 50);
+        await checkIfWalletIsInstalled();
     }
 
 </script>
