@@ -6,6 +6,7 @@
     { name: "Home", href: "/"},
     { name: "Purchase", href: "/purchase"},
     { name: "About", href: "/about"},
+    { name: "Approve", href: "/approve"},
   ];
 </script>
 
@@ -39,10 +40,13 @@
 </div>
 
 <style>
+	.nav-logo-container {
+		width: max-content;
+	}
     .navigation-bar {
 		color: var(--primary-color);
 		background-color: black;
-		position: fixed;
+		/*position: fixed;*/
 		z-index: 1000;
 		padding: 1em 1.5em;
 		width: 100%;

@@ -1,8 +1,8 @@
 <style>
     .banner-container{
         background-image: url('/static/images/banner.jpeg');
-        height: 200px;
-        min-height: 200px;
+        height: 100px;
+        min-height: 100px;
         background-size: cover;
         background-position-x: center;
         background-repeat: no-repeat;
@@ -28,8 +28,8 @@
         }
         .banner-container{
             background-image: url('/static/images/banner.jpeg');
-            height: 200px;
-            min-height: 200px;
+            height: 100px;
+            min-height: 100px;
             background-size: cover;
             background-repeat: no-repeat;
             position: relative;

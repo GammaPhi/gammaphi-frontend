@@ -6,11 +6,11 @@
     import ResultLink from './ResultLink.svelte'
 
     // Stores
-    import { lamden_vk, phiCurrencyBalance } from '../stores/lamdenStores' 
+    import { lamden_vk, phiCurrencyBalance, phiCurrencyApprovedBalance } from '../stores/lamdenStores' 
     import { lamdenNetwork } from '../stores/globalStores' 
 
     // Misc
-    import { checkTokenBalance } from '../js/lamden-utils'
+    import { checkTokenBalance, checkTokenApprovedBalance } from '../js/lamden-utils'
     import { stringToFixed } from '../js/global-utils'
     import { navigateLink, page } from '../js/navigation-utils'
 
@@ -30,6 +30,7 @@
         if (timer === null) return
         if (!$lamden_vk) return
         phiCurrencyBalance.set(await checkTokenBalance('phi'))
+        phiCurrencyApprovedBalance.set(await checkTokenApprovedBalance('phi', 'coinFlip'));
     }
 
 </script>
@@ -38,15 +39,26 @@
     p{
         margin-right: 1em;
     }
+    a {
+        margin-left: 5px;
+    }
+    span.approved {
+        color: var(--accent-color);
+        font-weight: bold;
+    }
 </style>
 
 <div class="flex row align-center">
     <TokenLogo token={{symbol: "PHI"}} clickable={false} size="tiny" />
-    <p>{`${stringToFixed($phiCurrencyBalance, 8)}`} PHI</p>
+    <p>{`${stringToFixed($phiCurrencyBalance, 8)}`} PHI 
+        <span class="approved">
+            ({`${stringToFixed($phiCurrencyApprovedBalance, 4)}`} Approved)
+        </span>
+    </p>
 </div>
 
 {#if stringToFixed($phiCurrencyBalance, 8) === '0' && $page !== '/purchase'}
-<div class="buttons">
-    No PHI? Purchase some <a on:click={navigateLink} href="/purchase">here</a>.
+<div class="flex row align-center">
+    No PHI? Purchase some{" "}<a on:click={navigateLink} href="/purchase">here</a>.
 </div>    
 {/if}

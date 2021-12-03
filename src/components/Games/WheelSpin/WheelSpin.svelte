@@ -4,7 +4,7 @@
 
     // Misc
     import BN from 'bignumber.js'
-    import { wheelSpinInputValue, phiCurrencyBalance, wheelSpinApprovalTxStatus, wheelSpinTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
+    import { wheelSpinInputValue, phiCurrencyApprovedBalance, phiCurrencyBalance, wheelSpinApprovalTxStatus, wheelSpinTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
     import { sendWheelSpinApproval, sendWheelSpin } from '../../../js/lamden-utils.js'
     import PhiTokenBalance from '../../PhiTokenBalance.svelte'
     import BNInputField from '../../Inputs/BNInputField.svelte'
@@ -117,27 +117,39 @@
             return
         }       
         theWheel.stopAnimation();
-        sendWheelSpinApproval($wheelSpinInputValue, wheelSpinApprovalTxStatus, (txResults)=>{
-            if ($wheelSpinApprovalTxStatus.errors?.length > 0) {
-                status.set('error')
-                errors.set($wheelSpinApprovalTxStatus.errors)
-            } else {
-                status.set('approved')
-                sendWheelSpin($wheelSpinInputValue, wheelSpinTxStatus, (txResults)=>{
-                    if ($wheelSpinTxStatus.errors?.length > 0) {
-                        status.set('error')
-                        errors.set($wheelSpinTxStatus.errors)
-                    } else {
-                        let result = parseInt(txResults.resultInfo.returnResult, 10);
-                        console.log(result)
-                        calculatePrize(result);
-                        phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
-                        lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))                     
-                        status.set('ready')
-                    }
-                })
-            }
-        })
+
+        let afterApproval = () => {
+            status.set('approved')
+            sendWheelSpin($wheelSpinInputValue, wheelSpinTxStatus, (txResults)=>{
+                if ($wheelSpinTxStatus.errors?.length > 0) {
+                    status.set('error')
+                    errors.set($wheelSpinTxStatus.errors)
+                } else {
+                    let result = parseInt(txResults.resultInfo.returnResult, 10);
+                    console.log(result)
+                    calculatePrize(result);
+                    phiCurrencyApprovedBalance.set(BN(txResults.txBlockResult.state[0].value.__fixed__))
+                    phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
+                    lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))                     
+                    status.set('ready')
+                }
+            })
+        };
+
+        if (BN($phiCurrencyApprovedBalance) < BN($wheelSpinInputValue)) {
+            console.log("Requires approval");
+            sendWheelSpinApproval($wheelSpinInputValue, wheelSpinApprovalTxStatus, (txResults)=>{
+                if ($wheelSpinApprovalTxStatus.errors?.length > 0) {
+                    status.set('error')
+                    errors.set($wheelSpinApprovalTxStatus.errors)
+                } else {
+                    afterApproval();
+                }
+            })
+        } else {
+            console.log("Preapproved!");
+            afterApproval();
+        }
     }
 </script>
 

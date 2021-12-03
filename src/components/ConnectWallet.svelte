@@ -13,6 +13,8 @@
     import PhiTokenBalance from './PhiTokenBalance.svelte';
     import { writable } from 'svelte/store';
 
+    export let showHelp=true;
+
 	onMount(() => {
         lwc.set(new WalletController(getApprovalRequest()))
 
@@ -97,11 +99,11 @@
 </style>
 
 <div align="center" class="row align-center buttons">
-    {#if $lamden_vk}
-        <div class="balances">
-            <PhiTokenBalance />
-            <LamdenBalance />
-        </div>
+    {#if $lamden_vk }
+    <div class="balances">
+        <PhiTokenBalance />
+        <LamdenBalance />
+    </div>
     {:else}
         {#if $displayWalletConnectionOptions}
             <p>Select your wallet provider</p>
@@ -110,11 +112,13 @@
         {:else}
             <button on:click={onConnectClick}>Connect To Lamden Wallet</button>
         {/if}
+        {#if showHelp}
         <p>
             New to Lamden? Download the 
             <a target="_blank" href="https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim">Chrome extension</a>
             or create a 
             <a target="_blank" href={LAMDEN_MOBILE_WALLET_URL}>browser wallet</a>.
         </p>
+        {/if}
     {/if}
 </div>

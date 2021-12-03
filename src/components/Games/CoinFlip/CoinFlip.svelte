@@ -4,7 +4,7 @@
 
     // Misc
     import BN from 'bignumber.js'
-    import { coinFlipInputValue, phiCurrencyBalance, coinFlipApprovalTxStatus, coinFlipTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
+    import { coinFlipInputValue, phiCurrencyApprovedBalance, phiCurrencyBalance, coinFlipApprovalTxStatus, coinFlipTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
     import { sendCoinFlipApproval, sendCoinFlip } from '../../../js/lamden-utils.js'
     import PhiTokenBalance from '../../PhiTokenBalance.svelte'
     import BNInputField from '../../Inputs/BNInputField.svelte'
@@ -36,32 +36,43 @@
             status.set('ready')
             return
         }
-        sendCoinFlipApproval($coinFlipInputValue, coinFlipApprovalTxStatus, (txResults)=>{
-            if ($coinFlipApprovalTxStatus.errors?.length > 0) {
-                status.set('error')
-                errors.set($coinFlipApprovalTxStatus.errors)
-            } else {
-                status.set('approved')
-                sendCoinFlip($coinFlipInputValue, BN($odds), coinFlipTxStatus, (txResults)=>{
-                    if ($coinFlipTxStatus.errors?.length > 0) {
-                        status.set('error')
-                        errors.set($coinFlipTxStatus.errors)
-                    } else {
-                        console.log(txResults.txBlockResult.state[1].value.__fixed__)
-                        console.log(txResults.txBlockResult.state[3].value.__fixed__)
-                        let previousPhi = BN($phiCurrencyBalance)
-                        phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
-                        let currentPhi = BN($phiCurrencyBalance)
-                        lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))
-                        if (previousPhi < currentPhi) {
-                            status.set('win')
-                        } else {                            
-                            status.set('loss')
-                        }
+
+        let afterApproval = () => {
+            status.set('approved')
+            sendCoinFlip($coinFlipInputValue, BN($odds), coinFlipTxStatus, (txResults)=>{
+                if ($coinFlipTxStatus.errors?.length > 0) {
+                    status.set('error')
+                    errors.set($coinFlipTxStatus.errors)
+                } else {
+                    console.log(txResults.txBlockResult.state[1].value.__fixed__)
+                    console.log(txResults.txBlockResult.state[3].value.__fixed__)
+                    let previousPhi = BN($phiCurrencyBalance)
+                    phiCurrencyApprovedBalance.set(BN(txResults.txBlockResult.state[0].value.__fixed__))
+                    phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
+                    let currentPhi = BN($phiCurrencyBalance)
+                    lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))
+                    if (previousPhi < currentPhi) {
+                        status.set('win')
+                    } else {                            
+                        status.set('loss')
                     }
-                })
-            }
-        })
+                }
+            })
+        }
+        if (BN($phiCurrencyApprovedBalance) < BN($coinFlipInputValue)) {
+            console.log("Requires approval");
+            sendCoinFlipApproval($coinFlipInputValue, coinFlipApprovalTxStatus, (txResults)=>{
+                if ($coinFlipApprovalTxStatus.errors?.length > 0) {
+                    status.set('error')
+                    errors.set($coinFlipApprovalTxStatus.errors)
+                } else {
+                    afterApproval();
+                }
+            })
+        } else {
+            console.log("Preapproved!");
+            afterApproval();
+        }
     }
 </script>
 
