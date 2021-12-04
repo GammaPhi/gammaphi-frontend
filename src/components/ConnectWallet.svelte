@@ -12,6 +12,7 @@
     import { checkTokenBalance, getLotteryBalance, LAMDEN_MOBILE_WALLET_URL } from '../js/lamden-utils'
     import PhiTokenBalance from './PhiTokenBalance.svelte';
     import { writable } from 'svelte/store';
+    import { navigateLink, page } from '../js/navigation-utils';
 
     export let showHelp=true;
 
@@ -80,7 +81,7 @@
 
 
 <style>
-    a{
+    /*a{
         color: var(--font-primary);
         text-decoration: underline;
         cursor: pointer;
@@ -90,7 +91,7 @@
     }
     a:visited{
         color: var(--font-primary);
-    }
+    }*/
 
     button.extension {
         width: 200px;

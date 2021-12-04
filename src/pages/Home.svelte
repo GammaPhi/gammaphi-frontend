@@ -123,4 +123,11 @@ const gameInfo = [
 	<PreApprove />
 
 	{/if}
+
+	{#if $page === '/coinflip' || $page === '/spin' || $page === '/diceroll'}
+    <div class="buttons" align="middle">
+        <a class="about-link" on:click={navigateLink} href="/approve">Pre-approve $PHI</a>
+        <br />
+    </div>
+    {/if}
 {/if}
