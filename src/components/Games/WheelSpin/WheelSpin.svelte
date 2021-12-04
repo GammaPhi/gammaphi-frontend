@@ -111,11 +111,18 @@
     function spinWheel() {
         status.set('betting')
         errors.set(null)
-        if (BN($phiCurrencyBalance) < BN($wheelSpinInputValue)) {
+        if (BN($phiCurrencyBalance).comparedTo(BN($wheelSpinInputValue)) === -1) {
             errors.set(['You do not have enough PHI to make this bet.'])
             status.set('ready')
             return
         }       
+
+        if (BN($wheelSpinInputValue).comparedTo(BN("1")) === -1 || BN("1000").comparedTo(BN($wheelSpinInputValue)) === -1) {
+            errors.set(['You can only bet between 1 and 1000 PHI'])
+            status.set('ready')
+            return
+        }
+
         theWheel.stopAnimation();
 
         let afterApproval = () => {
@@ -136,7 +143,7 @@
             })
         };
 
-        if (BN($phiCurrencyApprovedBalance) < BN($wheelSpinInputValue)) {
+        if (BN($phiCurrencyApprovedBalance).comparedTo(BN($wheelSpinInputValue)) === -1) {
             console.log("Requires approval");
             sendWheelSpinApproval($wheelSpinInputValue, wheelSpinApprovalTxStatus, (txResults)=>{
                 if ($wheelSpinApprovalTxStatus.errors?.length > 0) {

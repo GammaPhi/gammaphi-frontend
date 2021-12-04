@@ -26,12 +26,12 @@
     function placeBet() {
         status.set('betting')
         errors.set(null)
-        if (BN($phiCurrencyBalance) < BN($coinFlipInputValue)) {
+        if (BN($phiCurrencyBalance).comparedTo(BN($coinFlipInputValue)) === -1) {
             errors.set(['You do not have enough PHI to make this bet.'])
             status.set('ready')
             return
         }
-        if (BN("1") > BN($coinFlipInputValue) || BN("1000") < BN($coinFlipInputValue)) {
+        if (BN($coinFlipInputValue).comparedTo(BN("1")) === -1 || BN("1000").comparedTo(BN($coinFlipInputValue)) === -1) {
             errors.set(['You can only bet between 1 and 1000 PHI'])
             status.set('ready')
             return
@@ -51,7 +51,7 @@
                     phiCurrencyBalance.set(BN(txResults.txBlockResult.state[1].value.__fixed__))
                     let currentPhi = BN($phiCurrencyBalance)
                     lamdenCurrencyBalance.set(BN(txResults.txBlockResult.state[3].value.__fixed__))
-                    if (previousPhi < currentPhi) {
+                    if (previousPhi.comparedTo(currentPhi) === -1) {
                         status.set('win')
                     } else {                            
                         status.set('loss')
@@ -59,7 +59,7 @@
                 }
             })
         }
-        if (BN($phiCurrencyApprovedBalance) < BN($coinFlipInputValue)) {
+        if (BN($phiCurrencyApprovedBalance).comparedTo(BN($coinFlipInputValue)) === -1) {
             console.log("Requires approval");
             sendCoinFlipApproval($coinFlipInputValue, coinFlipApprovalTxStatus, (txResults)=>{
                 if ($coinFlipApprovalTxStatus.errors?.length > 0) {

@@ -24,6 +24,7 @@ const handleInputChange = (e) => {
             inputElm.value = stringToFixed(value, precision)
         }
     }
+    //console.log(inputElm.value);
     onInputChange(inputElm.value)
 }
 </script>
@@ -39,6 +40,7 @@ const handleInputChange = (e) => {
     <input class={inputClass}
         bind:this={inputElm}
         on:input={handleInputChange}
+        on:change={handleInputChange}
         value={startingValue}
         readonly={false}
     />

@@ -60,11 +60,18 @@
     function rollDice() {
         status.set('betting')
         errors.set(null)
-        if (BN($phiCurrencyBalance) < BN($diceRollInputValue)) {
+        if (BN($phiCurrencyBalance).comparedTo(BN($diceRollInputValue)) === -1) {
             errors.set(['You do not have enough PHI to make this bet.'])
             status.set('ready')
             return
         } 
+
+        if (BN($diceRollInputValue).comparedTo(BN("1")) === -1 || BN("1000").comparedTo(BN($diceRollInputValue)) === -1) {
+            errors.set(['You can only bet between 1 and 1000 PHI'])
+            status.set('ready')
+            return
+        }
+
         startRolling();
 
         let afterApproval = () => {
@@ -94,8 +101,9 @@
                 }
             })
         };
-
-        if (BN($phiCurrencyApprovedBalance) < BN($diceRollInputValue)) {
+        console.log(BN($phiCurrencyApprovedBalance));
+        console.log(BN($diceRollInputValue))
+        if (BN($phiCurrencyApprovedBalance).comparedTo(BN($diceRollInputValue)) === -1) {
             console.log("Requires approval");
             sendDiceRollApproval($diceRollInputValue, diceRollApprovalTxStatus, (txResults)=>{
                 if ($diceRollApprovalTxStatus.errors?.length > 0) {
