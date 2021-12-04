@@ -20,8 +20,8 @@ onMount(() => {
 function approve() {
     status.set('betting')
     errors.set(null)
-    if (BN($phiCurrencyBalance) < BN($approvalInputValue)) {
-        errors.set(['You do not have enough PHI to make this bet.'])
+    if (BN($phiCurrencyBalance).comparedTo(BN($approvalInputValue)) === -1) {
+        errors.set(['You do not have enough PHI to approve this amount.'])
         status.set('ready')
         return
     } 

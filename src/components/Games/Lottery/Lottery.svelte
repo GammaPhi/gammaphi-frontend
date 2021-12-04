@@ -25,8 +25,8 @@
     function getTickets() {
         status.set('betting')
         errors.set(null)
-        if (BN($phiCurrencyBalance) < BN($lotteryInputValue)) {
-            errors.set(['You do not have enough PHI to make this bet.'])
+        if (BN($phiCurrencyBalance).comparedTo(BN($lotteryInputValue)) === -1) {
+            errors.set(['You do not have enough PHI to buy this many tickets.'])
             status.set('ready')
             return
         }        

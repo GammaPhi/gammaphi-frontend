@@ -101,8 +101,7 @@
                 }
             })
         };
-        console.log(BN($phiCurrencyApprovedBalance));
-        console.log(BN($diceRollInputValue))
+        
         if (BN($phiCurrencyApprovedBalance).comparedTo(BN($diceRollInputValue)) === -1) {
             console.log("Requires approval");
             sendDiceRollApproval($diceRollInputValue, diceRollApprovalTxStatus, (txResults)=>{
