@@ -9,6 +9,7 @@ export const lamdenCurrencyBalance = writable(new BN(0))
 export const lamdenTokenBalance = writable(new BN(0))
 export const phiCurrencyBalance = writable(new BN(0))
 export const phiCurrencyApprovedBalance = writable(new BN(0));
+export const legacyPhiCurrencyBalance = writable(new BN(0));
 export const lamdenTokenApprovalAmount = writable(new BN(0))
 export const walletSelector = writable(null);//sessionStorage.getItem("lamdenWallet") || null);
 

@@ -8,6 +8,7 @@ import BackHomeButton from '../components/BackHomeButton.svelte'
 import About from './About.svelte';
 import DiceRoll from './DiceRoll.svelte'
 import PreApprove from './PreApprove.svelte';
+import Redeem from './Redeem.svelte';
 
 // Games
 const gameInfo = [
@@ -121,6 +122,10 @@ const gameInfo = [
 	{:else if $page === '/approve'}
 
 	<PreApprove />
+
+	{:else if $page === '/redeem'}
+
+	<Redeem />
 
 	{/if}
 
