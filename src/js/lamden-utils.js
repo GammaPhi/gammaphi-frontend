@@ -187,6 +187,37 @@ export function sendCoinFlip (amount, odds, resultsTracker, callback){
 }
 
 
+export function sendRedeemApproval (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.redeem.networkType,
+        contractName: lamdenNetworkInfo.coins.phi_old.contractName,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: lamdenNetworkInfo.redeem.contractName,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendRedeem (resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.redeem.networkType,
+        contractName: lamdenNetworkInfo.redeem.contractName,
+        methodName: 'redeem_phi',
+        kwargs: {},
+        stampLimit: lamdenNetworkInfo.stamps.redeem,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
 export function sendDiceRollApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
 
