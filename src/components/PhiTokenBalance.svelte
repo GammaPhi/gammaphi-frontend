@@ -53,9 +53,9 @@
 <div class="flex row align-center">
     <TokenLogo token={{symbol: "PHI"}} clickable={false} size="tiny" />
     <p>{`${stringToFixed($phiCurrencyBalance, 8)}`} PHI 
-        <span class="approved">
+        <a on:click={navigateLink} href="/approve">
             ({`${stringToFixed($phiCurrencyApprovedBalance, 4)}`} Approved)
-        </span>
+        </a>
     </p>
 </div>
 {#if BN($legacyPhiCurrencyBalance).comparedTo(BN('0'))===1 && $page !== '/redeem'}
