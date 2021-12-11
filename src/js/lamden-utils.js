@@ -152,22 +152,6 @@ export function sendPhiPurchase (amount, round, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendCoinFlipApproval (amount, resultsTracker, callback){
-    let lamdenNetworkInfo = get(lamdenNetwork)
-
-    const txInfo = {
-        networkType: lamdenNetworkInfo.games.coinFlip.networkType,
-        contractName: lamdenNetworkInfo.coins.phi.contractName,
-        methodName: 'approve',
-        kwargs: {
-            amount: { __fixed__: amount.toString() },
-            to: lamdenNetworkInfo.games.coinFlip.contractName,
-        },
-        stampLimit: lamdenNetworkInfo.stamps.approval,
-    }
-
-    sendTransaction(txInfo, resultsTracker, callback)
-}
 
 export function sendCoinFlip (amount, odds, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
@@ -186,6 +170,95 @@ export function sendCoinFlip (amount, odds, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
+export function sendCreateProfile (profile_kwargs, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.profile.networkType,
+        contractName: lamdenNetworkInfo.profile.contractName,
+        methodName: 'create_profile',
+        kwargs: profile_kwargs,
+        stampLimit: lamdenNetworkInfo.stamps.profile,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendUpdateProfile (key, value, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.profile.networkType,
+        contractName: lamdenNetworkInfo.profile.contractName,
+        methodName: 'update_profile',
+        kwargs: {
+            key: key,
+            value: value
+        },
+        stampLimit: lamdenNetworkInfo.stamps.profile,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendProfileAddFrens (frens, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.profile.networkType,
+        contractName: lamdenNetworkInfo.profile.contractName,
+        methodName: 'add_frens',
+        kwargs: {
+            frens: frens
+        },
+        stampLimit: lamdenNetworkInfo.stamps.profile,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+
+export function sendProfileRemoveFrens (frens, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.profile.networkType,
+        contractName: lamdenNetworkInfo.profile.contractName,
+        methodName: 'remove_frens',
+        kwargs: {
+            frens: frens
+        },
+        stampLimit: lamdenNetworkInfo.stamps.profile,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export async function hydrateProfile (key, default_value=null) {
+    let vk = get(lamden_vk)
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.profile.contractName}/metadata?key=${vk}:${key}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
 
 export function sendRedeemApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
@@ -218,22 +291,6 @@ export function sendRedeem (resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendDiceRollApproval (amount, resultsTracker, callback){
-    let lamdenNetworkInfo = get(lamdenNetwork)
-
-    const txInfo = {
-        networkType: lamdenNetworkInfo.games.diceRoll.networkType,
-        contractName: lamdenNetworkInfo.coins.phi.contractName,
-        methodName: 'approve',
-        kwargs: {
-            amount: { __fixed__: amount.toString() },
-            to: lamdenNetworkInfo.games.diceRoll.contractName,
-        },
-        stampLimit: lamdenNetworkInfo.stamps.approval,
-    }
-
-    sendTransaction(txInfo, resultsTracker, callback)
-}
 
 export function sendDiceRoll (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
@@ -284,16 +341,16 @@ export function sendLottery (amount, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendWheelSpinApproval (amount, resultsTracker, callback){
+export function sendHouseApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
 
     const txInfo = {
-        networkType: lamdenNetworkInfo.games.wheelSpin.networkType,
+        networkType: lamdenNetworkInfo.app.networkType,
         contractName: lamdenNetworkInfo.coins.phi.contractName,
         methodName: 'approve',
         kwargs: {
             amount: { __fixed__: amount.toString() },
-            to: lamdenNetworkInfo.games.wheelSpin.contractName,
+            to: lamdenNetworkInfo.app.contractName,
         },
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }

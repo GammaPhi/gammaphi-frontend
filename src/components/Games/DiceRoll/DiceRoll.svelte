@@ -5,7 +5,7 @@
     // Misc
     import BN from 'bignumber.js'
     import { diceRollInputValue, phiCurrencyApprovedBalance, phiCurrencyBalance, diceRollApprovalTxStatus, diceRollTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
-    import { sendDiceRollApproval, sendDiceRoll } from '../../../js/lamden-utils.js'
+    import { sendHouseApproval, sendDiceRoll } from '../../../js/lamden-utils.js'
     import PhiTokenBalance from '../../PhiTokenBalance.svelte'
     import BNInputField from '../../Inputs/BNInputField.svelte'
     import { stringToFixed } from '../../../js/global-utils'
@@ -104,7 +104,7 @@
         
         if (BN($phiCurrencyApprovedBalance).comparedTo(BN($diceRollInputValue)) === -1) {
             console.log("Requires approval");
-            sendDiceRollApproval($diceRollInputValue, diceRollApprovalTxStatus, (txResults)=>{
+            sendHouseApproval($diceRollInputValue, diceRollApprovalTxStatus, (txResults)=>{
                 if ($diceRollApprovalTxStatus.errors?.length > 0) {
                     status.set('error')
                     errors.set($diceRollApprovalTxStatus.errors)

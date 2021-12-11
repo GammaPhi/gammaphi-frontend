@@ -13,6 +13,7 @@
     import PhiTokenBalance from './PhiTokenBalance.svelte';
     import { writable } from 'svelte/store';
     import { navigateLink, page } from '../js/navigation-utils';
+    import { loadProfileStore } from '../js/profile-utils';
 
     export let showHelp=true;
 
@@ -61,6 +62,7 @@
 	const handleWalletInfo = async (info) => {
         hasNetworkApproval.set({approved: true})
         lamden_vk.set($lwc.walletAddress)
+        loadProfileStore();
         phiCurrencyBalance.set(await checkTokenBalance('phi'))
         legacyPhiCurrencyBalance.set(await checkTokenBalance('phi_old'))
         lotteryBalance.set(await getLotteryBalance())

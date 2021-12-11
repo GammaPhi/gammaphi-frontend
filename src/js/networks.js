@@ -28,6 +28,10 @@ export const mainnet = {
                 contractName: "con_gamma_phi_house_v2",
             }
         },
+        profile: {
+            networkType: "mainnet",
+            contractName: "con_gamma_phi_profile_v2",
+        },
         coins: {
             phi: {
                 networkType: "mainnet",
@@ -62,7 +66,8 @@ export const mainnet = {
             diceRoll: 1000,
             lottery: 1000,
             purchase: 500,
-            redeem: 500
+            redeem: 500,
+            profile: 1000
         }
     }
 }
@@ -92,6 +97,10 @@ export const testnet = {
                 networkType: "testnet",
                 contractName: "con_gamma_phi_house_v2",
             },
+        },
+        profile: {
+            networkType: "testnet",
+            contractName: "con_gamma_phi_profile_v2",
         },
         purchase: {
             networkType: "testnet",
@@ -130,7 +139,8 @@ export const testnet = {
             diceRoll: 1000,
             lottery: 1000,
             purchase: 500,
-            redeem: 500
+            redeem: 500,
+            profile: 1000
         }
     }
 }

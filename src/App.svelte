@@ -87,6 +87,7 @@ function unregisterOldServiceWorkers(){
 		<Route path="/about" component={Home} />
 		<Route path="/approve" component={Home} />
 		<Route path="/redeem" component={Home} />
+		<Route path="/profile" component={Home} />
 		<div class="buttons flex">
 			<ConnectWallet />
 		</div>

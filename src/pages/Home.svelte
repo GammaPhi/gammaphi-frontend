@@ -9,6 +9,7 @@ import About from './About.svelte';
 import DiceRoll from './DiceRoll.svelte'
 import PreApprove from './PreApprove.svelte';
 import Redeem from './Redeem.svelte';
+import Profile from './Profile.svelte';
 
 // Games
 const gameInfo = [
@@ -122,6 +123,10 @@ const gameInfo = [
 	{:else if $page === '/approve'}
 
 	<PreApprove />
+
+	{:else if $page === '/profile'}
+
+	<Profile />
 
 	{:else if $page === '/redeem'}
 
