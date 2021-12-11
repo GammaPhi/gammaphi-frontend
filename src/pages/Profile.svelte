@@ -59,6 +59,7 @@ onMount(()=>{
 
 
 const saveProfile = async () => {
+	errors.set([]);
 	await sendCreateProfile(
 		{
 			username: $usernameValue,
@@ -91,6 +92,7 @@ const downloadPrivateKey = () => {
 }
 	
 const onFileSelected =(e)=>{
+	avatarErrors.set([]);
 	let image = e.target.files[0];
 	console.log('image:');
 	console.log(image);
@@ -210,6 +212,13 @@ const validateAndSetUsername = (n) => {
 	{/if}
 	<div class="upload" on:click={()=>{fileinput.click();}}>Upload an Avatar</div>
 	<input style="display:none" type="file" accept=".jpg, .jpeg, .svg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
+	{#if $avatarErrors !== null}
+		{#each $avatarErrors as error}
+			<div class="username-error error">
+				{error}
+			</div>
+		{/each}
+	{/if}
 </Container>
 <br />
 <Container>
@@ -224,6 +233,14 @@ const validateAndSetUsername = (n) => {
 		clicked={()=>{downloadPrivateKey();}}
 	/>
 </Container>
+<br />
+{#if $errors !== null}
+{#each $errors as error}
+	<div class="username-error error">
+		{error}
+	</div>
+{/each}
+{/if}
 <br />
 <Button 
 	text="Create Profile"
