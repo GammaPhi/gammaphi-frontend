@@ -2,11 +2,44 @@ import BN from 'bignumber.js'
 import { get } from 'svelte/store'
 import { lamden_vk } from '../stores/lamdenStores';
 
+
+// Set the name of the hidden property and the change event for visibility
+var hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
+
+let isVisible = true;
+
+function handleVisibilityChange() {
+  if (document[hidden]) {
+    isVisible = false;
+  } else {
+    isVisible = true;
+  }
+}
+
+// Warn if the browser doesn't support addEventListener or the Page Visibility API
+if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+  console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+} else {
+  // Handle page visibility change
+  document.addEventListener(visibilityChange, handleVisibilityChange, false);
+}
+
+
 export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTimeCallback=null, dictStore=null, interval=2000) => {
     let calledFirstTimeCallback = false;
     let f = () => {
         setTimeout(()=>{
-            if (get(hasFocus) && document.hasFocus()) {
+            if (get(hasFocus) && (document.hasFocus() || isVisible)) {
                 refresh_func().then((v)=>{
                     variable.set(v)
                     if (!calledFirstTimeCallback && get(lamden_vk) !== null) {
