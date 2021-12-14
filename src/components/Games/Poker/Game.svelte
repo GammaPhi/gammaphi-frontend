@@ -1,7 +1,7 @@
 <script>
 import Container from "../../Inputs/Container.svelte";
 import Link from "../../Link.svelte";
-import { autoRefreshingVariable } from '../../../js/global-utils';
+import { autoRefreshingVariable, formatGameId } from '../../../js/global-utils';
 import { onMount } from "svelte";
 import { lamden_vk } from '../../../stores/lamdenStores'
 import { derived, writable, get } from "svelte/store";
@@ -636,7 +636,7 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
     <Link onClick={goBack}>Return to Lobby</Link>
 </Container>    
 
-<h2>Poker Game:{" "}{game_id.substring(0, 4)}...{game_id.substring(game_id.length-4)}</h2>
+<h2>Poker Game:{" "}{formatGameId(game_id)}</h2>
 
 {#if $lamden_vk === null}
 
@@ -894,18 +894,14 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
                 Player
             </th>
             <th>
-                Dealer?
+                Chips
             </th>
             <th>
-                Next Better?
+                In Pot
             </th>
             <th>
-                Remaining Chips
+                Hand
             </th>
-            <th>
-                Current Bet
-            </th>
-            <th>Public Hand</th>
         </tr>
     </thead>
     <tbody>
@@ -913,12 +909,8 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
         <tr>
             <td>
                 {!$playerNamesStores.hasOwnProperty(player)?'Loading...':get($playerNamesStores[player])}
-            </td>
-            <td>
-                {$dealer.length > 0 && $dealer===player ? "Yes" : ""}
-            </td>
-            <td>
-                {$next_better.length > 0 && $next_better===player ? "Yes" : ""}
+                {$dealer.length > 0 && $dealer===player ? "(D)" : ""}
+                {$next_better.length > 0 && $next_better===player ? "(*)" : ""}
             </td>
             <td>
                 {!$playerChipsStores.hasOwnProperty(player)?'Loading...':get($playerChipsStores[player])}

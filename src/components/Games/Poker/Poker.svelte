@@ -7,7 +7,7 @@ import Container from "../../Inputs/Container.svelte";
 import Link from "../../Link.svelte";
 import Game from "./Game.svelte";
 import CreateGameForm from './CreateGameForm.svelte';
-import { autoRefreshingVariable } from '../../../js/global-utils';
+import { autoRefreshingVariable, formatGameId } from '../../../js/global-utils';
 import Input from "../../Inputs/Input.svelte";
 import Button from "../../Button.svelte";
 import Errors from "./Errors.svelte";
@@ -111,7 +111,7 @@ const joinPublicGame = async (game_id) => {
                 <h3>Your Games</h3>
                 {#if Array.isArray($games)}
                     {#each $games as game}
-                        <Link onClick={()=>selectedGame.set(game)}>{game}</Link>
+                        <Link onClick={()=>selectedGame.set(game)}>{formatGameId(game)}</Link>
                         <br />
                     {/each}    
                 {/if}

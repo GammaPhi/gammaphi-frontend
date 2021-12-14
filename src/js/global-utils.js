@@ -46,6 +46,10 @@ export function isString(s) {
     return typeof s === 'string' || s instanceof String
 }
 
+export function formatGameId(game_id) {
+    return `${game_id.substring(0, 4)}...${game_id.substring(game_id.length-4)}`;
+}
+
 export const stringToFixed = (value, precision) => {
 	if (BN.isBigNumber(value) && precision ) value = value.toFixed(precision)
 	if (!value) return "0.0"
