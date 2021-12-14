@@ -26,11 +26,15 @@ export const mainnet = {
             diceRoll: {
                 networkType: "mainnet",
                 contractName: "con_gamma_phi_house_v2",
+            },
+            poker: {
+                networkType: "mainnet",
+                contractName: "con_poker_1_card_games_v3"
             }
         },
         profile: {
             networkType: "mainnet",
-            contractName: "con_gamma_phi_profile_v2",
+            contractName: "con_gamma_phi_profile_v4",
         },
         coins: {
             phi: {
@@ -53,7 +57,7 @@ export const mainnet = {
         app: {
             appName: "Gamma Phi", // Your DAPPS's name
             version: "1.0.2", // any version to start, increment later versions to update connection info
-            logo: "/static/logo-512.png", // or whatever the location of your logo
+            logo: "/static/favicon.png", // or whatever the location of your logo
             background: "/static/wallet/background.jpg", // or whatever the location of your logo
             contractName: "con_gamma_phi_house_v2", // Will never change
             networkType: "mainnet", // other option is 'mainnet' 
@@ -67,7 +71,8 @@ export const mainnet = {
             lottery: 1000,
             purchase: 500,
             redeem: 500,
-            profile: 1000
+            profile: 1000,
+            poker: 2000
         }
     }
 }
@@ -97,10 +102,14 @@ export const testnet = {
                 networkType: "testnet",
                 contractName: "con_gamma_phi_house_v2",
             },
+            poker: {
+                networkType: "testnet",
+                contractName: "con_poker_1_card_games_v3"
+            }
         },
         profile: {
             networkType: "testnet",
-            contractName: "con_gamma_phi_profile_v2",
+            contractName: "con_gamma_phi_profile_v4",
         },
         purchase: {
             networkType: "testnet",
@@ -123,7 +132,7 @@ export const testnet = {
         app: {
             appName: "Gamma Phi", // Your DAPPS's name
             version: "1.0.2", // any version to start, increment later versions to update connection info
-            logo: "/static/logo-512.png", // or whatever the location of your logo
+            logo: "/static/favicon.png", // or whatever the location of your logo
             background: "/static/wallet/background.jpg", // or whatever the location of your logo
             contractName: "con_gamma_phi_house_v2", // Will never change
             networkType: "testnet", // other option is 'mainnet' 
@@ -140,7 +149,8 @@ export const testnet = {
             lottery: 1000,
             purchase: 500,
             redeem: 500,
-            profile: 1000
+            profile: 1000,
+            poker: 2000
         }
     }
 }

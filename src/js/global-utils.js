@@ -1,4 +1,42 @@
 import BN from 'bignumber.js'
+import { get } from 'svelte/store'
+import { lamden_vk } from '../stores/lamdenStores';
+
+export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTimeCallback=null, dictStore=null, interval=2000) => {
+    let calledFirstTimeCallback = false;
+    let f = () => {
+        setTimeout(()=>{
+            if (get(hasFocus) && document.hasFocus()) {
+                refresh_func().then((v)=>{
+                    variable.set(v)
+                    if (!calledFirstTimeCallback && get(lamden_vk) !== null) {
+                        calledFirstTimeCallback = true;
+                        if (firstTimeCallback !== null) {
+                            firstTimeCallback(v);
+                        }
+                    }
+                    if (dictStore !== null) {
+                        dictStore.set(get(dictStore));
+                    }            
+                });
+            }
+            f();
+        }, interval);
+    }
+    refresh_func().then((v)=>{
+        variable.set(v)
+        if (firstTimeCallback !== null && get(lamden_vk) !== null) {
+            firstTimeCallback(v);
+            calledFirstTimeCallback = true;
+        }
+        if (dictStore !== null) {
+            dictStore.set(get(dictStore));
+        }
+        f();
+    });
+};
+
+
 
 export function openURL(url){
 	window.open(url, '_blank');

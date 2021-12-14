@@ -2,9 +2,7 @@
 import { 
 	username, 
 	display_name,
-	icon_base64_svg,
-	icon_base64_png,
-    icon_base64_jpg,
+	icon_base64,
 	icon_url,
 	frens
 } from '../stores/profileStore'
@@ -18,9 +16,7 @@ export function loadProfileStore() {
     const map = {
         username: username,
         display_name: display_name,
-        icon_base64_png: icon_base64_png,
-        icon_base64_svg: icon_base64_svg,
-        icon_base64_jpg: icon_base64_jpg,
+        icon_base64: icon_base64,
         icon_url: icon_url,
         frens: frens,
     };

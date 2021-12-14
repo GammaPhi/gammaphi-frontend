@@ -10,9 +10,17 @@ import DiceRoll from './DiceRoll.svelte'
 import PreApprove from './PreApprove.svelte';
 import Redeem from './Redeem.svelte';
 import Profile from './Profile.svelte';
+import Poker from './Poker.svelte';
+
+export let location;
 
 // Games
 const gameInfo = [
+	{
+        name: 'Poker',
+        link: '/poker',
+        description: "Play decentralized poker with your friends or join a public table."
+    },
 	{
         name: 'Dice Roll',
         link: '/diceroll',
@@ -103,6 +111,10 @@ const gameInfo = [
 	{:else if $page === '/lottery'}
 
 	<Lottery />
+
+	{:else if $page === '/poker'}
+
+	<Poker />
 
 	{:else if $page === '/spin'}
 

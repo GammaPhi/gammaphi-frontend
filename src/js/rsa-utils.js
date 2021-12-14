@@ -4,7 +4,7 @@ import forge from 'forge';
 var rsa = forge.pki.rsa;
 var pki = forge.pki;
 
-export function generatePrivateKey(callback, nbits=2048, workers=2) {
+export function generatePrivateKey(callback, nbits=512, workers=2) {
     rsa.generateKeyPair({bits: nbits, workers: workers}, function(err, keypair) {
         callback(keypair.privateKey);
     });
@@ -30,11 +30,11 @@ export function decrypt(encryptedHexStr, privateKey) {
     return privateKey.decrypt(forge.util.hexToBytes(encryptedHexStr), 'RSAES-PKCS1-V1_5');
 }
 
-export function storePemFileInBrowser(pem) {
-    sessionStorage.setItem("rsa_pem", pem);
-    localStorage.setItem("rsa_pem", pem);
+export function storePemFileInBrowser(vk, pem) {
+    sessionStorage.setItem("rsa_pem_"+vk, pem);
+    localStorage.setItem("rsa_pem_"+vk, pem);
 };
 
-export function retrievePemFileFromBrowser() {
-    return localStorage.getItem("rsa_pem") || sessionStorage.getItem("rsa_pem");
+export function retrievePemFileFromBrowser(vk) {
+    return localStorage.getItem("rsa_pem_"+vk) || sessionStorage.getItem("rsa_pem_"+vk);
 }

@@ -81,6 +81,7 @@ function unregisterOldServiceWorkers(){
 		<Route path="/" component={Home} />
 		<Route path="/purchase" component={Home} />
 		<Route path="/lottery" component={Home} />
+		<Route path="/poker" component={Home} />
 		<Route path="/coinflip" component={Home} />
 		<Route path="/diceroll" component={Home} />
 		<Route path="/spin" component={Home} />
