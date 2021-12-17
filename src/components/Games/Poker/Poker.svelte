@@ -27,9 +27,11 @@ onMount(()=>{
 })
 
 const selectedGame = writable(null);
+const selectedGameName = writable(null);
 const games = writable([]);
 const gameNames = writable({});
 const gameInvites = writable([]);
+const gameInviteNames = writable({});
 const loadedPlayersGames = writable(false);
 const loadedPlayersInvites = writable(false);
 const loaded = derived([loadedPlayersGames, loadedPlayersInvites], 
@@ -67,8 +69,19 @@ function setupGameNamesStores() {
     )
 }
 
-$: $games, setupGameNamesStores();
+function setupGameInviteNamesStores() {
+    setupArrayStore(
+        hasFocus,
+        gameInvites, 
+        gameInviteNames, 
+        '', 
+        (game)=>()=>checkPokerContractState("games", [game, "name"], formatGameId(game)),
+        false
+    )
+}
 
+$: $games, setupGameNamesStores();
+$: $gameInvites, setupGameInviteNamesStores();
 
 const handleInviteHandler = writable({});
 const handleInviteErrors = writable([]);
@@ -123,7 +136,7 @@ const joinPublicGame = async (game_id) => {
 <h2>Poker Lobby</h2>
 <Container>
 
-    <CreateGameForm selectedGame={selectedGame} />
+    <CreateGameForm selectedGame={selectedGame} selectedGameName={selectedGameName} />
     
     {#if $lamden_vk === null}
 
@@ -140,13 +153,13 @@ const joinPublicGame = async (game_id) => {
             <h3>Your Games</h3>
             {#if Array.isArray($games)}
                 {#each $games as game}
-                    <Link onClick={()=>selectedGame.set(game)}>
                         {#if $gameNames.hasOwnProperty(game) && get($gameNames[game]) !== null}
+                        <Link onClick={()=>{selectedGame.set(game); selectedGameName.set(get($gameNames[game]))}}>
                             {get($gameNames[game])}
+                        </Link>
                         {:else}
-                            {formatGameId(game)}
+                            Loading...
                         {/if}
-                    </Link>
                     <br />
                 {/each}    
             {/if}
@@ -169,11 +182,15 @@ const joinPublicGame = async (game_id) => {
             <h3>Your Game Invitations</h3>
             {#if Array.isArray($gameInvites)}
                 <Errors errors={handleInviteErrors} />
-                {#each $gameInvites as invite}
+                {#each $gameInvites as invite}                
                     <p>
-                        {invite}
-                        <Link onClick={()=>handleInvitation(invite, true)}>Accept</Link>
-                        <Link onClick={()=>handleInvitation(invite, false)}>Decline</Link>
+                        {#if $gameInviteNames.hasOwnProperty(invite) && get($gameInviteNames[invite]) !== null}
+                            {get($gameInviteNames[invite])}
+                            <Link onClick={()=>handleInvitation(invite, true)}>Accept</Link>
+                            <Link onClick={()=>handleInvitation(invite, false)}>Decline</Link>
+                        {:else}
+                            Loading...
+                        {/if}
                     </p>
                 {/each}    
             {/if}
@@ -184,7 +201,7 @@ const joinPublicGame = async (game_id) => {
 {:else}
 
 <Container>
-    <Game game_id={$selectedGame} goBack={()=>selectedGame.set(null)} />
+    <Game game_id={$selectedGame} gameName={$selectedGameName} goBack={()=>{selectedGame.set(null); selectedGameName.set(null)}} />
 </Container>
 
 {/if}

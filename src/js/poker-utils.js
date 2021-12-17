@@ -2,6 +2,8 @@
 export const ONE_CARD_POKER = 0;
 export const BLIND_POKER = 1;
 export const STUD_POKER = 2;
+export const HOLDEM_POKER = 3;
+export const OMAHA_POKER = 4;
 export const NO_LIMIT = 0;
 export const POT_LIMIT = 1;
 
@@ -34,6 +36,7 @@ export const formatCardShort = (cardStr) => {
         } else if (card[1] === 'c') {
             text += suits[0];
         }
+        return text;
     }
 }
 

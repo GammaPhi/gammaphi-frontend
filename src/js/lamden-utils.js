@@ -329,6 +329,32 @@ export async function hydrateProfileForAddress(vk, key, default_value=null) {
     }
 }
 
+
+export async function getAddressForUsername(username, default_value=null) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.profile.contractName}/usernames?key=${username}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
+
 export function sendRedeemApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
 

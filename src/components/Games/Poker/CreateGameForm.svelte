@@ -10,7 +10,7 @@ import BN from 'bignumber.js'
 import Link from "../../Link.svelte";
 
 
-export let selectedGame;
+export let selectedGame, selectedGameName;
 
 
 const isPublic = writable(false);
@@ -30,14 +30,16 @@ const createGame = async () => {
     createGameErrors.set([]);
     let kwargs = {
         name: $name,
-        ante: {
-            __fixed__: BN($ante).toString()
-        },
         other_players: [],
-        game_type: $game_type,
-        bet_type: $bet_type,
-        n_cards_total: $n_cards_total,
-        n_hole_cards: $n_hole_cards,
+        game_config: {
+            game_type: $game_type,
+            bet_type: $bet_type,
+            n_cards_total: $n_cards_total,
+            n_hole_cards: $n_hole_cards,
+            ante: {
+                __fixed__: BN($ante).toString()
+            }
+        },
         public: $isPublic
     }
     sendPokerTransaction('start_game', kwargs, createGameHandler, (txResults)=>{
@@ -48,6 +50,7 @@ const createGame = async () => {
             console.log("Success");
             console.log(txResults);
             selectedGame.set(txResults.resultInfo.returnResult.replace("'","").replace("'", ""));
+            selectedGameName.set($name);
         }
     });
 }

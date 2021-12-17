@@ -5,9 +5,9 @@ import { autoRefreshingVariable, setupArrayStore, formatGameId } from '../../../
 import { onMount } from "svelte";
 import { lamden_vk } from '../../../stores/lamdenStores'
 import { derived, writable, get } from "svelte/store";
-import { checkPokerContractState, sendPokerPHIApproval, sendPokerTransaction, hydrateProfileForAddress } from '../../../js/lamden-utils'
+import { checkPokerContractState, sendPokerPHIApproval, getAddressForUsername, sendPokerTransaction, hydrateProfileForAddress } from '../../../js/lamden-utils'
 import { retrievePemFileFromBrowser, storePemFileInBrowser, decrypt, loadPrivateKeyFromPem } from "../../../js/rsa-utils";
-import { formatHand } from "../../../js/poker-utils";
+import { formatHand, HOLDEM_POKER, OMAHA_POKER } from "../../../js/poker-utils";
 import BN from 'bignumber.js'
 import Button from "../../Button.svelte";
 import Errors from "./Errors.svelte";
@@ -15,7 +15,7 @@ import Input from "../../Inputs/Input.svelte";
 import BnInputField from "../../Inputs/BNInputField.svelte";
 import { Tabs, TabList, TabPanel, Tab } from '../../../js/tabs';
 
-export let game_id, goBack;
+export let game_id, gameName, goBack;
 
 const hasFocus = writable(false);
 const creator = writable('');
@@ -24,6 +24,7 @@ const dealer = writable('');
 const next_better = writable('');
 const players = writable([]);
 const activePlayers = writable([]);
+const community = writable([]);
 const folded = writable([]);
 const winners = writable([]);
 const allIn = writable([]);
@@ -32,13 +33,19 @@ const completed = writable(false);
 const payedOut = writable(false);
 const ante = writable(BN(0));
 const pot = writable(BN(0));
+const gameType = writable(null);
 const currentBet = writable(BN(0));
-const playerMessagesStores = writable({});
 const playerChipsStores = writable({});
 const playerBetStores = writable({});
 const playerHandStores = writable({});
 const playerNamesStores = writable({});
+const playerOtp1Stores = writable({});
+const playerOtp2Stores = writable({});
+const playerOtp3Stores = writable({});
 const myEncryptedHand = writable('');
+const myEncryptedOtp1 = writable('');
+const myEncryptedOtp2 = writable('');
+const myEncryptedOtp3 = writable('');
 const privateKeyErrors = writable([]);
 const privateKeyInput = writable('');
 const storedPemFile = writable('');
@@ -65,6 +72,32 @@ const myDecryptedHand = derived([myEncryptedHand, privateKey], ([$myEncryptedHan
     }
 });
 
+const decryptedOtp1 = derived([myEncryptedOtp1, privateKey], ([$myEncryptedOtp1, $privateKey])=>{
+    try {
+        return decrypt($myEncryptedOtp1, $privateKey)    
+    } catch(e) {
+        console.log(e);
+        return 'Unable to decrypt your otp 1.'
+    }
+});
+
+const decryptedOtp2 = derived([myEncryptedOtp2, privateKey], ([$myEncryptedOtp2, $privateKey])=>{
+    try {
+        return decrypt($myEncryptedOtp2, $privateKey)    
+    } catch(e) {
+        console.log(e);
+        return 'Unable to decrypt your otp 2.'
+    }
+});
+
+const decryptedOtp3 = derived([myEncryptedOtp3, privateKey], ([$myEncryptedOtp3, $privateKey])=>{
+    try {
+        return decrypt($myEncryptedOtp3, $privateKey)    
+    } catch(e) {
+        console.log(e);
+        return 'Unable to decrypt your otp 3.'
+    }
+});
 
 const updatePrivateKey = () => {
     storePemFileInBrowser($lamden_vk, $privateKeyInput);
@@ -81,6 +114,9 @@ onMount(()=>{
     })
     checkPokerContractState("games", [game_id, 'ante'], BN(0)).then((v)=>{
         ante.set(v);
+    })
+    checkPokerContractState("games", [game_id, 'game_type'], null).then((v)=>{
+        gameType.set(v);
     })
     return () => {
         hasFocus.set(false);
@@ -122,6 +158,47 @@ autoRefreshingVariable(
     ),
     hasFocus,
     ()=>loadedEncryptedHand.set(true)
+);
+
+
+autoRefreshingVariable(
+    community, 
+    ()=>handStateRefreshingFunc(
+        ()=>checkPokerContractState("hands", [$hand_id, 'community'], null),
+        null
+    ),
+    hasFocus,
+    null
+);
+
+autoRefreshingVariable(
+    myEncryptedOtp1, 
+    ()=>handStateRefreshingFunc(
+        ()=>checkPokerContractState("hands", [$hand_id, $lamden_vk, 'player_encrypted_pad1'], null),
+        null
+    ),
+    hasFocus,
+    null
+);
+
+autoRefreshingVariable(
+    myEncryptedOtp2, 
+    ()=>handStateRefreshingFunc(
+        ()=>checkPokerContractState("hands", [$hand_id, $lamden_vk, 'player_encrypted_pad2'], null),
+        null
+    ),
+    hasFocus,
+    null
+);
+
+autoRefreshingVariable(
+    myEncryptedOtp3, 
+    ()=>handStateRefreshingFunc(
+        ()=>checkPokerContractState("hands", [$hand_id, $lamden_vk, 'player_encrypted_pad3'], null),
+        null
+    ),
+    hasFocus,
+    null
 );
 
 const loadedPot = writable(false);
@@ -218,16 +295,6 @@ autoRefreshingVariable(
     hasFocus
 );
 
-function setupMessageStores() {
-    setupArrayStore(
-        hasFocus,
-        players, 
-        playerMessagesStores, 
-        [], 
-        (player)=>()=>checkPokerContractState("messages", [game_id, player], [])
-    )
-}
-
 function setupNameStores() {
     console.log("Setting up name stores");
     console.log(get(players));
@@ -279,8 +346,47 @@ function setupHandStores() {
     )
 }
 
-$: $players, setupNameStores(), setupMessageStores(), setupChipStores();
-$: $activePlayers, setupBetStores(), setupHandStores();
+function setupOtp1Stores() {
+    setupArrayStore(
+        hasFocus,
+        activePlayers, 
+        playerOtp1Stores, 
+        null, 
+        (player)=>()=>handStateRefreshingFunc(
+            ()=>checkPokerContractState("hands", [$hand_id, player, 'pad1'], null),
+            null
+        )
+    )
+}
+
+function setupOtp2Stores() {
+    setupArrayStore(
+        hasFocus,
+        activePlayers, 
+        playerOtp2Stores, 
+        null, 
+        (player)=>()=>handStateRefreshingFunc(
+            ()=>checkPokerContractState("hands", [$hand_id, player, 'pad2'], null),
+            null
+        )
+    )
+}
+
+function setupOtp3Stores() {
+    setupArrayStore(
+        hasFocus,
+        activePlayers, 
+        playerOtp3Stores, 
+        null, 
+        (player)=>()=>handStateRefreshingFunc(
+            ()=>checkPokerContractState("hands", [$hand_id, player, 'pad3'], null),
+            null
+        )
+    )
+}
+
+$: $players, setupNameStores(), setupChipStores();
+$: $activePlayers, setupBetStores(), setupHandStores(), setupOtp1Stores(), setupOtp2Stores(), setupOtp3Stores();
 
 
 const startHandHandler = writable({});
@@ -365,28 +471,6 @@ const withdrawChipsFromGame = async () => {
     });
 }
 
-const sendMessageHandler = writable({});
-const sendMessageErrors = writable([]);
-const sendMessageInProgress = writable(false);
-const sendMessage = async (message) => {
-    // game_message
-    sendMessageInProgress.set(true);
-    sendMessageErrors.set([]);
-    let kwargs = {
-        game_id: game_id,
-        message: message,
-    }
-    sendPokerTransaction('game_message', kwargs, sendMessageHandler, (txResults)=>{
-        sendMessageInProgress.set(false);
-        if ($sendMessageHandler.errors?.length > 0) {
-            sendMessageErrors.set($sendMessageHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
-        }
-    });
-}
-
 const addPlayerToGameHandler = writable({});
 const addPlayerToGameErrors = writable([]);
 const addPlayerToGameInProgress = writable(false);
@@ -397,19 +481,21 @@ const addPlayerToGame = async () => {
     // add_player_to_game
     addPlayerToGameInProgress.set(true);
     addPlayerToGameErrors.set([]);
-    let kwargs = {
-        game_id: game_id,
-        player_to_add: $playerToAdd,
-    }    
-    sendPokerTransaction('add_player_to_game', kwargs, addPlayerToGameHandler, (txResults)=>{
-        addPlayerToGameInProgress.set(false);
-        if ($addPlayerToGameHandler.errors?.length > 0) {
-            addPlayerToGameErrors.set($addPlayerToGameHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
-            playerToAdd.set('');
+    getAddressForUsername($playerToAdd, $playerToAdd).then((player_to_add)=>{
+        let kwargs = {
+            game_id: game_id,
+            player_to_add: player_to_add,
         }
+        sendPokerTransaction('add_player_to_game', kwargs, addPlayerToGameHandler, (txResults)=>{
+            addPlayerToGameInProgress.set(false);
+            if ($addPlayerToGameHandler.errors?.length > 0) {
+                addPlayerToGameErrors.set($addPlayerToGameHandler.errors)
+            } else {
+                console.log("Success");
+                console.log(txResults);
+                playerToAdd.set('');
+            }
+        });
     });
 }
 
@@ -525,6 +611,64 @@ const verifyHand = async () => {
     });
 }
 
+const revealOtpHandler = writable({});
+const revealOtpErrors = writable([]);
+const revealOtpInProgress = writable(false);
+const revealOtp = (index) => async () => {
+    // reveal_otp
+    revealOtpInProgress.set(true);
+    revealOtpErrors.set([]);
+    let decryptedOtp;
+    if (index === 1) {
+        decryptedOtp = $decryptedOtp1;
+    } else if (index === 2) {
+        decryptedOtp = $decryptedOtp2;
+    } else if (index === 3) {
+        decryptedOtp = $decryptedOtp3;
+    } else {
+        return; // error?
+    }
+
+    let kwargs = {
+        hand_id: $hand_id,
+        pad: decryptedOtp.split(":")[0],
+        salt: decryptedOtp.split(":")[1],
+        index: index
+    }
+    console.log(kwargs);
+    sendPokerTransaction('reveal_otp', kwargs, revealOtpHandler, (txResults)=>{
+        revealOtpInProgress.set(false);
+        if ($revealOtpHandler.errors?.length > 0) {
+            revealOtpErrors.set($revealOtpHandler.errors)
+        } else {
+            console.log("Success");
+            console.log(txResults);
+        }
+    });
+}
+
+const revealHandler = writable({});
+const revealErrors = writable([]);
+const revealInProgress = writable(false);
+const reveal = (index) => async () => {
+    // reveal
+    revealInProgress.set(true);
+    revealErrors.set([]);
+    let kwargs = {
+        hand_id: $hand_id,
+        index: index
+    }
+    sendPokerTransaction('reveal', kwargs, revealHandler, (txResults)=>{
+        revealInProgress.set(false);
+        if ($revealHandler.errors?.length > 0) {
+            revealErrors.set($revealHandler.errors)
+        } else {
+            console.log("Success");
+            console.log(txResults);
+        }
+    });
+}
+
 const payoutHandHandler = writable({});
 const payoutHandErrors = writable([]);
 const payoutHandInProgress = writable(false);
@@ -569,6 +713,75 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
         return valid;
     });
 
+const canReveal1 = derived([playerOtp1Stores, activePlayers], 
+    ([$playerOtp1Stores, $activePlayers]) => {
+        let valid = true;
+        for(var i = 0; i < $activePlayers.length; i++) {
+            let p = $activePlayers[i];
+            if (!$playerOtp1Stores.hasOwnProperty(p) || get($playerOtp1Stores[p]) === null) {
+                valid = false;
+                break;
+            } 
+        }
+        return valid;
+    });
+
+const canReveal2 = derived([playerOtp2Stores, activePlayers], 
+    ([$playerOtp2Stores, $activePlayers]) => {
+        let valid = true;
+        for(var i = 0; i < $activePlayers.length; i++) {
+            let p = $activePlayers[i];
+            if (!$playerOtp2Stores.hasOwnProperty(p) || get($playerOtp2Stores[p]) === null) {
+                valid = false;
+                break;
+            } 
+        }
+        return valid;
+    });
+
+const canReveal3 = derived([playerOtp3Stores, activePlayers], 
+    ([$playerOtp3Stores, $activePlayers]) => {
+        let valid = true;
+        for(var i = 0; i < $activePlayers.length; i++) {
+            let p = $activePlayers[i];
+            if (!$playerOtp3Stores.hasOwnProperty(p) || get($playerOtp3Stores[p]) === null) {
+                valid = false;
+                break;
+            } 
+        }
+        return valid;
+    });
+
+const isRevealed1 = derived([community], ([$community]) => {
+    if ($community === null) {
+        return false;
+    }
+    if ($community[0] === null) {
+        return false;
+    }
+    return true;
+})
+
+const isRevealed2 = derived([community], ([$community]) => {
+    if ($community === null) {
+        return false;
+    }
+    if ($community[1] === null) {
+        return false;
+    }
+    return true;
+})
+
+const isRevealed3 = derived([community], ([$community]) => {
+    if ($community === null) {
+        return false;
+    }
+    if ($community[2] === null) {
+        return false;
+    }
+    return true;
+})
+
 </script>
 
 <style>
@@ -587,7 +800,7 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
     <Link onClick={goBack}>Return to Lobby</Link>
 </Container>    
 
-<h2>Poker Game:{" "}{formatGameId(game_id)}</h2>
+<h2>Poker Game:{" "}{gameName}</h2>
 
 {#if $lamden_vk === null}
 
@@ -673,6 +886,69 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
 
         {#if $myDecryptedHand.length > 0}
             <h3>My Hand: {formatHand($myDecryptedHand)}</h3>
+        {/if}
+
+        {#if $gameType === HOLDEM_POKER || $gameType === OMAHA_POKER}
+            <Errors errors={revealOtpErrors} />
+            <Errors errors={revealErrors} />
+            <Container>
+                {#if $isRevealed1}
+                <h4>Flop: {formatHand($community[0])}</h4>
+                {/if}
+                {#if $isRevealed2}
+                <h4>Flop: {formatHand($community[1])}</h4>
+                {/if}
+                {#if $isRevealed3}
+                <h4>Flop: {formatHand($community[2])}</h4>
+                {/if}
+                {#if get($playerOtp1Stores[$lamden_vk]) === null}
+                    <Button
+                        text="Reveal Flop"
+                        clicked={revealOtp(1)}
+                        disabled={$revealOtpInProgress}
+                    />
+                {:else}
+                    {#if $canReveal1 && !$isRevealed1}
+                        <Button
+                            text="Decrypt Flop"
+                            clicked={reveal(1)}
+                            disabled={$revealInProgress}
+                        />
+                    {:else}
+                        {#if get($playerOtp2Stores[$lamden_vk]) === null}
+                            <Button
+                                text="Reveal Turn"
+                                clicked={revealOtp(2)}
+                                disabled={$revealOtpInProgress}
+                            />
+                        {:else}
+                            {#if $canReveal2 && !$isRevealed2}
+                                <Button
+                                    text="Decrypt Turn"
+                                    clicked={reveal(2)}
+                                    disabled={$revealInProgress}
+                                />
+                            {:else}                        
+                                {#if get($playerOtp3Stores[$lamden_vk]) === null}
+                                    <Button
+                                        text="Reveal River"
+                                        clicked={revealOtp(3)}
+                                        disabled={$revealOtpInProgress}
+                                    />
+                                {:else}
+                                    {#if $canReveal3 && !$isRevealed3}
+                                        <Button
+                                            text="Decrypt River"
+                                            clicked={reveal(3)}
+                                            disabled={$revealInProgress}
+                                        />
+                                    {/if}
+                                {/if}
+                            {/if}
+                        {/if}
+                    {/if}
+                {/if}
+            </Container>
         {/if}
 
         {#if $hand_id === null || $payedOut === true}

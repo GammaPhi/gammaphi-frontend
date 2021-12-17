@@ -36,10 +36,8 @@ if (typeof document.addEventListener === "undefined" || hidden === undefined) {
 
 export function setupArrayStore(hasFocus, array, storeDict, default_value, refresh_func, update=true, firstTimeCallback=null, interval=5000) {
     let store = get(array);
-    console.log(store);
     for(var i = 0; i < store.length; i++) {
         let elem = store[i];
-        console.log("Loading: "+elem);
         if (!get(storeDict).hasOwnProperty(elem)) {
             get(storeDict)[elem] = writable(default_value);
             if (update) {
