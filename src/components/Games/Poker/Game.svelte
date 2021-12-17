@@ -618,7 +618,7 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
         {/if}
     </Container>
 
-<Tabs>
+<Tabs initialSelectedTabIndex={1}>
 
     <TabList>
 		<Tab>Game State</Tab>
@@ -629,7 +629,7 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
     <TabPanel>
 
         <h2>
-            Game State:
+            Game State
         </h2>
     
         <h3>

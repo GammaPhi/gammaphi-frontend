@@ -10,11 +10,14 @@
 	const panels = [];
 	const selectedTab = writable(null);
 	const selectedPanel = writable(null);
+    export let initialSelectedTabIndex = 0;
 
 	setContext(TABS, {
 		registerTab: tab => {
 			tabs.push(tab);
-			selectedTab.update(current => current || tab);
+            if (tabs.length - 1 == initialSelectedTabIndex) {
+                selectedTab.set(tab);
+            }
 			
 			onDestroy(() => {
 				const i = tabs.indexOf(tab);
@@ -25,8 +28,10 @@
 
 		registerPanel: panel => {
 			panels.push(panel);
-			selectedPanel.update(current => current || panel);
-			
+            if (panels.length - 1 == initialSelectedTabIndex) {
+                selectedPanel.set(panel);
+            }
+						
 			onDestroy(() => {
 				const i = panels.indexOf(panel);
 				panels.splice(i, 1);
