@@ -1,16 +1,21 @@
 <script>
 import { onMount } from "svelte";
-import { writable, derived } from "svelte/store";
+import { writable, derived, get } from "svelte/store";
 import { checkPokerContractState, sendPokerTransaction } from '../../../js/lamden-utils';
 import { lamden_vk } from '../../../stores/lamdenStores'
 import Container from "../../Inputs/Container.svelte";
 import Link from "../../Link.svelte";
 import Game from "./Game.svelte";
 import CreateGameForm from './CreateGameForm.svelte';
-import { autoRefreshingVariable, formatGameId } from '../../../js/global-utils';
+import { autoRefreshingVariable, setupArrayStore, formatGameId } from '../../../js/global-utils';
 import Input from "../../Inputs/Input.svelte";
 import Button from "../../Button.svelte";
 import Errors from "./Errors.svelte";
+import { 
+    username, 
+    display_name,
+    icon_base64,
+} from '../../../stores/profileStore'
 
 let hasFocus = writable(false);
 
@@ -23,6 +28,7 @@ onMount(()=>{
 
 const selectedGame = writable(null);
 const games = writable([]);
+const gameNames = writable({});
 const gameInvites = writable([]);
 const loadedPlayersGames = writable(false);
 const loadedPlayersInvites = writable(false);
@@ -36,15 +42,33 @@ autoRefreshingVariable(
     games, 
     ()=>checkPokerContractState("players_games", [$lamden_vk], []),
     hasFocus,
-    ()=>loadedPlayersGames.set(true)
+    ()=>loadedPlayersGames.set(true),
+    null,
+    10000
 );
 
 autoRefreshingVariable(
     gameInvites, 
     ()=>checkPokerContractState("players_invites", [$lamden_vk], []),
     hasFocus,
-    ()=>loadedPlayersInvites.set(true)
+    ()=>loadedPlayersInvites.set(true),
+    null,
+    10000
 );
+
+function setupGameNamesStores() {
+    setupArrayStore(
+        hasFocus,
+        games, 
+        gameNames, 
+        '', 
+        (game)=>()=>checkPokerContractState("games", [game, "name"], formatGameId(game)),
+        false
+    )
+}
+
+$: $games, setupGameNamesStores();
+
 
 const handleInviteHandler = writable({});
 const handleInviteErrors = writable([]);
@@ -91,9 +115,16 @@ const joinPublicGame = async (game_id) => {
 
 </script>
 
+{#if $username.length > 0}
+    <p>Logged in as {$username}</p>
+{/if}
+
 {#if $selectedGame === null}
 <h2>Poker Lobby</h2>
+<Container>
 
+    <CreateGameForm selectedGame={selectedGame} />
+    
     {#if $lamden_vk === null}
 
         <h4>Please connect your wallet.</h4>
@@ -105,46 +136,51 @@ const joinPublicGame = async (game_id) => {
         </h3>
 
     {:else}
-        <Container> 
-            <CreateGameForm selectedGame={selectedGame} />
-            <Container>
-                <h3>Your Games</h3>
-                {#if Array.isArray($games)}
-                    {#each $games as game}
-                        <Link onClick={()=>selectedGame.set(game)}>{formatGameId(game)}</Link>
-                        <br />
-                    {/each}    
-                {/if}
-            </Container>
-            <Container>
-                <h3>Join Public Game</h3>
-                <Input
-                    value={$publicGameId}
-                    onClick={publicGameId.set}
-                    onEnterButton={()=>joinPublicGame($publicGameId)}
-                />
-                <Errors errors={joinPublicGameErrors} />
-                <Button 
-                    text={$joinPublicGameInProgress ? "Joining..." : "Join"} 
-                    clicked={()=>joinPublicGame($publicGameId)} 
-                    disabled={$publicGameId.length === 0 || $joinPublicGameInProgress}    
-                />
-            </Container>
-            <Container>
-                <h3>Your Game Invitations</h3>
-                {#if Array.isArray($gameInvites)}
-                    <Errors errors={handleInviteErrors} />
-                    {#each $gameInvites as invite}
-                        <p>
-                            {invite}
-                            <Link onClick={()=>handleInvitation(invite, true)}>Accept</Link>
-                            <Link onClick={()=>handleInvitation(invite, false)}>Decline</Link>
-                        </p>
-                    {/each}    
-                {/if}
-            </Container>
+        <Container>
+            <h3>Your Games</h3>
+            {#if Array.isArray($games)}
+                {#each $games as game}
+                    <Link onClick={()=>selectedGame.set(game)}>
+                        {#if $gameNames.hasOwnProperty(game) && get($gameNames[game]) !== null}
+                            {get($gameNames[game])}
+                        {:else}
+                            {formatGameId(game)}
+                        {/if}
+                    </Link>
+                    <br />
+                {/each}    
+            {/if}
+        </Container>
+        <Container>
+            <h3>Join Public Game</h3>
+            <Input
+                value={$publicGameId}
+                onClick={publicGameId.set}
+                onEnterButton={()=>joinPublicGame($publicGameId)}
+            />
+            <Errors errors={joinPublicGameErrors} />
+            <Button 
+                text={$joinPublicGameInProgress ? "Joining..." : "Join"} 
+                clicked={()=>joinPublicGame($publicGameId)} 
+                disabled={$publicGameId.length === 0 || $joinPublicGameInProgress}    
+            />
+        </Container>
+        <Container>
+            <h3>Your Game Invitations</h3>
+            {#if Array.isArray($gameInvites)}
+                <Errors errors={handleInviteErrors} />
+                {#each $gameInvites as invite}
+                    <p>
+                        {invite}
+                        <Link onClick={()=>handleInvitation(invite, true)}>Accept</Link>
+                        <Link onClick={()=>handleInvitation(invite, false)}>Decline</Link>
+                    </p>
+                {/each}    
+            {/if}
         </Container>
     {/if}
+</Container>
+
 {:else}
 
 <Container>

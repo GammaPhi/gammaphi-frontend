@@ -1,5 +1,5 @@
 import BN from 'bignumber.js'
-import { get } from 'svelte/store'
+import { get, writable } from 'svelte/store'
 import { lamden_vk } from '../stores/lamdenStores';
 
 
@@ -34,8 +34,35 @@ if (typeof document.addEventListener === "undefined" || hidden === undefined) {
   document.addEventListener(visibilityChange, handleVisibilityChange, false);
 }
 
+export function setupArrayStore(hasFocus, array, storeDict, default_value, refresh_func, update=true, firstTimeCallback=null, interval=5000) {
+    let store = get(array);
+    console.log(store);
+    for(var i = 0; i < store.length; i++) {
+        let elem = store[i];
+        console.log("Loading: "+elem);
+        if (!get(storeDict).hasOwnProperty(elem)) {
+            get(storeDict)[elem] = writable(default_value);
+            if (update) {
+                autoRefreshingVariable(
+                    get(storeDict)[elem], 
+                    refresh_func(elem),
+                    hasFocus,
+                    firstTimeCallback,
+                    storeDict,
+                    interval
+                );
+            } else {
+                refresh_func(elem)().then((v)=>{
+                    get(storeDict)[elem].set(v);
+                    storeDict.set(get(storeDict));
+                });
+            }
+        }
+    }
+}
 
-export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTimeCallback=null, dictStore=null, interval=2000) => {
+
+export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTimeCallback=null, dictStore=null, interval=5000) => {
     let calledFirstTimeCallback = false;
     let f = () => {
         setTimeout(()=>{

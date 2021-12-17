@@ -29,7 +29,7 @@ export const mainnet = {
             },
             poker: {
                 networkType: "mainnet",
-                contractName: "con_poker_1_card_games_v3"
+                contractName: "con_poker_card_games_v2"
             }
         },
         profile: {
@@ -104,7 +104,7 @@ export const testnet = {
             },
             poker: {
                 networkType: "testnet",
-                contractName: "con_poker_1_card_games_v3"
+                contractName: "con_poker_card_games_v2"
             }
         },
         profile: {

@@ -1,17 +1,19 @@
 <script>
 import Container from "../../Inputs/Container.svelte";
 import Link from "../../Link.svelte";
-import { autoRefreshingVariable, formatGameId } from '../../../js/global-utils';
+import { autoRefreshingVariable, setupArrayStore, formatGameId } from '../../../js/global-utils';
 import { onMount } from "svelte";
 import { lamden_vk } from '../../../stores/lamdenStores'
 import { derived, writable, get } from "svelte/store";
 import { checkPokerContractState, sendPokerPHIApproval, sendPokerTransaction, hydrateProfileForAddress } from '../../../js/lamden-utils'
 import { retrievePemFileFromBrowser, storePemFileInBrowser, decrypt, loadPrivateKeyFromPem } from "../../../js/rsa-utils";
+import { formatHand } from "../../../js/poker-utils";
 import BN from 'bignumber.js'
 import Button from "../../Button.svelte";
 import Errors from "./Errors.svelte";
 import Input from "../../Inputs/Input.svelte";
 import BnInputField from "../../Inputs/BNInputField.svelte";
+import { Tabs, TabList, TabPanel, Tab } from '../../../js/tabs';
 
 export let game_id, goBack;
 
@@ -216,34 +218,9 @@ autoRefreshingVariable(
     hasFocus
 );
 
-function setupArrayStore(array, storeDict, default_value, refresh_func, update=true, firstTimeCallback=null) {
-    let store = get(array);
-    console.log(store);
-    for(var i = 0; i < store.length; i++) {
-        let elem = store[i];
-        console.log("Loading: "+elem);
-        if (!get(storeDict).hasOwnProperty(elem)) {
-            get(storeDict)[elem] = writable(default_value);
-            if (update) {
-                autoRefreshingVariable(
-                    get(storeDict)[elem], 
-                    refresh_func(elem),
-                    hasFocus,
-                    firstTimeCallback,
-                    storeDict
-                );
-            } else {
-                refresh_func(elem)().then((v)=>{
-                    get(storeDict)[elem].set(v);
-                    storeDict.set(get(storeDict));
-                });
-            }
-        }
-    }
-}
-
 function setupMessageStores() {
     setupArrayStore(
+        hasFocus,
         players, 
         playerMessagesStores, 
         [], 
@@ -255,16 +232,20 @@ function setupNameStores() {
     console.log("Setting up name stores");
     console.log(get(players));
     setupArrayStore(
+        hasFocus,
         players, 
         playerNamesStores, 
         '', 
         (player)=>()=>hydrateProfileForAddress(player, "username", player),
-        false
+        false,
+        null,
+        10000
     )
 }
 
 function setupChipStores() {
     setupArrayStore(
+        hasFocus,
         players, 
         playerChipsStores, 
         BN(0), 
@@ -274,6 +255,7 @@ function setupChipStores() {
 
 function setupBetStores() {
     setupArrayStore(
+        hasFocus,
         activePlayers, 
         playerBetStores, 
         BN(0), 
@@ -286,6 +268,7 @@ function setupBetStores() {
 
 function setupHandStores() {
     setupArrayStore(
+        hasFocus,
         activePlayers, 
         playerHandStores, 
         null, 
@@ -308,8 +291,7 @@ const startHand = async () => {
     startHandInProgress.set(true);
     startHandErrors.set([]);
     let kwargs = {
-        game_id: game_id,
-        game_type: 0,
+        game_id: game_id
     }
     sendPokerTransaction('start_hand', kwargs, startHandHandler, (txResults)=>{
         startHandInProgress.set(false);
@@ -564,47 +546,11 @@ const payoutHand = async () => {
     });
 }
 
-const formatHand = (handStr) => {
-    console.log("Formatting hand: "+handStr);
-    let h = handStr.split(":")
-    if (h.length === 2) {
-        h = [h[0]]
-    }
-    if (h.length == 1 && h[0].length == 2) {
-        let card = h[0];
-        let text = "";
-        if (card[0] === 'A') {
-            text += "Ace";
-        } else if (card[0] === 'K') {
-            text += "King"
-        } else if (card[0] === 'Q') {
-            text += "Queen"
-        } else if (card[0] === 'J') {
-            text += "Jack"
-        } else if (card[0] === 'T') {
-            text += "10"
-        } else {
-            text += card[0];
-        }
-        text += " of ";
-        if (card[1] === 's') {
-            text += "Spades"
-        } else if (card[1] === 'd') {
-            text += "Diamonds"
-        } else if (card[1] === 'h') {
-            text += "Hearts"
-        } else if (card[1] === 'c') {
-            text += "Clubs"
-        }
-        return text
-    }
-    return handStr;
-}
 
 const loaded = derived(
-    [loadedCurrentBet, loadedCurrentHand, loadedEncryptedHand, loadedPlayers, loadedPot],
-    ([$loadedCurrentBet, $loadedCurrentHand, $loadedEncryptedHand, $loadedPlayers, $loadedPot]) => {
-        return $loadedCurrentBet && $loadedCurrentHand && $loadedEncryptedHand && $loadedPlayers && $loadedPot
+    [players, loadedCurrentBet, loadedCurrentHand, loadedEncryptedHand, loadedPlayers, loadedPot],
+    ([$players, $loadedCurrentBet, $loadedCurrentHand, $loadedEncryptedHand, $loadedPlayers, $loadedPot]) => {
+        return true;// $players.length > 0 && $loadedCurrentBet && $loadedCurrentHand && $loadedEncryptedHand && $loadedPlayers && $loadedPot
     }
 )
 
@@ -626,7 +572,12 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
 </script>
 
 <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+
     table {
+        width: 100%;
         margin: auto;
     }
 </style>
@@ -667,132 +618,78 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
         {/if}
     </Container>
 
+<Tabs>
 
-    <Container>
-        <Link onClick={()=>showAddChipsForm.set(!$showAddChipsForm)}>Add Chips To Game</Link>
-        <br />
-        {#if $showAddChipsForm}
-        <BnInputField
-            onInputChange={(value)=>chipsToAdd.set(value)}
-            startingValue={$chipsToAdd}
-            inputClass="primaryInput"
-            labelClass="label"
-            labelText="Chips To Add"
-        />
-        <Button
-            text={$addChipsToGameInProgress ? "Adding..." : "Add"}
-            clicked={addChipsToGame}
-            disabled={$addChipsToGameInProgress}
-        />
+    <TabList>
+		<Tab>Game State</Tab>
+		<Tab>Hand State</Tab>
+		<Tab>Management</Tab>
+	</TabList>
+
+    <TabPanel>
+
+        <h2>
+            Game State:
+        </h2>
+    
+        <h3>
+            Owner:{" "}{$creatorName}
+        </h3>
+
+        <h3>Players</h3>
+    
+        <table>
+        <thead>
+            <tr>
+                <th>
+                    Player
+                </th>
+                <th>
+                    Chip Count
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each $players as player}
+            <tr>
+                <td>
+                    {!$playerNamesStores.hasOwnProperty(player)?'Loading...':get($playerNamesStores[player])}
+                </td>
+                <td>
+                    {!$playerChipsStores.hasOwnProperty(player)?'Loading...':get($playerChipsStores[player])}
+                </td>
+            </tr>
+            {/each}
+        </tbody>
+        </table>
+        <br /><br />
+
+    </TabPanel>
+
+    <TabPanel>
+        <h2>Hand State</h2>
+
+        <h3>Current Pot: {$pot}</h3>
+
+        {#if $myDecryptedHand.length > 0}
+            <h3>My Hand: {formatHand($myDecryptedHand)}</h3>
         {/if}
-    </Container>
 
-    <Container>
-        <Link onClick={()=>showWithdrawChipsForm.set(!$showWithdrawChipsForm)}>Withdraw Chips From Game</Link>
-        <br />
-        {#if $showWithdrawChipsForm}
-        <BnInputField
-            onInputChange={(value)=>chipsToWithdraw.set(value)}
-            startingValue={$chipsToWithdraw}
-            inputClass="primaryInput"
-            labelClass="label"
-            labelText="Chips To Withdraw"
-        />
-        <Button
-            text={$withdrawChipsFromGameInProgress ? "Withdrawing..." : "Withdraw"}
-            clicked={withdrawChipsFromGame}
-            disabled={$withdrawChipsFromGameInProgress}
-        />
-        {/if}
-    </Container>
-
-    <h3>Owner:{" "}
-        {$creatorName}
-    </h3>
-
-
-    <h3>Players</h3>
-
-    <table>
-    <thead>
-        <tr>
-            <th>
-                Player
-            </th>
-            <th>
-                Chip Count
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        {#each $players as player}
-        <tr>
-            <td>
-                {!$playerNamesStores.hasOwnProperty(player)?'Loading...':get($playerNamesStores[player])}
-            </td>
-            <td>
-                {!$playerChipsStores.hasOwnProperty(player)?'Loading...':get($playerChipsStores[player])}
-            </td>
-        </tr>
-        {/each}
-    </tbody>
-    </table>
-    <br /><br />
-
-    {#if $creator === $lamden_vk}
-        <Link onClick={()=>{playerToAdd.set(''); showAddPlayer.set(!$showAddPlayer)}}>Add Player</Link>
-        <br />
-        <br />
-        {#if $showAddPlayer}
-            <Input 
-                value={$playerToAdd} 
-                onClick={playerToAdd.set}
-                onEnterButton={addPlayerToGame}
-            />
-            <Button 
-                text={$addPlayerToGameInProgress ? "Adding..." : "Add" }
-                clicked={addPlayerToGame} 
-                disabled={$playerToAdd.length===0 || $addPlayerToGameInProgress} 
-            /> <br /> <br />
-        {/if}
-    {/if}
-
-    <h2>Hand State</h2>
-
-    <h3>Current Pot: {$pot}</h3>
-
-    {#if $myDecryptedHand.length > 0}
-        <h3>My Hand: {formatHand($myDecryptedHand)}</h3>
-    {/if}
-
-    {#if $hand_id === null || $payedOut === true}
-        <Errors errors={startHandErrors} />
-        <Button
-            text={$startHandInProgress ? "Starting..." : "Start Hand"}
-            clicked={startHand}
-            disabled={$startHandInProgress}
-        />
-
-    {:else if $completed === true}
-
-        Hand completed...        
-
-        {#if $payoutTime}
-
-            This hand has completed...
-
-            <Errors errors={payoutHandErrors} />
+        {#if $hand_id === null || $payedOut === true}
+            <Errors errors={startHandErrors} />
             <Button
-                text={$payoutHandInProgress ? "Paying..." : "Payout Hand"}
-                clicked={payoutHand}
-                disabled={$payoutHandInProgress}
+                text={$startHandInProgress ? "Starting..." : "Start Hand"}
+                clicked={startHand}
+                disabled={$startHandInProgress}
             />
 
-        {:else if $activePlayers.includes($lamden_vk) && !$folded.includes($lamden_vk)}
+        {:else if $completed === true}
 
-            {#if $activePlayers.length - $folded.length == 1}
+            Hand completed...        
 
-                Everyone else folded... No need to verify your hand.
+            {#if $payoutTime}
+
+                This hand has completed...
 
                 <Errors errors={payoutHandErrors} />
                 <Button
@@ -800,131 +697,211 @@ const payoutTime = derived([playerHandStores, activePlayers, folded],
                     clicked={payoutHand}
                     disabled={$payoutHandInProgress}
                 />
-            
-            {:else}
 
-                {#if $playerHandStores.hasOwnProperty($lamden_vk) && get($playerHandStores[$lamden_vk]) !== null}
-                
-                    Waiting for others to verify their hands...
+            {:else if $activePlayers.includes($lamden_vk) && !$folded.includes($lamden_vk)}
+
+                {#if $activePlayers.length - $folded.length == 1}
+
+                    Everyone else folded... No need to verify your hand.
+
+                    <Errors errors={payoutHandErrors} />
+                    <Button
+                        text={$payoutHandInProgress ? "Paying..." : "Payout Hand"}
+                        clicked={payoutHand}
+                        disabled={$payoutHandInProgress}
+                    />
                 
                 {:else}
 
-                    <Errors errors={verifyHandErrors} />
-                    <Button
-                        text={$verifyHandInProgress ? "Verifying..." : "Verify Hand"}
-                        clicked={verifyHand}
-                        disabled={$verifyHandInProgress}
-                    />
+                    {#if $playerHandStores.hasOwnProperty($lamden_vk) && get($playerHandStores[$lamden_vk]) !== null}
+                    
+                        Waiting for others to verify their hands...
+                    
+                    {:else}
+
+                        <Errors errors={verifyHandErrors} />
+                        <Button
+                            text={$verifyHandInProgress ? "Verifying..." : "Verify Hand"}
+                            clicked={verifyHand}
+                            disabled={$verifyHandInProgress}
+                        />
+                    
+                    {/if}
                 
                 {/if}
-            
+
+            {:else if $folded.includes($lamden_vk)}
+
+                You folded. Waiting for next hand...
+
             {/if}
 
-        {:else if $folded.includes($lamden_vk)}
+        {:else if $next_better.length === 0}
 
-            You folded. Waiting for next hand...
+            Hand hasn't been dealt yet...
 
-        {/if}
+            {#if $activePlayers.includes($lamden_vk)}
 
-    {:else if $next_better.length === 0}
+                {#if $activePlayers.length <= 1}
 
-        Hand hasn't been dealt yet...
+                    Waiting for at least one more player to ante up...
 
-        {#if $activePlayers.includes($lamden_vk)}
+                {:else if $dealer === $lamden_vk}
 
-            {#if $activePlayers.length <= 1}
+                    <Errors errors={dealCardsErrors} />
+                    <Button
+                        text={$dealCardsInProgress ? "Dealing..." : "Deal Cards"}
+                        clicked={dealCards}
+                        disabled={$dealCardsInProgress}
+                    />
 
-                Waiting for at least one more player to ante up...
+                {:else}
 
-            {:else if $dealer === $lamden_vk}
+                    Waiting for dealer to deal cards...
 
-                <Errors errors={dealCardsErrors} />
-                <Button
-                    text={$dealCardsInProgress ? "Dealing..." : "Deal Cards"}
-                    clicked={dealCards}
-                    disabled={$dealCardsInProgress}
-                />
+                {/if}
 
             {:else}
 
-                Waiting for dealer to deal cards...
+                <Errors errors={anteUpErrors} />
+                <Button
+                    text={$anteUpInProgress ? "Placing Ante..." : "Ante Up"}
+                    clicked={anteUp}
+                    disabled={$anteUpInProgress}
+                />
 
             {/if}
 
-        {:else}
+        {:else if $next_better === $lamden_vk}
 
-            <Errors errors={anteUpErrors} />
-            <Button
-                text={$anteUpInProgress ? "Placing Ante..." : "Ante Up"}
-                clicked={anteUp}
-                disabled={$anteUpInProgress}
+            <h4>
+                Place a bet below (bet 0 to check or -1 to fold)
+            </h4>
+
+            <BnInputField
+                onInputChange={(value)=>betInput.set(value)}
+                startingValue={$betInput}
+                inputClass="primaryInput"
+                labelClass="label"
+                labelText="My Bet"
             />
+            <br />
+            <Errors errors={betCheckOrFoldErrors} />
+            <Button
+                text={$betCheckOrFoldInProgress ? "Betting..." : "Bet"}
+                clicked={async () => await betCheckOrFold()}
+                disabled={$betCheckOrFoldInProgress}
+            />    
 
         {/if}
 
-    {:else if $next_better === $lamden_vk}
-
-        <h4>
-            Place a bet below (bet 0 to check or -1 to fold)
-        </h4>
-
-        <BnInputField
-            onInputChange={(value)=>betInput.set(value)}
-            startingValue={$betInput}
-            inputClass="primaryInput"
-            labelClass="label"
-            labelText="My Bet"
-        />
         <br />
-        <Errors errors={betCheckOrFoldErrors} />
-        <Button
-            text={$betCheckOrFoldInProgress ? "Betting..." : "Bet"}
-            clicked={async () => await betCheckOrFold()}
-            disabled={$betCheckOrFoldInProgress}
-        />    
+        <br />
+        <table>
+        <thead>
+            <tr>
+                <th>
+                    Player
+                </th>
+                <th>
+                    Chips
+                </th>
+                <th>
+                    In Pot
+                </th>
+                <th>
+                    Hand
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each $activePlayers as player}
+            <tr>
+                <td>
+                    {!$playerNamesStores.hasOwnProperty(player)?'Loading...':get($playerNamesStores[player])}
+                    {$dealer.length > 0 && $dealer===player ? "(D)" : ""}
+                    {$next_better.length > 0 && $next_better===player ? "(*)" : ""}
+                </td>
+                <td>
+                    {!$playerChipsStores.hasOwnProperty(player)?'Loading...':get($playerChipsStores[player])}
+                </td>
+                <td>
+                    {!$playerBetStores.hasOwnProperty(player)?'Loading...':get($playerBetStores[player])}
+                </td>
+                <td>
+                    {!$playerHandStores.hasOwnProperty(player)?'Loading...':get($playerHandStores[player])===null?"(private)":get($playerHandStores[player])}
+                </td>
+            </tr>
+            {/each}
+        </tbody>
+        </table>
+        <br /><br />
+    </TabPanel>
 
-    {/if}
+    <TabPanel>
+        <h2>
+            Game Management
+        </h2>
+        <Container>
+            <Link onClick={()=>showAddChipsForm.set(!$showAddChipsForm)}>Add Chips</Link>
+            <br />
+            {#if $showAddChipsForm}
+            <br />
+            <BnInputField
+                onInputChange={(value)=>chipsToAdd.set(value)}
+                startingValue={$chipsToAdd}
+                inputClass="primaryInput"
+                labelClass="label"
+                labelText="Chips To Add"
+            />
+            <Button
+                text={$addChipsToGameInProgress ? "Adding..." : "Add"}
+                clicked={addChipsToGame}
+                disabled={$addChipsToGameInProgress}
+            />
+            {/if}
+        </Container>
+        <br />
+        <Container>
+            <Link onClick={()=>showWithdrawChipsForm.set(!$showWithdrawChipsForm)}>Withdraw Chips</Link>
+            <br />
+            {#if $showWithdrawChipsForm}
+            <br />
+            <BnInputField
+                onInputChange={(value)=>chipsToWithdraw.set(value)}
+                startingValue={$chipsToWithdraw}
+                inputClass="primaryInput"
+                labelClass="label"
+                labelText="Chips To Withdraw"
+            />
+            <Button
+                text={$withdrawChipsFromGameInProgress ? "Withdrawing..." : "Withdraw"}
+                clicked={withdrawChipsFromGame}
+                disabled={$withdrawChipsFromGameInProgress}
+            />
+            {/if}
+        </Container>
+        <br />
+        {#if $creator === $lamden_vk}
+            <Container>
+                <Link onClick={()=>{playerToAdd.set(''); showAddPlayer.set(!$showAddPlayer)}}>Add Player</Link>
+                <br />
+                {#if $showAddPlayer}
+                    <Input 
+                        value={$playerToAdd} 
+                        onClick={playerToAdd.set}
+                        onEnterButton={addPlayerToGame}
+                    />
+                    <Button 
+                        text={$addPlayerToGameInProgress ? "Adding..." : "Add" }
+                        clicked={addPlayerToGame} 
+                        disabled={$playerToAdd.length===0 || $addPlayerToGameInProgress} 
+                    /> <br /> <br />
+                {/if}
+            </Container>
+        {/if}    
+    </TabPanel>
 
-    <br />
-    <br />
-    <table>
-    <thead>
-        <tr>
-            <th>
-                Player
-            </th>
-            <th>
-                Chips
-            </th>
-            <th>
-                In Pot
-            </th>
-            <th>
-                Hand
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        {#each $activePlayers as player}
-        <tr>
-            <td>
-                {!$playerNamesStores.hasOwnProperty(player)?'Loading...':get($playerNamesStores[player])}
-                {$dealer.length > 0 && $dealer===player ? "(D)" : ""}
-                {$next_better.length > 0 && $next_better===player ? "(*)" : ""}
-            </td>
-            <td>
-                {!$playerChipsStores.hasOwnProperty(player)?'Loading...':get($playerChipsStores[player])}
-            </td>
-            <td>
-                {!$playerBetStores.hasOwnProperty(player)?'Loading...':get($playerBetStores[player])}
-            </td>
-            <td>
-                {!$playerHandStores.hasOwnProperty(player)?'Loading...':get($playerHandStores[player])===null?"(private)":get($playerHandStores[player])}
-            </td>
-        </tr>
-        {/each}
-    </tbody>
-    </table>
-    <br /><br />
+</Tabs>
 
 {/if}
