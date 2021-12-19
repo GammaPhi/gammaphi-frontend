@@ -128,10 +128,6 @@ const joinPublicGame = async (game_id) => {
 
 </script>
 
-{#if $username.length > 0}
-    <p>Logged in as {$username}</p>
-{/if}
-
 {#if $selectedGame === null}
 <h2>Poker Lobby</h2>
 <Container>

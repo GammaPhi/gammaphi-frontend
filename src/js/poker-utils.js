@@ -7,6 +7,30 @@ export const OMAHA_POKER = 4;
 export const NO_LIMIT = 0;
 export const POT_LIMIT = 1;
 
+export const gameTypeHumanReadable = (type) => {
+    if (type === ONE_CARD_POKER) {
+        return "One Card";
+    } else if (type === BLIND_POKER) {
+        return "Blind Man";
+    } else if (type === STUD_POKER) {
+        return "Stud";
+    } else if (type === HOLDEM_POKER) {
+        return "Texas Hold'em";
+    } else if (type === OMAHA_POKER) {
+        return "Omaha";
+    }
+    return "";
+}
+
+export const betTypeHumanReadable = (type) => {
+    if (type === NO_LIMIT) {
+        return "No Limit";
+    } else if (type === POT_LIMIT) {
+        return "Pot Limit";
+    }
+    return "";
+}
+
 export const formatHand = (handStr) => {
     console.log("Formatting hand: "+handStr);
     let h = handStr.split(":")

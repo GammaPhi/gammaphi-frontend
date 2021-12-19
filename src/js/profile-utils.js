@@ -8,7 +8,7 @@ import {
 } from '../stores/profileStore'
 
 import { 
-	hydrateProfile,
+	hydrateProfile, hydrateProfileForAddress
 } from '../js/lamden-utils'
 
 
@@ -22,7 +22,7 @@ export function loadProfileStore() {
     };
 
     const default_overrides = {
-        public_rsa_key: [],
+        public_rsa_key: null,
         frens: [],
     };
 
@@ -31,6 +31,22 @@ export function loadProfileStore() {
         let key = keys[i];
         let store = map[key];
         hydrateProfile(key, default_overrides[key] || "").then((value)=>{
+            store.set(value);
+        })
+    }
+};
+
+export function loadProfile(user_address, map) {
+    const default_overrides = {
+        public_rsa_key: null,
+        frens: [],
+    };
+
+    const keys = Object.keys(map);
+    for (var i = 0; i < keys.length; i++) {
+        let key = keys[i];
+        let store = map[key];
+        hydrateProfileForAddress(user_address, key, default_overrides[key] || "").then((value)=>{
             store.set(value);
         })
     }

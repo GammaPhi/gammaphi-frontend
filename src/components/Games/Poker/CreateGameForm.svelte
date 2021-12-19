@@ -8,10 +8,10 @@ import Errors from "./Errors.svelte";
 import BnInputField from "../../Inputs/BNInputField.svelte";
 import BN from 'bignumber.js'
 import Link from "../../Link.svelte";
+import { BLIND_POKER, gameTypeHumanReadable, betTypeHumanReadable, HOLDEM_POKER, NO_LIMIT, OMAHA_POKER, ONE_CARD_POKER, POT_LIMIT, STUD_POKER } from "../../../js/poker-utils";
 
 
 export let selectedGame, selectedGameName;
-
 
 const isPublic = writable(false);
 const name = writable('');
@@ -55,6 +55,9 @@ const createGame = async () => {
     });
 }
 
+const gameTypes = [HOLDEM_POKER, OMAHA_POKER, STUD_POKER, ONE_CARD_POKER, BLIND_POKER];
+const betTypes = [NO_LIMIT, POT_LIMIT];
+
 </script>
 
 <Container>
@@ -66,53 +69,19 @@ const createGame = async () => {
         <Input onClick={name.set} value={$name} label="Name" />
         <br /><br />
         <p>Game Type</p>
-        <label>
-            <input 
-            type="radio"
-            name="game_type"
-            checked={$game_type === 3}
-            on:click={()=>game_type.set(3)}
-            />
-            Texas Hold'em
-        </label>
-        <label>
-            <input 
-            type="radio"
-            name="game_type"
-            checked={$game_type === 4}
-            on:click={()=>game_type.set(4)}
-            />
-            Omaha
-        </label>
-        <label>
-            <input 
-            type="radio"
-            name="game_type"
-            checked={$game_type === 2}
-            on:click={()=>game_type.set(2)}
-            />
-            Stud
-        </label>
-        <label>
-            <input 
-            type="radio"
-            name="game_type"
-            checked={$game_type === 0}
-            on:click={()=>game_type.set(0)}
-            />
-            One Card
-        </label>
-        <label>
-            <input 
-            type="radio"
-            name="game_type"
-            checked={$game_type === 1}
-            on:click={()=>game_type.set(1)}
-            />
-            Blind Man
-        </label>
+        {#each gameTypes as type}
+            <label>
+                <input 
+                type="radio"
+                name="game_type"
+                checked={$game_type === type}
+                on:click={()=>game_type.set(type)}
+                />
+                {gameTypeHumanReadable(type)}
+            </label>
+        {/each}       
         <br /><br />
-        {#if $game_type === 2}
+        {#if $game_type === STUD_POKER}
             <p>Number of Cards per Hand</p>
             <label>
                 <input 
@@ -175,24 +144,17 @@ const createGame = async () => {
             <br /><br />
         {/if}
         <p>Betting Type</p>
-        <label>
-            <input 
-            type="radio"
-            name="bet_type"
-            checked={$bet_type === 0}
-            on:click={()=>bet_type.set(0)}
-            />
-            No Limit
-        </label>
-        <label>
-            <input 
-            type="radio"
-            name="bet_type"
-            checked={$bet_type === 1}
-            on:click={()=>bet_type.set(1)}
-            />
-            Pot Limit
-        </label>
+        {#each betTypes as type}
+            <label>
+                <input 
+                type="radio"
+                name="bet_type"
+                checked={$bet_type === type}
+                on:click={()=>bet_type.set(type)}
+                />
+                {betTypeHumanReadable(type)}
+            </label>
+        {/each}       
         <br /><br />
         <BnInputField
             onInputChange={(value)=>ante.set(value)}

@@ -1,11 +1,14 @@
 <script>
-import { derived, writable } from 'svelte/store'
+import { derived, writable, get } from 'svelte/store'
 import { 
     generatePrivateKey,
     privateKeyToPem,
     getNandE,
-    storePemFileInBrowser
+    storePemFileInBrowser,
+    encrypt,
+    publicKeyFromNE,
 } from '../../js/rsa-utils';
+import Fren from './FrenProfile.svelte';
 import { 
     username, 
     display_name,
@@ -19,12 +22,17 @@ import {
     sendUpdateProfile, 
     hydrateProfile,
     sendProfileAddFrens,
-    sendProfileRemoveFrens
+    sendProfileRemoveFrens,
+hydrateProfileForAddress,
+sendMessageTo
 } from '../../js/lamden-utils'
 import Input from '../Inputs/Input.svelte';
 import Button from '../Button.svelte';
 import Container from '../Inputs/Container.svelte';
 import Link from '../Link.svelte';
+import { setupArrayStore } from '../../js/global-utils';
+import { onMount } from 'svelte';
+import { navigateLink } from '../../js/navigation-utils';
 
 const friendToAdd = writable('');
 const addingFriend = writable(false);
@@ -36,7 +44,7 @@ const waitingForAddFriend = writable(false);
 const addFriend = async () => {
     addFriendErrors.set([]);
     waitingForAddFriend.set(true);
-    await sendProfileAddFrens(
+    sendProfileAddFrens(
         [$friendToAdd],
         addFriendResultsTracker,
         (txResults) => {
@@ -47,15 +55,52 @@ const addFriend = async () => {
                 console.log(txResults);
                 let _frens = $frens;
                 _frens.push($friendToAdd);
-                frens.set(_frens);
+                frens.set(txResults.txBlockResult.state[0].value);
             }
         }    
     )
 };
 
+const hasFocus = writable(false);
+onMount(()=>{
+    hasFocus.set(true);
+    return () => {
+        hasFocus.set(false);
+    }
+})
+
+
+const frensNames = writable({});
+function setupFrensNames() {
+    setupArrayStore(
+        hasFocus,
+        frens, 
+        frensNames, 
+        null, 
+        (fren)=>()=>hydrateProfileForAddress(fren, "username", fren),
+        false,
+    )
+}
+
+const frensKeys = writable({});
+function setupFrensKeys() {
+    setupArrayStore(
+        hasFocus,
+        frens, 
+        frensKeys, 
+        null, 
+        (fren)=>()=>hydrateProfileForAddress(fren, "public_rsa_key", fren),
+        false,
+    )
+}
+
+$: $frens, setupFrensNames();
+
+
 </script>
 
 <style>
+    
     .buttons{
         margin: 2rem auto 1rem;
     }
@@ -74,6 +119,14 @@ const addFriend = async () => {
         max-width: 400px;
         margin-left: auto;
         margin-right: auto;
+    }
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    table {
+        width: 100%;
+        margin: auto;
     }
 </style>
 
@@ -116,9 +169,17 @@ const addFriend = async () => {
             {/if}
         {/if}
     </Container>
-    {#if Array.isArray($frens)}
-        {#each $frens as fren}
-        {fren}
-        {/each}
-    {/if}
+    <br />
+    <Container>
+        {#if Array.isArray($frens)}
+            {#each $frens as fren}
+                <br/>
+                <a class="link" on:click={navigateLink} href={`/fren/${fren}`}>
+                    {!$frensNames.hasOwnProperty(fren)?"Loading...":get($frensNames[fren])}
+                </a>
+                <br/>
+            {/each}
+        {/if}
+    </Container>
+
 </Container>

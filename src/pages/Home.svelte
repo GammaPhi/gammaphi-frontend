@@ -11,8 +11,8 @@ import PreApprove from './PreApprove.svelte';
 import Redeem from './Redeem.svelte';
 import Profile from './Profile.svelte';
 import Poker from './Poker.svelte';
-
-export let location;
+import UserPage from './UserPage.svelte';
+export let address = null;
 
 // Games
 const gameInfo = [
@@ -139,6 +139,10 @@ const gameInfo = [
 	{:else if $page === '/profile'}
 
 	<Profile />
+
+	{:else if $page.startsWith('/fren/')}
+
+	<UserPage user_address={address} />
 
 	{:else if $page === '/redeem'}
 

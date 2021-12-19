@@ -3,6 +3,7 @@ import forge from 'forge';
 
 var rsa = forge.pki.rsa;
 var pki = forge.pki;
+var BigInteger = forge.jsbn.BigInteger;
 
 export function generatePrivateKey(callback, nbits=512, workers=2) {
     rsa.generateKeyPair({bits: nbits, workers: workers}, function(err, keypair) {
@@ -24,6 +25,14 @@ export function getNandE(privateKey) {
     console.log("N: "+n);
     console.log("E: "+e);
     return [n, e];
+}
+
+export function encrypt(message, publicKey) {
+    return forge.util.createBuffer(publicKey.encrypt(forge.util.encodeUtf8(message), 'RSAES-PKCS1-V1_5')).toHex();
+}
+
+export function publicKeyFromNE(n, e) {
+    return rsa.setPublicKey(new BigInteger(n, 10), new BigInteger(e, 10));
 }
 
 export function decrypt(encryptedHexStr, privateKey) {

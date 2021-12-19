@@ -14,6 +14,7 @@
     import { writable } from 'svelte/store';
     import { navigateLink, page } from '../js/navigation-utils';
     import { loadProfileStore } from '../js/profile-utils';
+import { autoRefreshingVariable } from '../js/global-utils';
 
     export let showHelp=true;
 
@@ -23,7 +24,10 @@
         return check;
     }();
 
+    const hasFocus = writable(false);
+
 	onMount(() => {
+        hasFocus.set(true);
         lwc.set(new WalletController(getApprovalRequest()))
 
         $lwc.events.on('newInfo', handleWalletInfo)
@@ -37,6 +41,7 @@
         }
 
 		return () => {
+            hasFocus.set(false);
 			$lwc.events.removeListener(handleWalletInfo)
 		}
     })
@@ -59,13 +64,23 @@
         return $lamdenNetwork.app
     }
 
-	const handleWalletInfo = async (info) => {
+	const handleWalletInfo = (info) => {
         hasNetworkApproval.set({approved: true})
         lamden_vk.set($lwc.walletAddress)
-        loadProfileStore();
-        phiCurrencyBalance.set(await checkTokenBalance('phi'))
-        legacyPhiCurrencyBalance.set(await checkTokenBalance('phi_old'))
-        lotteryBalance.set(await getLotteryBalance())
+        setTimeout(
+            ()=>{
+                loadProfileStore();
+                autoRefreshingVariable(
+                    phiCurrencyBalance,
+                    ()=>checkTokenBalance('phi'),
+                    hasFocus
+                )
+                //checkTokenBalance('phi').then((v)=>phiCurrencyBalance.set(v))
+                checkTokenBalance('phi_old').then((v)=>legacyPhiCurrencyBalance.set(v))
+                getLotteryBalance().then((v)=>lotteryBalance.set(v))
+            },
+            10
+        )
     }
 
     async function connectToBrowserWallet() {
