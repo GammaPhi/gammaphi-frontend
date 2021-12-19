@@ -35,7 +35,6 @@ import { onMount } from 'svelte';
 import { navigateLink } from '../../js/navigation-utils';
 
 const friendToAdd = writable('');
-const addingFriend = writable(false);
 const addFriendResultsTracker = writable({});
 const addFriendErrors = writable([]);
 const waitingForAddFriend = writable(false);
@@ -146,28 +145,25 @@ $: $frens, setupFrensNames();
         Your Frens
     </h3>
     <Container>
-        <Link onClick={()=>{friendToAdd.set(''); addingFriend.set(!$addingFriend)}}>Add Friend</Link>
-        {#if $addingFriend}
-            <br /><br />
-            <Input
-                label="Username or Address"
-                onClick={friendToAdd.set}
-                value={$friendToAdd}
-                onEnterButton={addFriend}
-            />
-            <Button 
-                disabled={$waitingForAddFriend || $friendToAdd.length===0} 
-                text={$waitingForAddFriend ? "Adding..." : "Add"} 
-                clicked={addFriend} 
-            />
-            {#if $addFriendErrors !== null}
-                {#each $addFriendErrors as error}
-                    <div class="username-error error">
-                        {error}
-                    </div>
-                {/each}
-            {/if}
+        <br /><br />
+        <Input
+            label="Add Frend"
+            onClick={friendToAdd.set}
+            value={$friendToAdd}
+            onEnterButton={addFriend}
+        /><br />
+        {#if $addFriendErrors !== null}
+            {#each $addFriendErrors as error}
+                <div class="username-error error">
+                    {error}
+                </div>
+            {/each}
         {/if}
+        <Button 
+            disabled={$waitingForAddFriend || $friendToAdd.length===0} 
+            text={$waitingForAddFriend ? "Adding..." : "Add"} 
+            clicked={addFriend} 
+        />
     </Container>
     <br />
     <Container>

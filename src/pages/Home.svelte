@@ -14,6 +14,10 @@ import Poker from './Poker.svelte';
 import UserPage from './UserPage.svelte';
 export let address = null;
 
+if ($page.startsWith('/fren/')) {
+	address = $page.replace("/fren/", "").trim();
+}
+
 // Games
 const gameInfo = [
 	{
