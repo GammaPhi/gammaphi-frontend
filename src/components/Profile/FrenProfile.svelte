@@ -40,7 +40,7 @@ onMount(()=>{
 
 
 const amount = writable(BN(0));
-const message = writable('hello world');
+const message = writable('');
 const encrypted = writable(false);
 
 const sendMessageHelperHandler = writable({});
@@ -145,6 +145,7 @@ const sendPhiHelper = async () => {
                 Send Message
             </h4>
             <Input 
+                clazz="message-input"
                 value={$message}
                 onClick={message.set}
                 onEnterButton={sendMessageHelper}

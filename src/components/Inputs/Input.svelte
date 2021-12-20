@@ -1,5 +1,5 @@
 <script>
-export let onClick, type="text", autoComplete="", value="", onEnterButton=null, label=null;
+export let onClick, type="text", autoComplete="", value="", clazz="", onEnterButton=null, label=null;
 const submitOnEnter = (e) => {
     if (e.code === "Enter" || e.code === "NumpadEnter") {
         if (onEnterButton !== null) {
@@ -12,7 +12,10 @@ const submitOnEnter = (e) => {
 </script>
 
 <style>
-
+    .message-input {
+        width: 100%;
+        margin: auto;
+    }
 </style>
 
 {#if label === null}
@@ -20,6 +23,7 @@ const submitOnEnter = (e) => {
 type={type}
 autoComplete={autoComplete}
 value={value}
+class={clazz}
 on:change={(e) => onClick(e.target.value)}
 on:input={(e) => onClick(e.target.value)}
 />
@@ -28,6 +32,7 @@ on:input={(e) => onClick(e.target.value)}
     {label}
     <br/>
     <input
+    class={clazz}
     type={type}
     autoComplete={autoComplete}
     value={value}

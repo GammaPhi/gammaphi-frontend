@@ -37,6 +37,16 @@ const formatTimestamp = (date) => {
     return new Date(date.getTime() - date.getTimezoneOffset()*60*1000)
 };
 
+const isHex = (content) => {
+    let re = /[0-9A-Fa-f]{6}/g;
+    let s = false;
+    if(re.test(content)) {
+        s = true;
+    }
+    re.lastIndex = 0; // be sure to reset the index after using .text()
+    return s;
+}
+
 const formatContent = (content) => {
     if ($privateKey !== null) {
         try {
@@ -44,6 +54,9 @@ const formatContent = (content) => {
         } catch(e) {
             console.log(e);
         }
+    }
+    if (content.length > 50 && isHex(content)) {
+        content = "[ENCRYPTED]";
     }
     return content;
 }
