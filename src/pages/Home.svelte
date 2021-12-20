@@ -12,11 +12,22 @@ import Redeem from './Redeem.svelte';
 import Profile from './Profile.svelte';
 import Poker from './Poker.svelte';
 import UserPage from './UserPage.svelte';
+import { writable } from 'svelte/store';
+import { onMount } from 'svelte';
 export let address = null;
 
-if ($page.startsWith('/fren/')) {
-	address = $page.replace("/fren/", "").trim();
+const frenAddress = writable(address);
+
+function updateAddress() {
+	if ($page.startsWith('/fren/')) {
+		frenAddress.set($page.replace("/fren/", "").trim());
+		console.log(address);
+	} else {
+		frenAddress.set(null);
+	}
 }
+
+$: $page, updateAddress();
 
 // Games
 const gameInfo = [
@@ -146,7 +157,7 @@ const gameInfo = [
 
 	{:else if $page.startsWith('/fren/')}
 
-	<UserPage user_address={address} />
+	<UserPage user_address={$frenAddress} />
 
 	{:else if $page === '/redeem'}
 

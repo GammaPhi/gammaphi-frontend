@@ -168,7 +168,7 @@ $: $frens, setupFrensNames();
         {#if Array.isArray($frens)}
             {#each $frens as fren}
                 <a class="link" on:click={navigateLink} href={`/fren/${fren}`}>
-                    {!$frensNames.hasOwnProperty(fren)?"Loading...":get($frensNames[fren])}
+                    {!$frensNames.hasOwnProperty(fren)||get($frensNames[fren])===null?"Loading...":get($frensNames[fren])}
                 </a>
                 <br/>
                 <br/>
