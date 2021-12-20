@@ -15,7 +15,7 @@ export let user_address;
 	}
 </style>
 
-<div align="middle" class="buttons">
+<div align="middle" class="buttons card">
 	{#if user_address !== null}
 		<FrenProfile user_address={user_address} />
 	{/if}

@@ -20,7 +20,7 @@ onMount(()=>{
 	}
 </style>
 
-<div align="middle" class="buttons">
+<div align="middle" class="buttons card">
 	{#if $username.length === 0}
 		<CreateProfile />
 	{:else}
