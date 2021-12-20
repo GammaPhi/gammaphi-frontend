@@ -141,11 +141,7 @@ $: $frens, setupFrensNames();
     </h4>
 </Container>
 <Container>
-    <h3>
-        Your Frens
-    </h3>
     <Container>
-        <br /><br />
         <Input
             label="Add Frend"
             onClick={friendToAdd.set}
@@ -165,7 +161,9 @@ $: $frens, setupFrensNames();
             clicked={addFriend} 
         />
     </Container>
-    <br />
+    <h3>
+        Your Frens
+    </h3>
     <Container>
         {#if Array.isArray($frens)}
             {#each $frens as fren}
