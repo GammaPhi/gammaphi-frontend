@@ -101,15 +101,19 @@ async function updateYouToMe() {
     for (let i = 0; i < h; i++) {
         let r = c - i;
         if (r > 0) {
-            let message = {
-                to: me,
-                content: formatContent(await checkMessageContractState("messages_hash", [you, me, r, 'message'])),
-                timestamp: formatTimestamp(await checkMessageContractState("messages_hash", [you, me, r, 'timestamp'])),
-            };
-            console.log(message);
-            let array = $messagesTo;
-            array.push(message);
-            messagesTo.set(array);
+            checkMessageContractState("messages_hash", [you, me, r, 'message']).then((content) => {
+                checkMessageContractState("messages_hash", [you, me, r, 'timestamp']).then((timestamp)=>{
+                    let message = {
+                        to: me,
+                        content: formatContent(content),
+                        timestamp: formatTimestamp(timestamp),
+                    };
+                    console.log(message);
+                    let array = $messagesTo;
+                    array.push(message);
+                    messagesTo.set(array);
+                })
+            })
         }
     }
     return c;

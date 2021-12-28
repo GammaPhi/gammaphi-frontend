@@ -22,8 +22,6 @@ export function loadPrivateKeyFromPem(pem) {
 export function getNandE(privateKey) {
     let n = privateKey.n.toString(10);
     let e = privateKey.e.toString(10);
-    console.log("N: "+n);
-    console.log("E: "+e);
     return [n, e];
 }
 

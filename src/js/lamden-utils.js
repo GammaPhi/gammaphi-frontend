@@ -238,46 +238,16 @@ export function sendPokerTransaction (method, kwargs, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendCreateProfile (profile_kwargs, resultsTracker, callback){
+export function sendProfileAction (action, payload, resultsTracker, callback) {
     let lamdenNetworkInfo = get(lamdenNetwork)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.profile.networkType,
         contractName: lamdenNetworkInfo.profile.contractName,
-        methodName: 'create_profile',
-        kwargs: profile_kwargs,
-        stampLimit: lamdenNetworkInfo.stamps.profile,
-    }
-
-    sendTransaction(txInfo, resultsTracker, callback)
-}
-
-export function sendUpdateProfile (key, value, resultsTracker, callback){
-    let lamdenNetworkInfo = get(lamdenNetwork)
-
-    const txInfo = {
-        networkType: lamdenNetworkInfo.profile.networkType,
-        contractName: lamdenNetworkInfo.profile.contractName,
-        methodName: 'update_profile',
+        methodName: 'interact',
         kwargs: {
-            key: key,
-            value: value
-        },
-        stampLimit: lamdenNetworkInfo.stamps.profile,
-    }
-
-    sendTransaction(txInfo, resultsTracker, callback)
-}
-
-export function sendProfileAddFrens (frens, resultsTracker, callback){
-    let lamdenNetworkInfo = get(lamdenNetwork)
-
-    const txInfo = {
-        networkType: lamdenNetworkInfo.profile.networkType,
-        contractName: lamdenNetworkInfo.profile.contractName,
-        methodName: 'add_frens',
-        kwargs: {
-            frens: frens
+            action: action,
+            payload: payload
         },
         stampLimit: lamdenNetworkInfo.stamps.profile,
     }
@@ -302,20 +272,29 @@ export function sendMessageTo (message, to, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendProfileRemoveFrens (frens, resultsTracker, callback){
+export async function getChannelUsers (channelName, default_value=null) {
     let lamdenNetworkInfo = get(lamdenNetwork)
-
-    const txInfo = {
-        networkType: lamdenNetworkInfo.profile.networkType,
-        contractName: lamdenNetworkInfo.profile.contractName,
-        methodName: 'remove_frens',
-        kwargs: {
-            frens: frens
-        },
-        stampLimit: lamdenNetworkInfo.stamps.profile,
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.profile.contractName}/channels?key=${channelName}:users`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
     }
-
-    sendTransaction(txInfo, resultsTracker, callback)
 }
 
 export async function hydrateProfile (key, default_value=null) {

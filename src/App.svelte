@@ -19,6 +19,7 @@ import { username } from "./stores/profileStore";
 import Link from "./components/Link.svelte";
 import { navigateLink } from "./js/navigation-utils";
 
+
 onMount(() => {
 	unregisterOldServiceWorkers()
 })
@@ -102,6 +103,7 @@ function unregisterOldServiceWorkers(){
 		<Route path="/purchase" component={Home} />
 		<Route path="/lottery" component={Home} />
 		<Route path="/poker" component={Home} />
+		<Route path="/board" component={Home} />
 		<Route path="/coinflip" component={Home} />
 		<Route path="/diceroll" component={Home} />
 		<Route path="/spin" component={Home} />

@@ -66,7 +66,9 @@ export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTi
         setTimeout(()=>{
             if (get(hasFocus) && (document.hasFocus() || isVisible)) {
                 refresh_func().then((v)=>{
-                    variable.set(v)
+                    if (variable !== null) {
+                        variable.set(v)
+                    }
                     if (!calledFirstTimeCallback && get(lamden_vk) !== null) {
                         calledFirstTimeCallback = true;
                         if (firstTimeCallback !== null) {
@@ -82,7 +84,9 @@ export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTi
         }, interval);
     }
     refresh_func().then((v)=>{
-        variable.set(v)
+        if (variable !== null) {
+            variable.set(v)
+        }
         if (firstTimeCallback !== null && get(lamden_vk) !== null) {
             firstTimeCallback(v);
             calledFirstTimeCallback = true;
@@ -94,6 +98,13 @@ export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTi
     });
 };
 
+
+export function getValueFromDict(dict, key, default_value=null) {
+    if (!dict.hasOwnProperty(key)) {
+        return default_value;
+    }
+    return get(dict[key])
+}
 
 
 export function openURL(url){

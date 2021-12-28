@@ -1,11 +1,11 @@
 <script>
 import Container from "../../Inputs/Container.svelte";
 import Link from "../../Link.svelte";
-import { autoRefreshingVariable, setupArrayStore, formatGameId } from '../../../js/global-utils';
+import { autoRefreshingVariable, setupArrayStore, formatGameId, getValueFromDict } from '../../../js/global-utils';
 import { onMount } from "svelte";
 import { lamden_vk } from '../../../stores/lamdenStores'
 import { derived, writable, get } from "svelte/store";
-import { checkPokerContractState, sendPokerPHIApproval, getAddressForUsername, sendPokerTransaction, hydrateProfileForAddress } from '../../../js/lamden-utils'
+import { checkPokerContractState, sendPokerPHIApproval, getAddressForUsername, sendPokerTransaction, hydrateProfileForAddress, sendProfileAction, getChannelUsers } from '../../../js/lamden-utils'
 import { retrievePemFileFromBrowser, storePemFileInBrowser, decrypt, loadPrivateKeyFromPem } from "../../../js/rsa-utils";
 import { formatHand, HOLDEM_POKER, OMAHA_POKER, gameTypeHumanReadable } from "../../../js/poker-utils";
 import BN from 'bignumber.js'
@@ -15,41 +15,24 @@ import Input from "../../Inputs/Input.svelte";
 import BnInputField from "../../Inputs/BNInputField.svelte";
 import { Tabs, TabList, TabPanel, Tab } from '../../../js/tabs';
 import FrenProfile from "../../Profile/FrenProfile.svelte";
+import ChatRoom from "./ChatRoom.svelte";
+import Hand from "./Hand.svelte";
 
 export let game_id, gameName, goBack;
 
 const hasFocus = writable(false);
 const creator = writable('');
 const creatorName = writable('');
-const dealer = writable('');
-const next_better = writable('');
 const players = writable([]);
-const activePlayers = writable([]);
-const community = writable([]);
-const folded = writable([]);
-const winners = writable([]);
-const allIn = writable([]);
 const hand_id = writable(null);
-const completed = writable(false);
-const payedOut = writable(false);
 const ante = writable(BN(0));
-const pot = writable(BN(0));
 const gameType = writable(null);
-const currentBet = writable(BN(0));
 const playerChipsStores = writable({});
-const playerBetStores = writable({});
-const playerHandStores = writable({});
 const playerNamesStores = writable({});
-const playerOtp1Stores = writable({});
-const playerOtp2Stores = writable({});
-const playerOtp3Stores = writable({});
-const myEncryptedHand = writable('');
-const myEncryptedOtp1 = writable('');
-const myEncryptedOtp2 = writable('');
-const myEncryptedOtp3 = writable('');
 const privateKeyErrors = writable([]);
 const privateKeyInput = writable('');
 const storedPemFile = writable('');
+const channelUsers = writable(null);
 const privateKey = derived([lamden_vk, storedPemFile], ([$lamden_vk, $storedPemFile]) => {
     try {
         privateKeyErrors.set([]);
@@ -64,41 +47,6 @@ const privateKey = derived([lamden_vk, storedPemFile], ([$lamden_vk, $storedPemF
     }
 });
 
-const myDecryptedHand = derived([myEncryptedHand, privateKey], ([$myEncryptedHand, $privateKey])=>{
-    try {
-        return decrypt($myEncryptedHand, $privateKey)    
-    } catch(e) {
-        console.log(e);
-        return 'Unable to decrypt your hand.'
-    }
-});
-
-const decryptedOtp1 = derived([myEncryptedOtp1, privateKey], ([$myEncryptedOtp1, $privateKey])=>{
-    try {
-        return decrypt($myEncryptedOtp1, $privateKey)    
-    } catch(e) {
-        console.log(e);
-        return 'Unable to decrypt your otp 1.'
-    }
-});
-
-const decryptedOtp2 = derived([myEncryptedOtp2, privateKey], ([$myEncryptedOtp2, $privateKey])=>{
-    try {
-        return decrypt($myEncryptedOtp2, $privateKey)    
-    } catch(e) {
-        console.log(e);
-        return 'Unable to decrypt your otp 2.'
-    }
-});
-
-const decryptedOtp3 = derived([myEncryptedOtp3, privateKey], ([$myEncryptedOtp3, $privateKey])=>{
-    try {
-        return decrypt($myEncryptedOtp3, $privateKey)    
-    } catch(e) {
-        console.log(e);
-        return 'Unable to decrypt your otp 3.'
-    }
-});
 
 const updatePrivateKey = () => {
     storePemFileInBrowser($lamden_vk, $privateKeyInput);
@@ -119,6 +67,9 @@ onMount(()=>{
     checkPokerContractState("games", [game_id, 'game_type'], null).then((v)=>{
         gameType.set(v);
     })
+    getChannelUsers(gameName).then(v=>{
+        channelUsers.set(v);
+    })
     return () => {
         hasFocus.set(false);
     }
@@ -128,7 +79,15 @@ onMount(()=>{
 const loadedCurrentHand = writable(false);
 autoRefreshingVariable(
     hand_id, 
-    ()=>checkPokerContractState("games", [game_id, 'current_hand'], null),
+    ()=>async () => {
+        let current_hand_id = checkPokerContractState("games", [game_id, 'current_hand'], null);
+        if ($hand_id !== null && $hand_id !== current_hand_id) {
+            // update hand cache
+            // TODO update hand cache
+            cacheHand();
+        }
+        return current_hand_id;
+    },
     hasFocus,
     ()=>loadedCurrentHand.set(true)
 );
@@ -141,160 +100,6 @@ autoRefreshingVariable(
     ()=>loadedPlayers.set(true)
 );
 
-// update hand state regularly
-const handStateRefreshingFunc = (refresh_func, default_value) => {
-    if ($hand_id===null) {
-        return Promise.resolve(default_value);
-    } else {
-        return refresh_func();
-    }
-};
-
-const loadedEncryptedHand = writable(false);
-autoRefreshingVariable(
-    myEncryptedHand, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, $lamden_vk, 'player_encrypted_hand'], ''),
-        ''
-    ),
-    hasFocus,
-    ()=>loadedEncryptedHand.set(true)
-);
-
-
-autoRefreshingVariable(
-    community, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'community'], null),
-        null
-    ),
-    hasFocus,
-    null
-);
-
-autoRefreshingVariable(
-    myEncryptedOtp1, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, $lamden_vk, 'player_encrypted_pad1'], null),
-        null
-    ),
-    hasFocus,
-    null
-);
-
-autoRefreshingVariable(
-    myEncryptedOtp2, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, $lamden_vk, 'player_encrypted_pad2'], null),
-        null
-    ),
-    hasFocus,
-    null
-);
-
-autoRefreshingVariable(
-    myEncryptedOtp3, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, $lamden_vk, 'player_encrypted_pad3'], null),
-        null
-    ),
-    hasFocus,
-    null
-);
-
-const loadedPot = writable(false);
-autoRefreshingVariable(
-    pot, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'pot'], BN(0)),
-        BN(0)
-    ),
-    hasFocus,
-    ()=>loadedPot.set(true)
-);
-
-const loadedCurrentBet = writable(false);
-autoRefreshingVariable(
-    currentBet, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'current_bet'], BN(0)),
-        BN(0)
-    ),
-    hasFocus,
-    ()=>loadedCurrentBet.set(true)
-);
-
-autoRefreshingVariable(
-    payedOut, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'payed_out'], false),
-        false
-    ),
-    hasFocus
-);
-
-autoRefreshingVariable(
-    winners, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'winners'], []),
-        []
-    ),
-    hasFocus
-);
-
-autoRefreshingVariable(
-    dealer, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'dealer'], []),
-        BN(0)
-    ),
-    hasFocus
-);
-
-autoRefreshingVariable(
-    completed, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'completed'], false),
-        false
-    ),
-    hasFocus
-);
-
-autoRefreshingVariable(
-    next_better, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'next_better'], ''),
-        ''
-    ),
-    hasFocus
-);
-
-autoRefreshingVariable(
-    activePlayers, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'active_players'], []),
-        []
-    ),
-    hasFocus
-);
-
-autoRefreshingVariable(
-    folded, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'folded'], []),
-        []
-    ),
-    hasFocus
-);
-
-autoRefreshingVariable(
-    allIn, 
-    ()=>handStateRefreshingFunc(
-        ()=>checkPokerContractState("hands", [$hand_id, 'all_in'], []),
-        []
-    ),
-    hasFocus
-);
 
 function setupNameStores() {
     console.log("Setting up name stores");
@@ -321,96 +126,7 @@ function setupChipStores() {
     )
 }
 
-function setupBetStores() {
-    setupArrayStore(
-        hasFocus,
-        activePlayers, 
-        playerBetStores, 
-        BN(0), 
-        (player)=>()=>handStateRefreshingFunc(
-            ()=>checkPokerContractState("hands", [$hand_id, player, 'bet'], BN(0)),
-            BN(0)
-        )
-    )
-}
-
-function setupHandStores() {
-    setupArrayStore(
-        hasFocus,
-        activePlayers, 
-        playerHandStores, 
-        null, 
-        (player)=>()=>handStateRefreshingFunc(
-            ()=>checkPokerContractState("hands", [$hand_id, player, 'hand'], null),
-            null
-        )
-    )
-}
-
-function setupOtp1Stores() {
-    setupArrayStore(
-        hasFocus,
-        activePlayers, 
-        playerOtp1Stores, 
-        null, 
-        (player)=>()=>handStateRefreshingFunc(
-            ()=>checkPokerContractState("hands", [$hand_id, player, 'pad1'], null),
-            null
-        )
-    )
-}
-
-function setupOtp2Stores() {
-    setupArrayStore(
-        hasFocus,
-        activePlayers, 
-        playerOtp2Stores, 
-        null, 
-        (player)=>()=>handStateRefreshingFunc(
-            ()=>checkPokerContractState("hands", [$hand_id, player, 'pad2'], null),
-            null
-        )
-    )
-}
-
-function setupOtp3Stores() {
-    setupArrayStore(
-        hasFocus,
-        activePlayers, 
-        playerOtp3Stores, 
-        null, 
-        (player)=>()=>handStateRefreshingFunc(
-            ()=>checkPokerContractState("hands", [$hand_id, player, 'pad3'], null),
-            null
-        )
-    )
-}
-
 $: $players, setupNameStores(), setupChipStores();
-$: $activePlayers, setupBetStores(), setupHandStores(), setupOtp1Stores(), setupOtp2Stores(), setupOtp3Stores();
-
-
-const startHandHandler = writable({});
-const startHandErrors = writable([]);
-const startHandInProgress = writable(false);
-const startHand = async () => {
-    // start_hand
-    startHandInProgress.set(true);
-    startHandErrors.set([]);
-    let kwargs = {
-        game_id: game_id
-    }
-    sendPokerTransaction('start_hand', kwargs, startHandHandler, (txResults)=>{
-        startHandInProgress.set(false);
-        if ($startHandHandler.errors?.length > 0) {
-            startHandErrors.set($startHandHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
-            hand_id.set(txResults.resultInfo.returnResult.replace("'","").replace("'", ""));
-        }
-    });
-};
 
 const addChipsToGameHandler = writable({});
 const addChipsToGameApprovalHandler = writable({});
@@ -523,176 +239,47 @@ const leaveGame = async () => {
     }
 }
 
-const anteUpHandler = writable({});
-const anteUpErrors = writable([]);
-const anteUpInProgress = writable(false);
-const anteUp = async () => {
-    // ante_up
-    anteUpInProgress.set(true);
-    anteUpErrors.set([]);
+const createOrUpdateChannelHandler = writable({});
+const createOrUpdateChannelErrors = writable([]);
+const createOrUpdateChannelInProgress = writable(false);
+const createOrUpdateChannel = async () => {
+    createOrUpdateChannelInProgress.set(true);
+    createOrUpdateChannelErrors.set([]);
     let kwargs = {
-        hand_id: $hand_id,
+        action: $channelUsers === null ? 'create_channel' : 'update_channel',
+        users: $players,
+        channel_name: gameName
     }
-    sendPokerTransaction('ante_up', kwargs, anteUpHandler, (txResults)=>{
-        anteUpInProgress.set(false);
-        if ($anteUpHandler.errors?.length > 0) {
-            anteUpErrors.set($anteUpHandler.errors)
+    sendProfileAction('channel', kwargs, createOrUpdateChannelHandler, (txResults)=>{
+        createOrUpdateChannelInProgress.set(false);
+        if ($createOrUpdateChannelHandler.errors?.length > 0) {
+            createOrUpdateChannelErrors.set($createOrUpdateChannelHandler.errors)
         } else {
             console.log("Success");
             console.log(txResults);
+            channelUsers.set($players);
         }
     });
 }
 
-const dealCardsHandler = writable({});
-const dealCardsErrors = writable([]);
-const dealCardsInProgress = writable(false);
-const dealCards = async () => {
-    // deal_cards
-    dealCardsInProgress.set(true);
-    dealCardsErrors.set([]);
-    let kwargs = {
-        hand_id: $hand_id,
-    }
-    sendPokerTransaction('deal_cards', kwargs, dealCardsHandler, (txResults)=>{
-        dealCardsInProgress.set(false);
-        if ($dealCardsHandler.errors?.length > 0) {
-            dealCardsErrors.set($dealCardsHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
+function isSuperset(set, subset) {
+    for (let elem of subset) {
+        if (!set.has(elem)) {
+            return false
         }
-    });
+    }
+    return true
 }
-
-const betCheckOrFoldHandler = writable({});
-const betCheckOrFoldErrors = writable([]);
-const betCheckOrFoldInProgress = writable(false);
-const betInput = writable(BN('0'));
-
-const betCheckOrFold = async () => {
-    // bet_check_or_fold
-    betCheckOrFoldInProgress.set(true);
-    betCheckOrFoldErrors.set([]);
-    let kwargs = {
-        hand_id: $hand_id,
-        bet: {
-            __fixed__: BN($betInput).toString()
-        }
+const shouldCreateOrUpdateChannel = derived([players, channelUsers], ([$players, $channelUsers]) => {
+    if ($channelUsers === null) return true;
+    if ($channelUsers.length != $players.length) return true;
+    let set1 = new Set($players);
+    let set2 = new Set($channelUsers);
+    if (isSuperset(set1, set2) && isSuperset(set2, set1)) {
+        return false;
     }
-    sendPokerTransaction('bet_check_or_fold', kwargs, betCheckOrFoldHandler, (txResults)=>{
-        betCheckOrFoldInProgress.set(false);
-        if ($betCheckOrFoldHandler.errors?.length > 0) {
-            betCheckOrFoldErrors.set($betCheckOrFoldHandler.errors)
-        } else {
-            betInput.set(BN('0'));
-            console.log("Success");
-            console.log(txResults);
-        }
-    });
-}
-
-const verifyHandHandler = writable({});
-const verifyHandErrors = writable([]);
-const verifyHandInProgress = writable(false);
-const verifyHand = async () => {
-    // verify_hand
-    verifyHandInProgress.set(true);
-    verifyHandErrors.set([]);
-    let kwargs = {
-        hand_id: $hand_id,
-        player_hand_str: $myDecryptedHand
-    }
-    sendPokerTransaction('verify_hand', kwargs, verifyHandHandler, (txResults)=>{
-        verifyHandInProgress.set(false);
-        if ($verifyHandHandler.errors?.length > 0) {
-            verifyHandErrors.set($verifyHandHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
-        }
-    });
-}
-
-const revealOtpHandler = writable({});
-const revealOtpErrors = writable([]);
-const revealOtpInProgress = writable(false);
-const revealOtp = (index) => async () => {
-    // reveal_otp
-    revealOtpInProgress.set(true);
-    revealOtpErrors.set([]);
-    let decryptedOtp;
-    if (index === 1) {
-        decryptedOtp = $decryptedOtp1;
-    } else if (index === 2) {
-        decryptedOtp = $decryptedOtp2;
-    } else if (index === 3) {
-        decryptedOtp = $decryptedOtp3;
-    } else {
-        return; // error?
-    }
-
-    let kwargs = {
-        hand_id: $hand_id,
-        pad: decryptedOtp.split(":")[0],
-        salt: decryptedOtp.split(":")[1],
-        index: index
-    }
-    console.log(kwargs);
-    sendPokerTransaction('reveal_otp', kwargs, revealOtpHandler, (txResults)=>{
-        revealOtpInProgress.set(false);
-        if ($revealOtpHandler.errors?.length > 0) {
-            revealOtpErrors.set($revealOtpHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
-        }
-    });
-}
-
-const revealHandler = writable({});
-const revealErrors = writable([]);
-const revealInProgress = writable(false);
-const reveal = (index) => async () => {
-    // reveal
-    revealInProgress.set(true);
-    revealErrors.set([]);
-    let kwargs = {
-        hand_id: $hand_id,
-        index: index
-    }
-    sendPokerTransaction('reveal', kwargs, revealHandler, (txResults)=>{
-        revealInProgress.set(false);
-        if ($revealHandler.errors?.length > 0) {
-            revealErrors.set($revealHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
-        }
-    });
-}
-
-const payoutHandHandler = writable({});
-const payoutHandErrors = writable([]);
-const payoutHandInProgress = writable(false);
-const payoutHand = async () => {
-    // payout_hand
-    payoutHandInProgress.set(true);
-    payoutHandErrors.set([]);
-    let kwargs = {
-        hand_id: $hand_id
-    }
-    sendPokerTransaction('payout_hand', kwargs, payoutHandHandler, (txResults)=>{
-        payoutHandInProgress.set(false);
-        if ($payoutHandHandler.errors?.length > 0) {
-            payoutHandErrors.set($payoutHandHandler.errors)
-        } else {
-            console.log("Success");
-            console.log(txResults);
-        }
-    });
-}
-
+    return true;
+});
 
 const loaded = derived(
     [players, loadedCurrentBet, loadedCurrentHand, loadedEncryptedHand, loadedPlayers, loadedPot],
@@ -700,90 +287,6 @@ const loaded = derived(
         return $players.length > 0 && $loadedCurrentBet && $loadedCurrentHand && $loadedEncryptedHand && $loadedPlayers && $loadedPot
     }
 )
-
-const payoutTime = derived([playerHandStores, activePlayers, folded], 
-    ([$playerHandStores, $activePlayers, $folded]) => {
-        let valid = true;
-        for(var i = 0; i < $activePlayers.length; i++) {
-            let p = $activePlayers[i];
-            if (!$folded.includes(p)) {
-                if (!$playerHandStores.hasOwnProperty(p) || get($playerHandStores[p]) === null) {
-                    valid = false;
-                    break;
-                } 
-            }
-        }
-        return valid;
-    });
-
-const canReveal1 = derived([playerOtp1Stores, activePlayers], 
-    ([$playerOtp1Stores, $activePlayers]) => {
-        let valid = true;
-        for(var i = 0; i < $activePlayers.length; i++) {
-            let p = $activePlayers[i];
-            if (!$playerOtp1Stores.hasOwnProperty(p) || get($playerOtp1Stores[p]) === null) {
-                valid = false;
-                break;
-            } 
-        }
-        return valid;
-    });
-
-const canReveal2 = derived([playerOtp2Stores, activePlayers], 
-    ([$playerOtp2Stores, $activePlayers]) => {
-        let valid = true;
-        for(var i = 0; i < $activePlayers.length; i++) {
-            let p = $activePlayers[i];
-            if (!$playerOtp2Stores.hasOwnProperty(p) || get($playerOtp2Stores[p]) === null) {
-                valid = false;
-                break;
-            } 
-        }
-        return valid;
-    });
-
-const canReveal3 = derived([playerOtp3Stores, activePlayers], 
-    ([$playerOtp3Stores, $activePlayers]) => {
-        let valid = true;
-        for(var i = 0; i < $activePlayers.length; i++) {
-            let p = $activePlayers[i];
-            if (!$playerOtp3Stores.hasOwnProperty(p) || get($playerOtp3Stores[p]) === null) {
-                valid = false;
-                break;
-            } 
-        }
-        return valid;
-    });
-
-const isRevealed1 = derived([community], ([$community]) => {
-    if ($community === null) {
-        return false;
-    }
-    if ($community[0] === null) {
-        return false;
-    }
-    return true;
-})
-
-const isRevealed2 = derived([community], ([$community]) => {
-    if ($community === null) {
-        return false;
-    }
-    if ($community[1] === null) {
-        return false;
-    }
-    return true;
-})
-
-const isRevealed3 = derived([community], ([$community]) => {
-    if ($community === null) {
-        return false;
-    }
-    if ($community[2] === null) {
-        return false;
-    }
-    return true;
-})
 
 const gameTypeName = derived([gameType], ([$gameType]) => {
     return gameTypeHumanReadable($gameType);
@@ -855,6 +358,7 @@ const showUserPage = writable(null);
         <TabList>
             <Tab>Game State</Tab>
             <Tab>Hand State</Tab>
+            <Tab>{" "}Chatroom{" "}</Tab>
             <Tab>Management</Tab>
         </TabList>
 
@@ -886,11 +390,11 @@ const showUserPage = writable(null);
                 <tr>
                     <td>
                         <Link onClick={()=>showUserPage.set(player)}>
-                            {!$playerNamesStores.hasOwnProperty(player)?'Loading...':get($playerNamesStores[player])}                        
+                            {getValueFromDict($playerNamesStores, player, "Loading...")}                        
                         </Link>  
                     </td>
                     <td>
-                        {!$playerChipsStores.hasOwnProperty(player)?'Loading...':get($playerChipsStores[player])}
+                        {getValueFromDict($playerChipsStores, player, "Loading...")}
                     </td>
                 </tr>
                 {/each}
@@ -901,242 +405,58 @@ const showUserPage = writable(null);
         </TabPanel>
 
         <TabPanel>
-            <h2>Hand State</h2>
-
-            <h3>Current Pot: {$pot}</h3>
-
-            {#if $myDecryptedHand.length > 0}
-                <h3>My Hand: {formatHand($myDecryptedHand)}</h3>
-            {/if}
-
-            {#if $gameType === HOLDEM_POKER || $gameType === OMAHA_POKER}
-                <Errors errors={revealOtpErrors} />
-                <Errors errors={revealErrors} />
-                <Container>
-                    {#if $isRevealed1}
-                    <h4>Flop: {formatHand($community[0])}</h4>
-                    {/if}
-                    {#if $isRevealed2}
-                    <h4>Flop: {formatHand($community[1])}</h4>
-                    {/if}
-                    {#if $isRevealed3}
-                    <h4>Flop: {formatHand($community[2])}</h4>
-                    {/if}
-                    {#if get($playerOtp1Stores[$lamden_vk]) === null}
-                        <Button
-                            text="Reveal Flop"
-                            clicked={revealOtp(1)}
-                            disabled={$revealOtpInProgress}
-                        />
-                    {:else}
-                        {#if $canReveal1 && !$isRevealed1}
-                            <Button
-                                text="Decrypt Flop"
-                                clicked={reveal(1)}
-                                disabled={$revealInProgress}
-                            />
-                        {:else}
-                            {#if get($playerOtp2Stores[$lamden_vk]) === null}
-                                <Button
-                                    text="Reveal Turn"
-                                    clicked={revealOtp(2)}
-                                    disabled={$revealOtpInProgress}
-                                />
-                            {:else}
-                                {#if $canReveal2 && !$isRevealed2}
-                                    <Button
-                                        text="Decrypt Turn"
-                                        clicked={reveal(2)}
-                                        disabled={$revealInProgress}
-                                    />
-                                {:else}                        
-                                    {#if get($playerOtp3Stores[$lamden_vk]) === null}
-                                        <Button
-                                            text="Reveal River"
-                                            clicked={revealOtp(3)}
-                                            disabled={$revealOtpInProgress}
-                                        />
-                                    {:else}
-                                        {#if $canReveal3 && !$isRevealed3}
-                                            <Button
-                                                text="Decrypt River"
-                                                clicked={reveal(3)}
-                                                disabled={$revealInProgress}
-                                            />
-                                        {/if}
-                                    {/if}
-                                {/if}
-                            {/if}
-                        {/if}
-                    {/if}
-                </Container>
-            {/if}
-
-            {#if $hand_id === null || $payedOut === true}
-                <Errors errors={startHandErrors} />
-                <Button
-                    text={$startHandInProgress ? "Starting..." : "Start Hand"}
-                    clicked={startHand}
-                    disabled={$startHandInProgress}
-                />
-
-            {:else if $completed === true}
-
-                Hand completed...        
-
-                {#if $payoutTime}
-
-                    This hand has completed...
-
-                    <Errors errors={payoutHandErrors} />
-                    <Button
-                        text={$payoutHandInProgress ? "Paying..." : "Payout Hand"}
-                        clicked={payoutHand}
-                        disabled={$payoutHandInProgress}
-                    />
-
-                {:else if $activePlayers.includes($lamden_vk) && !$folded.includes($lamden_vk)}
-
-                    {#if $activePlayers.length - $folded.length == 1}
-
-                        Everyone else folded... No need to verify your hand.
-
-                        <Errors errors={payoutHandErrors} />
-                        <Button
-                            text={$payoutHandInProgress ? "Paying..." : "Payout Hand"}
-                            clicked={payoutHand}
-                            disabled={$payoutHandInProgress}
-                        />
-                    
-                    {:else}
-
-                        {#if $playerHandStores.hasOwnProperty($lamden_vk) && get($playerHandStores[$lamden_vk]) !== null}
-                        
-                            Waiting for others to verify their hands...
-                        
-                        {:else}
-
-                            <Errors errors={verifyHandErrors} />
-                            <Button
-                                text={$verifyHandInProgress ? "Verifying..." : "Verify Hand"}
-                                clicked={verifyHand}
-                                disabled={$verifyHandInProgress}
-                            />
-                        
-                        {/if}
-                    
-                    {/if}
-
-                {:else if $folded.includes($lamden_vk)}
-
-                    You folded. Waiting for next hand...
-
-                {/if}
-
-            {:else if $next_better.length === 0}
-
-                Hand hasn't been dealt yet...
-
-                {#if $activePlayers.includes($lamden_vk)}
-
-                    {#if $activePlayers.length <= 1}
-
-                        Waiting for at least one more player to ante up...
-
-                    {:else if $dealer === $lamden_vk}
-
-                        <Errors errors={dealCardsErrors} />
-                        <Button
-                            text={$dealCardsInProgress ? "Dealing..." : "Deal Cards"}
-                            clicked={dealCards}
-                            disabled={$dealCardsInProgress}
-                        />
-
-                    {:else}
-
-                        Waiting for dealer to deal cards...
-
-                    {/if}
-
-                {:else}
-
-                    <Errors errors={anteUpErrors} />
-                    <Button
-                        text={$anteUpInProgress ? "Placing Ante..." : "Ante Up"}
-                        clicked={anteUp}
-                        disabled={$anteUpInProgress}
-                    />
-
-                {/if}
-
-            {:else if $next_better === $lamden_vk}
-
-                <h4>
-                    Place a bet below (bet 0 to check or -1 to fold)
-                </h4>
-
-                <BnInputField
-                    onInputChange={(value)=>betInput.set(value)}
-                    startingValue={$betInput}
-                    inputClass="primaryInput"
-                    labelClass="label"
-                    labelText="My Bet"
-                />
-                <br />
-                <Errors errors={betCheckOrFoldErrors} />
-                <Button
-                    text={$betCheckOrFoldInProgress ? "Betting..." : "Bet"}
-                    clicked={async () => await betCheckOrFold()}
-                    disabled={$betCheckOrFoldInProgress}
-                />    
-
-            {/if}
-
-            <br />
-            <br />
-            <table>
-            <thead>
-                <tr>
-                    <th>
-                        Player
-                    </th>
-                    <th>
-                        Chips
-                    </th>
-                    <th>
-                        In Pot
-                    </th>
-                    <th>
-                        Hand
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                {#each $activePlayers as player}
-                <tr>
-                    <td>
-                        <Link onClick={()=>showUserPage.set(player)}>
-                            {!$playerNamesStores.hasOwnProperty(player)?'Loading...':get($playerNamesStores[player])}                        
-                        </Link>                    
-                        {$dealer.length > 0 && $dealer===player ? "(D)" : ""}
-                        {$next_better.length > 0 && $next_better===player ? "(*)" : ""}
-                    </td>
-                    <td>
-                        {!$playerChipsStores.hasOwnProperty(player)?'Loading...':get($playerChipsStores[player])}
-                    </td>
-                    <td>
-                        {!$playerBetStores.hasOwnProperty(player)?'Loading...':get($playerBetStores[player])}
-                    </td>
-                    <td>
-                        {!$playerHandStores.hasOwnProperty(player)?'Loading...':get($playerHandStores[player])===null?"(private)":get($playerHandStores[player])}
-                    </td>
-                </tr>
-                {/each}
-            </tbody>
-            </table>
+            <Hand 
+                gameType={gameType}
+                playerNamesStores={playerNamesStores}
+                playerChipsStores={playerChipsStores}
+                showUserPage={showUserPage}
+                hand_id={hand_id}
+            />
             <br /><br />
         </TabPanel>
-
+        <TabPanel>
+            <h2>Game Chat</h2>
+            {#if $creator === $lamden_vk}
+                {#if $shouldCreateOrUpdateChannel}
+                    <Container>
+                        {#if $channelUsers === null}
+                        <Errors errors={createOrUpdateChannelErrors} />
+                        <Button
+                            text={$createOrUpdateChannelInProgress ? "Creating..." : "Create Private Game Chat"}
+                            clicked={createOrUpdateChannel}
+                            disabled={$createOrUpdateChannelInProgress}
+                        />
+                        {:else}
+                        <p>At least one player in this game has been added or removed. Please update the private game chat.</p>
+                        <Button
+                            text={$createOrUpdateChannelInProgress ? "Updating..." : "Update Private Game Chat"}
+                            clicked={createOrUpdateChannel}
+                            disabled={$createOrUpdateChannelInProgress}
+                        />
+                        {/if}
+                    </Container>
+                {/if}
+            {/if}
+            {#if $channelUsers === null}
+                <p>Private channel not created.</p>
+                {#if $players !== null}
+                    <ChatRoom
+                        channelName={gameName}
+                        channelUsers={$players}
+                        usersNames={playerNamesStores}
+                    />
+                {:else}
+                    <p>Loading...</p>
+                {/if}
+            {:else}
+                <ChatRoom
+                    channelName={gameName}
+                    channelUsers={$channelUsers}
+                    usersNames={playerNamesStores}
+                />
+            {/if}
+            <br /><br />
+        </TabPanel>
         <TabPanel>
             <h2>
                 Game Management
@@ -1183,7 +503,7 @@ const showUserPage = writable(null);
                 {/if}
             </Container>
             <br />
-            {#if $creator === $lamden_vk}
+            {#if $creator === $lamden_vk}                
                 <Container>
                     <Link onClick={()=>{playerToAdd.set(''); showAddPlayer.set(!$showAddPlayer)}}>Add Player</Link>
                     <br />

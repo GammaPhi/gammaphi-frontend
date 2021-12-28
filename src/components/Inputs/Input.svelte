@@ -13,7 +13,7 @@ const submitOnEnter = (e) => {
 
 <style>
     .message-input {
-        width: 100%;
+        width: 80%;
         margin: auto;
     }
 </style>

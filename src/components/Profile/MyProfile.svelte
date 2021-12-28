@@ -18,13 +18,9 @@ import {
 } from '../../stores/profileStore'
 import { lamden_vk } from '../../stores/lamdenStores';
 import { 
-    sendCreateProfile, 
-    sendUpdateProfile, 
-    hydrateProfile,
-    sendProfileAddFrens,
-    sendProfileRemoveFrens,
-hydrateProfileForAddress,
-sendMessageTo
+    hydrateProfileForAddress,
+    sendProfileAction,
+    sendMessageTo
 } from '../../js/lamden-utils'
 import Input from '../Inputs/Input.svelte';
 import Button from '../Button.svelte';
@@ -43,8 +39,12 @@ const waitingForAddFriend = writable(false);
 const addFriend = async () => {
     addFriendErrors.set([]);
     waitingForAddFriend.set(true);
-    sendProfileAddFrens(
-        [$friendToAdd],
+    sendProfileAction(
+        "profile",
+        {
+            frens: [$friendToAdd],
+            action: "add_frens"
+        },
         addFriendResultsTracker,
         (txResults) => {
             waitingForAddFriend.set(false);

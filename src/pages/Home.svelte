@@ -14,6 +14,8 @@ import Poker from './Poker.svelte';
 import UserPage from './UserPage.svelte';
 import { writable } from 'svelte/store';
 import { onMount } from 'svelte';
+import Checkers from '../components/Games/Board/Checkers.svelte'
+import Board from './Board.svelte';
 export let address = null;
 
 const frenAddress = writable(address);
@@ -35,6 +37,11 @@ const gameInfo = [
         name: 'Poker',
         link: '/poker',
         description: "Play decentralized poker with your friends or join a public table."
+    },
+	{
+        name: 'Board Games',
+        link: '/board',
+        description: "Play decentralized go, chess, or checkers with a friend or join a public game."
     },
 	{
         name: 'Dice Roll',
@@ -130,6 +137,10 @@ const gameInfo = [
 	{:else if $page === '/poker'}
 
 	<Poker />
+
+	{:else if $page === '/board'}
+
+	<Board />
 
 	{:else if $page === '/spin'}
 

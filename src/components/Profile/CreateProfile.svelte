@@ -15,11 +15,7 @@ import {
 } from '../../stores/profileStore'
 import { lamden_vk } from '../../stores/lamdenStores';
 import { 
-    sendCreateProfile, 
-    sendUpdateProfile, 
-    hydrateProfile,
-    sendProfileAddFrens,
-    sendProfileRemoveFrens
+    sendProfileAction
 } from '../../js/lamden-utils'
 import Input from '../Inputs/Input.svelte';
 import Button from '../Button.svelte';
@@ -58,8 +54,10 @@ onMount(()=>{
 const saveProfile = async () => {
     errors.set([]);
     creating.set(true);
-    sendCreateProfile(
+    sendProfileAction(
+        "profile",
         {
+            action: "create_profile",
             username: $usernameValue,
             display_name: $display_name,
             icon_base64: $icon_base64.length === 0 ? null : $icon_base64,
