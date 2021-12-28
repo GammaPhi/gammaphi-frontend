@@ -1,26 +1,22 @@
 <script>
+import { onMount } from "svelte";
+
 import { derived, writable } from "svelte/store";
+import { sendBoardGameTransaction } from "../../../js/lamden-utils";
+import { formatBoard, NUM_ROWS, NUM_COLS, coordsToIndex, indexToCoords } from "../../../js/board-utils";
 import Button from "../../Button.svelte";
+import Errors from "../Poker/Errors.svelte";
 
-const NUM_ROWS = 8;
-const NUM_COLS = 8;
+const game_type = 'checkers';
 
-export let board = writable(' B b b bb b b b  b b b b                W w w w  w w w ww w w w ');
+export let board = writable(' b b b bb b b b  b b b b                w w w w  w w w ww w w w ');
 export let team = "b";
+export let game_id = null;
+export let game_metadata = {};
+export let playable = true;
 
 const formattedBoard = derived([board], ([$board]) => {
-    let array = [];
-    for(let i = 0; i < NUM_ROWS; i++) {
-        let row = $board.substring(i*NUM_ROWS, i*NUM_ROWS+NUM_COLS).split('');
-        if (team === 'b') {
-            row.reverse();
-        }
-        array.push(row);        
-    }
-    if (team === 'b') {
-        array.reverse();
-    }
-    return array;
+    return formatBoard($board, team);
 });
 
 const pieceToImageMap = {
@@ -31,14 +27,6 @@ const pieceToImageMap = {
 const selectedPiece = writable(null);
 const destinationTiles = writable(null);
 
-const coordsToIndex = (row, col) => {
-    return row * NUM_ROWS + col;
-}
-
-const indexToCoords = (index) => {
-    return [Math.floor(index / NUM_ROWS), index % NUM_COLS];
-}
-
 const teamOfPiece = (piece) => {
     if (piece === ' ') {
         return false;
@@ -46,7 +34,13 @@ const teamOfPiece = (piece) => {
     return piece.toLowerCase();
 }
 
+const makeMoveHandler = writable({});
+const makeMoveErrors = writable([]);
+const makeMoveInProgress = writable(false);
 const makeMove = async () => {
+    makeMoveErrors.set([]);
+    makeMoveInProgress.set(true);
+
     let initialCoords = indexToCoords($selectedPiece);
     let destinationCoords = [];
     let _destinationTiles = $destinationTiles;
@@ -65,8 +59,29 @@ const makeMove = async () => {
             destinationCoord[1] = NUM_COLS - 1 - destinationCoord[1];
         }
     }
+    let x2 = destinationCoords.map((a)=>a[0]);
+    let y2 = destinationCoords.map((a)=>a[1]);
     console.log(initialCoords);
     console.log(destinationCoords);
+    sendBoardGameTransaction(
+        "games",
+        {
+            action: 'move',
+            type: game_type,
+            game_id: game_id,
+            x1: initialCoords[0],
+            y1: initialCoords[1],
+            x2: x2,
+            y2: y2,
+        }, makeMoveHandler, (txResults)=>{
+        makeMoveInProgress.set(false);
+        if ($makeMoveHandler.errors?.length > 0) {
+            makeMoveErrors.set($makeMoveHandler.errors)
+        } else {
+            console.log("Success");
+            console.log(txResults);
+        }
+    })
 }
 
 const pushDestinationTile = (x, y) => {
@@ -80,6 +95,15 @@ const pushDestinationTile = (x, y) => {
     arr.push(index);
     destinationTiles.set(arr);
 }
+
+onMount(()=>{
+    selectedPiece.set(null);
+    destinationTiles.set(null);
+    return () => {
+        selectedPiece.set(null);
+        destinationTiles.set(null);
+    }
+})
 
 </script>
 
@@ -168,8 +192,6 @@ const pushDestinationTile = (x, y) => {
 }
 </style>
 
-<h2>Checkers</h2>
-
 <div align="center" class="align-center buttons">
     <div align="center" class="board align-center">
         {#each $formattedBoard as row, i}
@@ -200,10 +222,14 @@ const pushDestinationTile = (x, y) => {
             {/each}
         {/each}
     </div>
-    <br /><br />
+    <br />
+    {#if playable}
+    <br />
+    <Errors errors={makeMoveErrors} />
     <Button
         disabled={$selectedPiece===null || $destinationTiles===null}
         text="Move"
         clicked={makeMove}
     />
+    {/if}
 </div>

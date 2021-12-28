@@ -1,26 +1,22 @@
 <script>
-import { derived, writable } from "svelte/store";
-import Button from "../../Button.svelte";
+import { onMount } from "svelte";
 
-const NUM_ROWS = 8;
-const NUM_COLS = 8;
+import { derived, writable } from "svelte/store";
+import { formatBoard, NUM_ROWS, NUM_COLS, coordsToIndex, indexToCoords } from "../../../js/board-utils";
+import { sendBoardGameTransaction } from "../../../js/lamden-utils";
+import Button from "../../Button.svelte";
+import Errors from "../Poker/Errors.svelte";
+
+const game_type = 'chess';
 
 export let board = writable('rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR');
-export let team = "b";
+export let team = "w";
+export let game_id = null;
+export let game_metadata = {};
+export let playable = true;
 
 const formattedBoard = derived([board], ([$board]) => {
-    let array = [];
-    for(let i = 0; i < NUM_ROWS; i++) {
-        let row = $board.substring(i*NUM_ROWS, i*NUM_ROWS+NUM_COLS).split('');
-        if (team === 'b') {
-            row.reverse();
-        }
-        array.push(row);        
-    }
-    if (team === 'b') {
-        array.reverse();
-    }
-    return array;
+    return formatBoard($board, team);
 });
 
 const pieceToImageMap = {
@@ -41,14 +37,6 @@ const pieceToImageMap = {
 const selectedPiece = writable(null);
 const destinationTile = writable(null);
 
-const coordsToIndex = (row, col) => {
-    return row * NUM_ROWS + col;
-}
-
-const indexToCoords = (index) => {
-    return [Math.floor(index / NUM_ROWS), index % NUM_COLS];
-}
-
 const teamOfPiece = (piece) => {
     if (piece === ' ') {
         return false;
@@ -60,7 +48,13 @@ const teamOfPiece = (piece) => {
     }
 }
 
+const makeMoveHandler = writable({});
+const makeMoveErrors = writable([]);
+const makeMoveInProgress = writable(false);
 const makeMove = async () => {
+    makeMoveErrors.set([]);
+    makeMoveInProgress.set(true);
+
     let initialCoords = indexToCoords($selectedPiece);
     let destinationCoords = indexToCoords($destinationTile);
     if (team === 'b') {
@@ -72,8 +66,36 @@ const makeMove = async () => {
     }
     console.log(initialCoords);
     console.log(destinationCoords);
+    sendBoardGameTransaction(
+        "games",
+        {
+            action: 'move',
+            type: game_type,
+            game_id: game_id,
+            x1: initialCoords[0],
+            y1: initialCoords[1],
+            x2: destinationCoords[0],
+            y2: destinationCoords[1],
+        }, makeMoveHandler, (txResults)=>{
+        makeMoveInProgress.set(false);
+        if ($makeMoveHandler.errors?.length > 0) {
+            makeMoveErrors.set($makeMoveHandler.errors)
+        } else {
+            console.log("Success");
+            console.log(txResults);
+        }
+    })
 
 }
+
+onMount(()=>{
+    selectedPiece.set(null);
+    destinationTile.set(null);
+    return () => {
+        selectedPiece.set(null);
+        destinationTile.set(null);
+    }
+})
 
 </script>
 
@@ -146,8 +168,6 @@ const makeMove = async () => {
 }
 </style>
 
-<h2>Chess</h2>
-
 <div align="center" class="align-center buttons">
     <div align="center" class="board align-center">
         {#each $formattedBoard as row, i}
@@ -170,10 +190,14 @@ const makeMove = async () => {
             {/each}
         {/each}
     </div>
-    <br /><br />
+    <br />
+    {#if playable}
+    <br />
+    <Errors errors={makeMoveErrors} />
     <Button
         disabled={$selectedPiece===null || $destinationTile===null}
         text="Move"
         clicked={makeMove}
     />
+    {/if}
 </div>

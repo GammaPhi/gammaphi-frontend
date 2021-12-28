@@ -1,9 +1,13 @@
 <script>
-export let onClick;
+export let onClick, clazz="";
 </script>
 
 <style>
-
+.large {
+    font-size: 24px;
+    font-weight: bold;
+    
+}
 </style>
 
-<a href="/#" on:click={(e)=>{e.preventDefault(); onClick(e);}}><slot></slot></a>
+<a href="/#" class={clazz} on:click={(e)=>{e.preventDefault(); onClick(e);}}><slot></slot></a>

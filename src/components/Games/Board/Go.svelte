@@ -1,54 +1,69 @@
 <script>
+import { onMount } from "svelte";
+
 import { derived, writable } from "svelte/store";
+import { sendBoardGameTransaction } from "../../../js/lamden-utils";
 import Button from "../../Button.svelte";
+import { formatBoard, NUM_ROWS, NUM_COLS, coordsToIndex, indexToCoords } from "../../../js/board-utils";
+import Errors from "../Poker/Errors.svelte";
 
-const NUM_ROWS = 8;
-const NUM_COLS = 8;
+const game_type = "go";
 
-export let board = writable('                                                                ');
+export let board = writable(' ww   b   bbw        b       b     w w                          ');
 export let team = "b";
+export let game_id;
+export let game_metadata = {};
+export let playable = true;
+
 
 const formattedBoard = derived([board], ([$board]) => {
-    let array = [];
-    for(let i = 0; i < NUM_ROWS; i++) {
-        let row = $board.substring(i*NUM_ROWS, i*NUM_ROWS+NUM_COLS).split('');
-        if (team === 'b') {
-            row.reverse();
-        }
-        array.push(row);        
-    }
-    if (team === 'b') {
-        array.reverse();
-    }
-    return array;
+    return formatBoard($board, team);
 });
 
 const selectedTile = writable(null);
 
-const coordsToIndex = (row, col) => {
-    return row * NUM_ROWS + col;
-}
-
-const indexToCoords = (index) => {
-    return [Math.floor(index / NUM_ROWS), index % NUM_COLS];
-}
-
-const teamOfPiece = (piece) => {
-    if (piece === ' ') {
-        return false;
-    }
-    return piece.toLowerCase();
-}
-
+const makeMoveHandler = writable({});
+const makeMoveErrors = writable([]);
+const makeMoveInProgress = writable(false);
 const makeMove = async () => {
+    makeMoveErrors.set([]);
+    makeMoveInProgress.set(true);
+
     let coords = indexToCoords($selectedTile);
     if (team === 'b') {
         // flip
         coords[0] = NUM_ROWS - 1 - coords[0];
         coords[1] = NUM_COLS - 1 - coords[1];
-    }
+    }    
     console.log(coords);
+    sendBoardGameTransaction(
+        "games",
+        {
+            action: 'move',
+            type: game_type,
+            game_id: game_id,
+            x1: initialCoords[0],
+            y1: initialCoords[1],
+            x2: destinationCoords[0],
+            y2: destinationCoords[1],
+        }, makeMoveHandler, (txResults)=>{
+        makeMoveInProgress.set(false);
+        if ($makeMoveHandler.errors?.length > 0) {
+            makeMoveErrors.set($makeMoveHandler.errors)
+        } else {
+            console.log("Success");
+            console.log(txResults);
+        }
+    })
 }
+
+onMount(()=>{
+    selectedTile.set(null);
+    return () => {
+        selectedTile.set(null);
+    }
+})
+
 
 </script>
 
@@ -139,8 +154,6 @@ const makeMove = async () => {
 }
 </style>
 
-<h2>Go</h2>
-
 <div align="center" class="align-center buttons">
     <div align="center" class="board align-center">
         {#each $formattedBoard as row, i}
@@ -161,10 +174,14 @@ const makeMove = async () => {
             {/each}
         {/each}
     </div>
-    <br /><br />
+    <br />
+    {#if playable}
+    <br />
+    <Errors errors={makeMoveErrors} />
     <Button
         disabled={$selectedTile===null}
         text="Move"
         clicked={makeMove}
     />
+    {/if}
 </div>
