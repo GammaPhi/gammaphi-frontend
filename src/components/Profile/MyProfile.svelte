@@ -14,7 +14,8 @@ import {
     display_name,
     icon_base64,
     icon_url,
-    frens
+    frens,
+privateKey
 } from '../../stores/profileStore'
 import { lamden_vk } from '../../stores/lamdenStores';
 import { 
@@ -29,6 +30,7 @@ import Link from '../Link.svelte';
 import { setupArrayStore } from '../../js/global-utils';
 import { onMount } from 'svelte';
 import { navigateLink } from '../../js/navigation-utils';
+import PrivateKeyUpload from './PrivateKeyUpload.svelte';
 
 const friendToAdd = writable('');
 const addFriendResultsTracker = writable({});
@@ -81,51 +83,16 @@ function setupFrensNames() {
     )
 }
 
-const frensKeys = writable({});
-function setupFrensKeys() {
-    setupArrayStore(
-        hasFocus,
-        frens, 
-        frensKeys, 
-        null, 
-        (fren)=>()=>hydrateProfileForAddress(fren, "public_rsa_key", fren),
-        false,
-    )
-}
-
 $: $frens, setupFrensNames();
 
 
 </script>
 
 <style>
-    
-    .buttons{
-        margin: 2rem auto 1rem;
-    }
-    .username-error{
-        margin: 0.5rem auto 0.5rem;
-    }
-    .upload{
-        cursor:pointer;
-    }
     .avatar{
         height:100px;
         width:100px;
         border-radius: 50%
-    }
-    p {
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    table, th, td {
-        border: 1px solid black;
-    }
-
-    table {
-        width: 100%;
-        margin: auto;
     }
 </style>
 
@@ -140,10 +107,13 @@ $: $frens, setupFrensNames();
         {$username}
     </h4>
 </Container>
+{#if $privateKey === null} 
+    <PrivateKeyUpload />
+{/if}
 <Container>
     <Container>
         <Input
-            label="Add Frend"
+            label="Add Fren"
             onClick={friendToAdd.set}
             value={$friendToAdd}
             onEnterButton={addFriend}

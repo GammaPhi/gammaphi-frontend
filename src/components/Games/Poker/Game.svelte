@@ -1,13 +1,12 @@
 <script>
 import Container from "../../Inputs/Container.svelte";
 import Link from "../../Link.svelte";
-import { autoRefreshingVariable, setupArrayStore, formatGameId, getValueFromDict } from '../../../js/global-utils';
+import { autoRefreshingVariable, setupArrayStore, getValueFromDict } from '../../../js/global-utils';
 import { onMount } from "svelte";
 import { lamden_vk } from '../../../stores/lamdenStores'
 import { derived, writable, get } from "svelte/store";
 import { checkPokerContractState, sendPokerPHIApproval, getAddressForUsername, sendPokerTransaction, hydrateProfileForAddress, sendProfileAction, getChannelUsers } from '../../../js/lamden-utils'
-import { retrievePemFileFromBrowser, storePemFileInBrowser, decrypt, loadPrivateKeyFromPem } from "../../../js/rsa-utils";
-import { formatHand, HOLDEM_POKER, OMAHA_POKER, gameTypeHumanReadable } from "../../../js/poker-utils";
+import { gameTypeHumanReadable } from "../../../js/poker-utils";
 import BN from 'bignumber.js'
 import Button from "../../Button.svelte";
 import Errors from "./Errors.svelte";
@@ -17,6 +16,8 @@ import { Tabs, TabList, TabPanel, Tab } from '../../../js/tabs';
 import FrenProfile from "../../Profile/FrenProfile.svelte";
 import ChatRoom from "./ChatRoom.svelte";
 import Hand from "./Hand.svelte";
+import PrivateKeyUpload from "../../Profile/PrivateKeyUpload.svelte";
+import { privateKey } from "../../../stores/profileStore";
 
 export let game_id, gameName, goBack;
 
@@ -29,29 +30,7 @@ const ante = writable(BN(0));
 const gameType = writable(null);
 const playerChipsStores = writable({});
 const playerNamesStores = writable({});
-const privateKeyErrors = writable([]);
-const privateKeyInput = writable('');
-const storedPemFile = writable('');
 const channelUsers = writable(null);
-const privateKey = derived([lamden_vk, storedPemFile], ([$lamden_vk, $storedPemFile]) => {
-    try {
-        privateKeyErrors.set([]);
-        if ($storedPemFile.length > 0) {
-            return loadPrivateKeyFromPem($storedPemFile);
-        } else {
-            return loadPrivateKeyFromPem(retrievePemFileFromBrowser($lamden_vk));
-        }
-    } catch(e) {
-        privateKeyErrors.set(["Unable to retrieve PEM file. Please reupload it"]);
-        return null;
-    }
-});
-
-
-const updatePrivateKey = () => {
-    storePemFileInBrowser($lamden_vk, $privateKeyInput);
-    storedPemFile.set($privateKeyInput)
-};
 
 onMount(()=>{
     hasFocus.set(true);
@@ -334,24 +313,9 @@ const showUserPage = writable(null);
 
     {:else}
 
-        <Container>
-            <Errors errors={privateKeyErrors} />
-            {#if $privateKey === null} 
-                Unable to find private key. Please reupload it here.
-                <br />
-                <textarea 
-                    value={$privateKeyInput}
-                    on:change={(e)=>privateKeyInput.set(e.target.value)}
-                    on:input={(e)=>privateKeyInput.set(e.target.value)}
-                    rows={4}
-                /><br />
-                <Button
-                    text="Upload"
-                    clicked={updatePrivateKey}
-                    disabled={$privateKeyInput.length===0}
-                />
-            {/if}
-        </Container>
+    {#if $privateKey === null} 
+        <PrivateKeyUpload />
+    {/if}
 
     <Tabs initialSelectedTabIndex={1}>
 
