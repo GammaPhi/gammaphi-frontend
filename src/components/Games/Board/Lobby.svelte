@@ -1,7 +1,7 @@
 <script>
 import { derived, writable } from "svelte/store";
 import BN from 'bignumber.js'
-import { sendBoardGameTransaction, sendBoardGameApproval, checkBoardGameContractState } from "../../../js/lamden-utils";
+import { sendBoardGameTransaction, sendBoardGameApproval, checkBoardGameContractState, getAddressForUsername } from "../../../js/lamden-utils";
 import Go from "./Go.svelte";
 import Checkers from "./Checkers.svelte";
 import Chess from "./Chess.svelte";
@@ -72,11 +72,15 @@ const startGameInProgress = writable(false);
 const startGame = async () => {
     startGameErrors.set([]);
     startGameInProgress.set(true);
+    let opponent = $otherPlayer;
+    if (opponent.length > 0) {
+        opponent = await getAddressForUsername(opponent, opponent);
+    }
     let kwargs = {
         action: 'create',
         type: game_type,
         public: $isPublic,
-        other_player: $otherPlayer.length === 0 ? null : $otherPlayer,
+        other_player: opponent === 0 ? null : opponent,
         wager: parseInt(BN($wager).toString(), 10),
         rounds: $rounds,
         game_name: $name,
