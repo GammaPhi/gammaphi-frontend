@@ -29,7 +29,7 @@ export const mainnet = {
             },
             poker: {
                 networkType: "mainnet",
-                contractName: "con_poker_card_games_v3"
+                contractName: "con_poker_card_games_v4"
             },
             board: {
                 networkType: "mainnet",
@@ -38,7 +38,7 @@ export const mainnet = {
         },
         profile: {
             networkType: "mainnet",
-            contractName: "con_gamma_phi_profile_v4",
+            contractName: "con_gamma_phi_profile_v5",
         },
         messenger: {
             networkType: "mainnet",
@@ -115,7 +115,7 @@ export const testnet = {
             },
             poker: {
                 networkType: "testnet",
-                contractName: "con_poker_card_games_v3"
+                contractName: "con_poker_card_games_v4"
             },
             board: {
                 networkType: "testnet",
@@ -124,7 +124,7 @@ export const testnet = {
         },
         profile: {
             networkType: "testnet",
-            contractName: "con_gamma_phi_profile_v4",
+            contractName: "con_gamma_phi_profile_v5",
         },
         messenger: {
             networkType: "testnet",

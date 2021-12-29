@@ -73,13 +73,11 @@ const startGame = async () => {
     startGameErrors.set([]);
     startGameInProgress.set(true);
     let kwargs = {
-        action: 'start',
+        action: 'create',
         type: game_type,
         public: $isPublic,
         other_player: $otherPlayer.length === 0 ? null : $otherPlayer,
-        wager: {
-            __fixed__: $wager.toString()
-        },
+        wager: parseInt(BN($wager).toString(), 10),
         rounds: $rounds,
         game_name: $name,
     };
@@ -93,8 +91,8 @@ const startGame = async () => {
         }
     })
 
-    if ($wager.comparedTo(BN(0)) === 1) {
-        sendApprovalHelper($wager, startGameHandler, startGameErrors, startGameInProgress,
+    if (BN($wager).comparedTo(BN(0)) === 1) {
+        sendApprovalHelper(BN($wager), startGameHandler, startGameErrors, startGameInProgress,
             func
         );
     } else {
@@ -215,7 +213,7 @@ autoRefreshingVariable(
     <br /><br />
     {#if $showForm}
         <Input onClick={name.set} value={$name} label="Name" />
-        <br /><br />
+        <br />
         <p>Number of Rounds</p>
         <label>
             <input 
@@ -257,9 +255,16 @@ autoRefreshingVariable(
             <input 
                 type="checkbox"
                 checked={$isPublic}
-                on:change={(e) => isPublic.set(e.target.checked)}
+                on:change={(e) => {isPublic.set(e.target.checked); otherPlayer.set('')}}
             />
-        </label>    
+        </label> 
+        <br />
+        {#if !$isPublic}
+            <br />
+            <Input onClick={otherPlayer.set} value={$otherPlayer} label="Opponent" />
+            <br />
+        {/if}
+        <br />
         <Errors errors={startGameErrors} />
         <Button
             text={$startGameInProgress ? "Creating..." : "Create"}

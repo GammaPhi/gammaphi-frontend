@@ -1,17 +1,16 @@
 <script>
 import Container from "../../Inputs/Container.svelte";
 import Link from "../../Link.svelte";
-import { autoRefreshingVariable, setupArrayStore, formatGameId, getValueFromDict } from '../../../js/global-utils';
+import { autoRefreshingVariable, setupArrayStore, getValueFromDict } from '../../../js/global-utils';
 import { onMount } from "svelte";
 import { lamden_vk } from '../../../stores/lamdenStores'
 import { derived, writable, get } from "svelte/store";
-import { checkPokerContractState, sendPokerPHIApproval, getAddressForUsername, sendPokerTransaction, hydrateProfileForAddress, sendProfileAction, getChannelUsers } from '../../../js/lamden-utils'
-import { retrievePemFileFromBrowser, storePemFileInBrowser, decrypt, loadPrivateKeyFromPem } from "../../../js/rsa-utils";
-import { formatHand, HOLDEM_POKER, OMAHA_POKER, gameTypeHumanReadable } from "../../../js/poker-utils";
+import { checkPokerContractState, sendPokerTransaction } from '../../../js/lamden-utils'
+import { decrypt } from "../../../js/rsa-utils";
+import { formatHand, HOLDEM_POKER, OMAHA_POKER } from "../../../js/poker-utils";
 import BN from 'bignumber.js'
 import Button from "../../Button.svelte";
 import Errors from "./Errors.svelte";
-import Input from "../../Inputs/Input.svelte";
 import BnInputField from "../../Inputs/BNInputField.svelte";
 
 export let  gameType,

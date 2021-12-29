@@ -264,14 +264,17 @@ export function sendPokerTransaction (method, kwargs, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendBoardGameTransaction (method, kwargs, resultsTracker, callback){
+export function sendBoardGameTransaction (action, payload, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
 
     const txInfo = {
         networkType: lamdenNetworkInfo.games.board.networkType,
         contractName: lamdenNetworkInfo.games.board.contractName,
-        methodName: method,
-        kwargs: kwargs,
+        methodName: 'interact',
+        kwargs: {
+            action: action,
+            payload: payload
+        },
         stampLimit: lamdenNetworkInfo.stamps.board,
     }
 

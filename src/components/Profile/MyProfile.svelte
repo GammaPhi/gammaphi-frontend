@@ -33,12 +33,12 @@ import { navigateLink } from '../../js/navigation-utils';
 const friendToAdd = writable('');
 const addFriendResultsTracker = writable({});
 const addFriendErrors = writable([]);
-const waitingForAddFriend = writable(false);
+const addFriendInProgress = writable(false);
 
 
 const addFriend = async () => {
     addFriendErrors.set([]);
-    waitingForAddFriend.set(true);
+    addFriendInProgress.set(true);
     sendProfileAction(
         "profile",
         {
@@ -47,7 +47,7 @@ const addFriend = async () => {
         },
         addFriendResultsTracker,
         (txResults) => {
-            waitingForAddFriend.set(false);
+            addFriendInProgress.set(false);
             if ($addFriendResultsTracker.errors?.length > 0) {
                 addFriendErrors.set($addFriendResultsTracker.errors)
             } else {
@@ -156,8 +156,8 @@ $: $frens, setupFrensNames();
             {/each}
         {/if}
         <Button 
-            disabled={$waitingForAddFriend || $friendToAdd.length===0} 
-            text={$waitingForAddFriend ? "Adding..." : "Add"} 
+            disabled={$addFriendInProgress || $friendToAdd.length===0} 
+            text={$addFriendInProgress ? "Adding..." : "Add"} 
             clicked={addFriend} 
         />
     </Container>
