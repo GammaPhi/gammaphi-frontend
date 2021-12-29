@@ -1,22 +1,39 @@
 <script>
 import { onMount } from "svelte";
 
-import { derived, writable } from "svelte/store";
+import { get, derived, writable } from "svelte/store";
 import { sendBoardGameTransaction } from "../../../js/lamden-utils";
 import { formatBoard, NUM_ROWS, NUM_COLS, coordsToIndex, indexToCoords } from "../../../js/board-utils";
-import Button from "../../Button.svelte";
-import Errors from "../Poker/Errors.svelte";
+import Actions from "./Actions.svelte";
+import { lamden_vk } from "../../../stores/lamdenStores";
 
 const game_type = 'checkers';
+const default_board = ' b b b bb b b b  b b b b                w w w w  w w w ww w w w ';
+const default_team = 'b';
 
-export let board = writable(' b b b bb b b b  b b b b                w w w w  w w w ww w w w ');
-export let team = "b";
-export let game_id = null;
-export let game_metadata = {};
+export let game_id = writable(null);
+export let game_metadata = writable(null);
+export let game_state = writable(null);
 export let playable = true;
 
-const formattedBoard = derived([board], ([$board]) => {
-    return formatBoard($board, team);
+const board = derived([game_state], ([$game_state]) => {
+    return $game_state?.board || default_board;
+});
+
+const isCreator = derived([game_metadata], ([$game_metadata]) => {
+    return $game_metadata?.creator === $lamden_vk;
+});
+
+const team = derived([game_state, isCreator], ([$game_state, $isCreator]) => {
+    if ($isCreator) {
+        return $game_state?.creator_team || default_team;
+    } else {
+        return $game_state?.opponent_team || default_team;
+    }
+});
+
+const formattedBoard = derived([board, team], ([$board, $team]) => {
+    return formatBoard($board, $team);
 });
 
 const pieceToImageMap = {
@@ -34,10 +51,7 @@ const teamOfPiece = (piece) => {
     return piece.toLowerCase();
 }
 
-const makeMoveHandler = writable({});
-const makeMoveErrors = writable([]);
-const makeMoveInProgress = writable(false);
-const makeMove = async () => {
+const makeMove = async (makeMoveHandler, makeMoveErrors, makeMoveInProgress) => {
     makeMoveErrors.set([]);
     makeMoveInProgress.set(true);
 
@@ -49,7 +63,7 @@ const makeMove = async () => {
         let destinationCoord = indexToCoords(destinationTile);
         destinationCoords.push(destinationCoord);
     }
-    if (team === 'b') {
+    if ($team === 'b') {
         // flip
         initialCoords[0] = NUM_ROWS - 1 - initialCoords[0];
         initialCoords[1] = NUM_COLS - 1 - initialCoords[1];
@@ -75,8 +89,8 @@ const makeMove = async () => {
             y2: y2,
         }, makeMoveHandler, (txResults)=>{
         makeMoveInProgress.set(false);
-        if ($makeMoveHandler.errors?.length > 0) {
-            makeMoveErrors.set($makeMoveHandler.errors)
+        if (get(makeMoveHandler).errors?.length > 0) {
+            makeMoveErrors.set(get(makeMoveHandler).errors)
         } else {
             console.log("Success");
             console.log(txResults);
@@ -104,6 +118,11 @@ onMount(()=>{
         destinationTiles.set(null);
     }
 })
+
+const disableMakeMove = derived([selectedPiece, destinationTiles], ([$selectedPiece, $destinationTiles]) => {
+    return $selectedPiece === null || $destinationTiles === null;
+});
+
 
 </script>
 
@@ -207,7 +226,7 @@ onMount(()=>{
                     {#if piece !== ' '}
                         <span 
                             class={`piece-wrapper ${piece==='w' || piece==='W'? "white" : "black"}`}
-                            on:click={(e)=>{if(teamOfPiece(piece)===team){e.stopPropagation();destinationTiles.set(null);selectedPiece.set(coordsToIndex(i, j))}}}
+                            on:click={(e)=>{if(teamOfPiece(piece)===$team){e.stopPropagation();destinationTiles.set(null);selectedPiece.set(coordsToIndex(i, j))}}}
                         >
                             {#if pieceToImageMap.hasOwnProperty(piece)}
                                 <img 
@@ -225,11 +244,13 @@ onMount(()=>{
     <br />
     {#if playable}
     <br />
-    <Errors errors={makeMoveErrors} />
-    <Button
-        disabled={$selectedPiece===null || $destinationTiles===null}
-        text="Move"
-        clicked={makeMove}
+    <Actions
+        game_id={game_id}
+        game_type={game_type}
+        game_metadata={game_metadata}
+        game_state={game_state}
+        makeMoveFunc={makeMove}
+        disableMakeMove={disableMakeMove}
     />
     {/if}
 </div>

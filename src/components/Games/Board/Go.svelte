@@ -1,36 +1,50 @@
 <script>
 import { onMount } from "svelte";
 
-import { derived, writable } from "svelte/store";
+import { get, derived, writable } from "svelte/store";
 import { sendBoardGameTransaction } from "../../../js/lamden-utils";
-import Button from "../../Button.svelte";
-import { formatBoard, NUM_ROWS, NUM_COLS, coordsToIndex, indexToCoords } from "../../../js/board-utils";
-import Errors from "../Poker/Errors.svelte";
+import { formatBoard, NUM_ROWS, NUM_COLS, coordsToIndex, indexToCoords 
+} from "../../../js/board-utils";
+import Actions from "./Actions.svelte";
+import { lamden_vk } from "../../../stores/lamdenStores";
 
 const game_type = "go";
+const default_board = ' ww   b   bbw        b       b     w w                          ';
+const default_team = "b";
 
-export let board = writable(' ww   b   bbw        b       b     w w                          ');
-export let team = "b";
-export let game_id;
-export let game_metadata = {};
+export let game_id = writable(null);
+export let game_metadata = writable(null);
+export let game_state = writable(null);
 export let playable = true;
 
+const board = derived([game_state], ([$game_state]) => {
+    return $game_state?.board || default_board;
+});
 
-const formattedBoard = derived([board], ([$board]) => {
-    return formatBoard($board, team);
+const isCreator = derived([game_metadata], ([$game_metadata]) => {
+    return $game_metadata?.creator === $lamden_vk;
+});
+
+const team = derived([game_state, isCreator], ([$game_state, $isCreator]) => {
+    if ($isCreator) {
+        return $game_state?.creator_team || default_team;
+    } else {
+        return $game_state?.opponent_team || default_team;
+    }
+});
+
+const formattedBoard = derived([board, team], ([$board, $team]) => {
+    return formatBoard($board, $team);
 });
 
 const selectedTile = writable(null);
 
-const makeMoveHandler = writable({});
-const makeMoveErrors = writable([]);
-const makeMoveInProgress = writable(false);
-const makeMove = async () => {
+const makeMove = async (makeMoveHandler, makeMoveErrors, makeMoveInProgress) => {
     makeMoveErrors.set([]);
     makeMoveInProgress.set(true);
 
     let coords = indexToCoords($selectedTile);
-    if (team === 'b') {
+    if ($team === 'b') {
         // flip
         coords[0] = NUM_ROWS - 1 - coords[0];
         coords[1] = NUM_COLS - 1 - coords[1];
@@ -48,8 +62,8 @@ const makeMove = async () => {
             y2: destinationCoords[1],
         }, makeMoveHandler, (txResults)=>{
         makeMoveInProgress.set(false);
-        if ($makeMoveHandler.errors?.length > 0) {
-            makeMoveErrors.set($makeMoveHandler.errors)
+        if (get(makeMoveHandler).errors?.length > 0) {
+            makeMoveErrors.set(get(makeMoveHandler).errors)
         } else {
             console.log("Success");
             console.log(txResults);
@@ -64,6 +78,9 @@ onMount(()=>{
     }
 })
 
+const disableMakeMove = derived([selectedTile], ([$selectedTile]) => {
+    return $selectedTile === null;
+});
 
 </script>
 
@@ -177,11 +194,13 @@ onMount(()=>{
     <br />
     {#if playable}
     <br />
-    <Errors errors={makeMoveErrors} />
-    <Button
-        disabled={$selectedTile===null}
-        text="Move"
-        clicked={makeMove}
+    <Actions
+        game_id={game_id}
+        game_type={game_type}
+        game_metadata={game_metadata}
+        game_state={game_state}
+        makeMoveFunc={makeMove}
+        disableMakeMove={disableMakeMove}
     />
     {/if}
 </div>

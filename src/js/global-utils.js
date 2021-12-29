@@ -84,15 +84,17 @@ export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTi
         }, interval);
     }
     refresh_func().then((v)=>{
-        if (variable !== null) {
-            variable.set(v)
-        }
-        if (firstTimeCallback !== null && get(lamden_vk) !== null) {
-            firstTimeCallback(v);
-            calledFirstTimeCallback = true;
-        }
-        if (dictStore !== null) {
-            dictStore.set(get(dictStore));
+        if (get(hasFocus)) {
+            if (variable !== null) {
+                variable.set(v)
+            }
+            if (firstTimeCallback !== null && get(lamden_vk) !== null) {
+                firstTimeCallback(v);
+                calledFirstTimeCallback = true;
+            }
+            if (dictStore !== null) {
+                dictStore.set(get(dictStore));
+            }
         }
         f();
     });

@@ -14,7 +14,7 @@
     import { writable } from 'svelte/store';
     import { navigateLink, page } from '../js/navigation-utils';
     import { loadProfileStore } from '../js/profile-utils';
-import { autoRefreshingVariable } from '../js/global-utils';
+    import { autoRefreshingVariable } from '../js/global-utils';
 
     export let showHelp=true;
 

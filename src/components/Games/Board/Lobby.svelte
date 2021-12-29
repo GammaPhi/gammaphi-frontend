@@ -13,14 +13,40 @@ import Input from "../../Inputs/Input.svelte";
 import { onMount } from "svelte";
 import { lamden_vk } from "../../../stores/lamdenStores";
 import Container from "../../Inputs/Container.svelte";
-import { formatGameId } from "../../../js/global-utils";
+import { autoRefreshingVariable, formatGameId } from "../../../js/global-utils";
+import { sendApprovalHelper } from "../../../js/board-utils";
 
 export let game_type;
 export let goBack = null;
 
+const DEBUG = false;
+
 // game stores
 const game_id = writable(null);
 const game_metadata = writable(null);
+const game_state = writable(null);
+
+if (DEBUG) {
+    game_id.set('test')
+    lamden_vk.set('myvk')
+    game_metadata.set({
+        wager: BN(10),
+        id: 'test',
+        game_id: 'test',
+        name: 'MyGame',
+        creator: 'myvk',
+        opponent: 'yourvk',
+        rounds: 3
+    })
+    game_state.set({
+        board: 'rnbqkbnrpppppppp                                PPPPPPPPRNBQKBNR',
+        current_player: 'w',
+        creator_team: 'w',
+        opponent_team: 'b',
+        //creator_paid: true,
+        //opponent_paid: true
+    })
+}
 
 // other
 const gamesUnsorted = writable([]);
@@ -57,7 +83,7 @@ const startGame = async () => {
         rounds: $rounds,
         game_name: $name,
     };
-    sendBoardGameTransaction('games', kwargs, startGameHandler, (txResults)=>{
+    let func = () => sendBoardGameTransaction('games', kwargs, startGameHandler, (txResults)=>{
         startGameInProgress.set(false);
         if ($startGameHandler.errors?.length > 0) {
             startGameErrors.set($startGameHandler.errors)
@@ -67,6 +93,13 @@ const startGame = async () => {
         }
     })
 
+    if ($wager.comparedTo(BN(0)) === 1) {
+        sendApprovalHelper($wager, startGameHandler, startGameErrors, startGameInProgress,
+            func
+        );
+    } else {
+        func();
+    }
 }
 
 var messageCounter = 0;
@@ -75,7 +108,9 @@ const hasFocus = writable(false);
 onMount(() => {
     messageCounter = 0;
     allGames = [];
-    hasFocus.set(true);
+    if (!DEBUG) {
+        hasFocus.set(true);
+    }
     return () => {
         messageCounter = 0;
         allGames = [];
@@ -84,6 +119,9 @@ onMount(() => {
 })
 
 async function updateGameList() {
+    if ($lamden_vk === null) {
+        return;
+    }
     checkBoardGameContractState("metadata", [game_type, $lamden_vk, 'count']).then(c=>{
         if (c === null || c === undefined) {
             return;
@@ -117,13 +155,51 @@ async function updateGameList() {
     })
 }
 
+async function refreshGameState() {
+    if ($game_id === null) {
+        return null;
+    }
+    return await checkBoardGameContractState('metadata', [game_type, $game_id, 'state']);
+}
+
+async function refreshGameMetadata() {
+    if ($game_id === null) {
+        return null;
+    }
+    return await checkBoardGameContractState('metadata', [game_type, $game_id, 'metadata']);
+}
+
+autoRefreshingVariable(
+    null,
+    updateGameList,
+    hasFocus,
+    null,
+    null,
+    5000
+);
+
+autoRefreshingVariable(
+    game_state,
+    refreshGameState,
+    hasFocus,
+    null,
+    null,
+    5000
+)
+
+autoRefreshingVariable(
+    game_metadata,
+    refreshGameMetadata,
+    hasFocus,
+    null,
+    null,
+    10000
+)
+
 </script>
 
-
-<Link onClick={goBack}>Back to Board Games</Link>
-
-
 {#if $game_id === null}
+    <Link onClick={goBack}>Back to Board Games</Link>
     <h2>
     {#if game_type === 'go'}
         Go
@@ -195,7 +271,7 @@ async function updateGameList() {
         <h3>Your Games</h3>
         {#if Array.isArray($games)}
             {#each $games as game}
-                    <Link onClick={()=>{game_id.set(game['id']); game_metadata.set(game)}}>
+                    <Link onClick={()=>{game_id.set(game['id']); game_state.set(null); game_metadata.set(game)}}>
                         {game['name'] || formatGameId(game['id'])}
                     </Link>
                 <br />
@@ -204,11 +280,21 @@ async function updateGameList() {
     </Container>
     <br /><br />
 {:else}
-    {#if game_type === 'go'}        
-        <Go game_id={$game_id} game_metadata={game_metadata} />
+    <Link onClick={()=>{game_id.set(null); game_metadata.set(null), game_state.set(null)}}>Back to Lobby</Link>
+    <h2>
+    {#if game_type === 'go'}
+        Go
     {:else if game_type === 'checkers'}
-        <Checkers game_id={$game_id} game_metadata={game_metadata} />
+        Checkers
     {:else if game_type === 'chess'}
-        <Chess game_id={$game_id} game_metadata={game_metadata} />
+        Chess
+    {/if}
+    </h2>
+    {#if game_type === 'go'}        
+        <Go game_id={$game_id} game_metadata={game_metadata} game_state={game_state} />
+    {:else if game_type === 'checkers'}
+        <Checkers game_id={$game_id} game_metadata={game_metadata} game_state={game_state} />
+    {:else if game_type === 'chess'}
+        <Chess game_id={$game_id} game_metadata={game_metadata} game_state={game_state} />
     {/if}
 {/if}
