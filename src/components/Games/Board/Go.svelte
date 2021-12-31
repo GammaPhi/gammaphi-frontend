@@ -21,6 +21,13 @@ const board = derived([game_state], ([$game_state]) => {
     return $game_state?.board || default_board;
 });
 
+const loadingBoard = derived([game_state], ([$game_state]) => {
+    if (!playable) {
+        return false;
+    }
+    return $game_state === null || !$game_state.hasOwnProperty('board');
+});
+
 const isCreator = derived([game_metadata], ([$game_metadata]) => {
     return $game_metadata?.creator === $lamden_vk;
 });
@@ -172,35 +179,40 @@ const disableMakeMove = derived([selectedTile], ([$selectedTile]) => {
 </style>
 
 <div align="center" class="align-center buttons">
-    <div align="center" class="board align-center">
-        {#each $formattedBoard as row, i}
-            {#each row as piece, j}
-                <div 
-                    class={`cell ${i % 2 == 0 ? (j % 2 == 0 ? "light" : "dark") : (j % 2 == 0 ? "dark" : "light")} ${$selectedTile===coordsToIndex(i,j)?"selected":""}`} 
-                    on:click={()=>{if (piece === ' ') {
-                        selectedTile.set(coordsToIndex(i, j));
-                    }}}    
-                >
-                    {#if piece !== ' '}
-                        <span 
-                            class={`piece-wrapper ${piece==='w' ? "white" : "black"}`}
-                        >
-                        </span>
-                    {/if}
-                </div>
+    {#if $loadingBoard}
+        <p>Loading Board...</p>
+        <br /><br /><br />
+    {:else}
+        <div align="center" class="board align-center">
+            {#each $formattedBoard as row, i}
+                {#each row as piece, j}
+                    <div 
+                        class={`cell ${i % 2 == 0 ? (j % 2 == 0 ? "light" : "dark") : (j % 2 == 0 ? "dark" : "light")} ${$selectedTile===coordsToIndex(i,j)?"selected":""}`} 
+                        on:click={()=>{if (piece === ' ') {
+                            selectedTile.set(coordsToIndex(i, j));
+                        }}}    
+                    >
+                        {#if piece !== ' '}
+                            <span 
+                                class={`piece-wrapper ${piece==='w' ? "white" : "black"}`}
+                            >
+                            </span>
+                        {/if}
+                    </div>
+                {/each}
             {/each}
-        {/each}
-    </div>
-    <br />
-    {#if playable}
-    <br />
-    <Actions
-        game_id={game_id}
-        game_type={game_type}
-        game_metadata={game_metadata}
-        game_state={game_state}
-        makeMoveFunc={makeMove}
-        disableMakeMove={disableMakeMove}
-    />
+        </div>
+        <br />
+        {#if playable}
+        <br />
+        <Actions
+            game_id={game_id}
+            game_type={game_type}
+            game_metadata={game_metadata}
+            game_state={game_state}
+            makeMoveFunc={makeMove}
+            disableMakeMove={disableMakeMove}
+        />
+        {/if}
     {/if}
 </div>

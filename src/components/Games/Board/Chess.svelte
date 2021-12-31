@@ -20,6 +20,13 @@ const board = derived([game_state], ([$game_state]) => {
     return $game_state?.board || default_board;
 });
 
+const loadingBoard = derived([game_state], ([$game_state]) => {
+    if (!playable) {
+        return false;
+    }
+    return $game_state === null || !$game_state.hasOwnProperty('board');
+});
+
 const isCreator = derived([game_metadata], ([$game_metadata]) => {
     return $game_metadata?.creator === $lamden_vk;
 });
@@ -188,37 +195,42 @@ const disableMakeMove = derived([selectedPiece, destinationTile], ([$selectedPie
 </style>
 
 <div align="center" class="align-center buttons">
-    <div align="center" class="board align-center">
-        {#each $formattedBoard as row, i}
-            {#each row as piece, j}
-                <div 
-                    class={`cell ${i % 2 == 0 ? (j % 2 == 0 ? "light" : "dark") : (j % 2 == 0 ? "dark" : "light")} ${$destinationTile===coordsToIndex(i,j)?"destination":""}`} 
-                    on:click={()=>{if ($selectedPiece !== null) {
-                        destinationTile.set(coordsToIndex(i, j));
-                    }}}    
-                >
-                    {#if piece !== ' '}
-                        <img 
-                            class={`piece ${$selectedPiece===coordsToIndex(i,j)?"selected":""}`}
-                            alt="" 
-                            on:click={(e)=>{if(teamOfPiece(piece)===$team){e.stopPropagation();destinationTile.set(null);selectedPiece.set(coordsToIndex(i, j))}}}
-                            src={pieceToImageMap[piece]} 
-                        />
-                    {/if}
-                </div>
+    {#if $loadingBoard}
+        <p>Loading Board...</p>
+        <br /><br /><br />
+    {:else}
+        <div align="center" class="board align-center">
+            {#each $formattedBoard as row, i}
+                {#each row as piece, j}
+                    <div 
+                        class={`cell ${i % 2 == 0 ? (j % 2 == 0 ? "light" : "dark") : (j % 2 == 0 ? "dark" : "light")} ${$destinationTile===coordsToIndex(i,j)?"destination":""}`} 
+                        on:click={()=>{if ($selectedPiece !== null) {
+                            destinationTile.set(coordsToIndex(i, j));
+                        }}}    
+                    >
+                        {#if piece !== ' '}
+                            <img 
+                                class={`piece ${$selectedPiece===coordsToIndex(i,j)?"selected":""}`}
+                                alt="" 
+                                on:click={(e)=>{if(teamOfPiece(piece)===$team){e.stopPropagation();destinationTile.set(null);selectedPiece.set(coordsToIndex(i, j))}}}
+                                src={pieceToImageMap[piece]} 
+                            />
+                        {/if}
+                    </div>
+                {/each}
             {/each}
-        {/each}
-    </div>
-    <br />
-    {#if playable}
-    <br />
-    <Actions
-        game_id={game_id}
-        game_type={game_type}
-        game_metadata={game_metadata}
-        game_state={game_state}
-        makeMoveFunc={makeMove}
-        disableMakeMove={disableMakeMove}
-    />
+        </div>
+        <br />
+        {#if playable}
+        <br />
+        <Actions
+            game_id={game_id}
+            game_type={game_type}
+            game_metadata={game_metadata}
+            game_state={game_state}
+            makeMoveFunc={makeMove}
+            disableMakeMove={disableMakeMove}
+        />
+        {/if}
     {/if}
 </div>
