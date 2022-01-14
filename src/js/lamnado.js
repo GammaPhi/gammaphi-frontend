@@ -4,7 +4,6 @@ import { lamdenNetwork } from '../stores/globalStores'
 //import circomlib from 'circomlib'
 import { get } from 'svelte/store'
 import forge from 'forge';
-var BigInteger = forge.jsbn.BigInteger;
 
 
 /** Generate random number of specified byte length */
@@ -15,9 +14,7 @@ const rbigint = (nbytes) => forge.util.createBuffer(forge.random.getBytesSync(nb
 //const pedersenHash = (data) => circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0]
 
 /** BigNumber to hex string of specified length */
-export const toHex = (number, length = 32) =>
-  '0x' +
-  (number instanceof Buffer ? number.toString('hex') : BigInteger(number).toString(16)).padStart(length * 2, '0')
+export const toHex = (number) => number.toHex()
 
 
 /**
@@ -25,7 +22,14 @@ export const toHex = (number, length = 32) =>
  */
 function createDeposit(nullifier, secret) {
     let deposit = { nullifier, secret }
-    deposit.preimage = Buffer.concat([deposit.nullifier, deposit.secret])
+    deposit.nullifierHex = deposit.nullifier.toHex()
+    deposit.secretHex = deposit.secret.toHex()
+    deposit.preimage = forge.util.createBuffer(forge.util.hexToBytes(deposit.nullifier.toHex() + deposit.secret.toHex()))
+    if (deposit.preimage.toHex() !== deposit.nullifierHex+deposit.secretHex) {
+        console.log(deposit.nullifierHex+deposit.secretHex)
+        console.log(deposit.preimage.toHex())
+        throw Error('Invalid preimage')
+    }
     deposit.commitment = pedersenHash(deposit.preimage)
     deposit.nullifierHash = pedersenHash(deposit.nullifier)
     return deposit

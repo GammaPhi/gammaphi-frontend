@@ -42,7 +42,7 @@ export default {
 	plugins: [
 		json({
 			compact: true,
-		  }),
+		}),
 		svelte({
 			hydratable: true,
 			preprocess: sveltePreprocess({ sourceMap: !production }),

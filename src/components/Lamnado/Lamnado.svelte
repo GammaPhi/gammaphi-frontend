@@ -7,17 +7,22 @@ import Withdraw from './Withdraw.svelte'
 
 </script>
 
-<Tabs initialSelectedTabIndex={0}>
-    <TabList>
-        <Tab>Deposit</Tab>
-        <Tab>Withdraw</Tab>
-    </TabList>
+<style>
     
-    <TabPanel>
-        <Deposit />
-    </TabPanel>
-
-    <TabPanel>
-        <Withdraw />
-    </TabPanel>
-</Tabs>
+</style>
+<div class="buttons" align="middle">
+    <Tabs initialSelectedTabIndex={0}>
+        <TabList>
+            <Tab>Deposit</Tab>
+            <Tab>Withdraw</Tab>
+        </TabList>
+        
+        <TabPanel>
+            <Deposit />
+        </TabPanel>
+    
+        <TabPanel>
+            <Withdraw />
+        </TabPanel>
+    </Tabs>
+</div>
