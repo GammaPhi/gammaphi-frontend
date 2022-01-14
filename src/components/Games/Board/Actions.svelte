@@ -1,5 +1,5 @@
 <script>
-import { derived, writable } from "svelte/store";
+import { derived, writable, get } from "svelte/store";
 import BN from 'bignumber.js';
 
 import { payUpHelper, joinHelper, requestEndHelper, nextRoundHelper, playAgainHelper, forfeitRoundHelper, sendApprovalHelper, earlyEndHelper } from "../../../js/board-utils";
@@ -8,20 +8,16 @@ import Errors from "../Poker/Errors.svelte";
 import Button from "../../Button.svelte";
 import ChatRoom from "../../Chat/ChatRoom.svelte";
 import { onMount } from "svelte";
-import { formatGameId, stringToFixed } from "../../../js/global-utils";
+import { autoRefreshingVariable, formatGameId, setupArrayStore, stringToFixed } from "../../../js/global-utils";
+import { hydrateProfile, hydrateProfileForAddress } from "../../../js/lamden-utils";
 
 export let game_id, game_type, game_metadata, game_state, makeMoveFunc, disableMakeMove;
 
 const playerNamesStores = writable({});
-const channelUsers = writable(null);
 const hasFocus = writable(false);
 
 onMount(()=>{
     hasFocus.set(true);
-
-    getChannelUsers(gameName).then(v=>{
-        channelUsers.set(v);
-    })
     return () => {
         hasFocus.set(false);
     }
@@ -253,7 +249,7 @@ const createOrUpdateChannel = async () => {
     createOrUpdateChannelInProgress.set(true);
     createOrUpdateChannelErrors.set([]);
     let kwargs = {
-        action: $channelUsers === null ? 'create_channel' : 'update_channel',
+        action: 'create_channel',
         users: $players,
         channel_name: $channelName
     }
@@ -287,6 +283,26 @@ function setupNameStores() {
 
 $: $players, setupNameStores();
 
+
+const channelCreated = writable(false)
+autoRefreshingVariable(
+    channelCreated,
+    async () => {
+        // get aes key
+        if ($channelName === null) {
+            return false;
+        }
+        let encryptedKey = await hydrateProfile(`keys:${$channelName}`, null);
+        if (encryptedKey !== null) {
+            return true;
+        }
+        return false;
+    },
+    hasFocus,
+    null,
+    null,
+    10000
+)
 
 </script>
 
@@ -359,18 +375,18 @@ $: $players, setupNameStores();
     {#if $channelName === null}
         <p>Players have not been determined yet.</p>
     {:else}
-        {#if $channelUsers === null}
+        {#if !$channelCreated}
             <p>Private channel not created.</p>
             <Errors errors={createOrUpdateChannelErrors} />
             <Button
-                text={$createOrUpdateChannelInProgress ? "Creating..." : "Create Private Game Chat"}
+                text={$createOrUpdateChannelInProgress ? "Creating..." : "Create Private Chat"}
                 clicked={createOrUpdateChannel}
                 disabled={$createOrUpdateChannelInProgress}
             />
         {:else}
             <ChatRoom
                 channelName={$channelName}
-                channelUsers={$channelUsers}
+                channelUsers={$players}
                 usersNames={playerNamesStores}
             />
         {/if}

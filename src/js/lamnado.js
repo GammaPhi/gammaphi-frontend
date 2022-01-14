@@ -5,17 +5,14 @@ import { lamdenNetwork } from '../stores/globalStores'
 import { get } from 'svelte/store'
 import forge from 'forge';
 
+export const DEFAULT_RELAYER_URL = 'https://relayer.gammaphi.io' //'http://localhost:5000' //
+
 
 /** Generate random number of specified byte length */
 const rbigint = (nbytes) => forge.util.createBuffer(forge.random.getBytesSync(nbytes));
 
-
-/** Compute pedersen hash */
-//const pedersenHash = (data) => circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0]
-
 /** BigNumber to hex string of specified length */
 export const toHex = (number) => number.toHex()
-
 
 /**
  * Create deposit object from secret and nullifier
@@ -90,10 +87,13 @@ export function lamnadoDeposit(amount, token, deposit, resultsTracker, callback)
 /**
  * Send an async request to a relayer to withdraw funds
  */
-export async function lamnadoWithdraw(relayer_url, note, recipient) {
+export async function lamnadoWithdraw(note, recipient, relayer_url=DEFAULT_RELAYER_URL) {
     // extract data from note
     const noteSplit = note.split('-')
-
+    if (noteSplit.length != 4) {
+        alert('Invalid note.')
+        return
+    }
     // prepare POST
     const body = {
         token: noteSplit[1],
@@ -101,6 +101,7 @@ export async function lamnadoWithdraw(relayer_url, note, recipient) {
         note: noteSplit[3],
         recipient: recipient,
     }
+    console.log(body)
 
     // check if nullifier has already been spent
     // TODO
@@ -126,11 +127,43 @@ export async function lamnadoWithdraw(relayer_url, note, recipient) {
 
 
 /**
+ * Get the pedersen hash
+ */
+/**
+ * Send an async request to a relayer to withdraw funds
+ */
+ export async function pedersenHash(data, relayer_url=DEFAULT_RELAYER_URL) {
+    // prepare POST
+    const body = {
+        data: toHex(data)
+    }
+
+    // send request to relayer
+    const res = await fetch(
+        `${relayer_url}/hash`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        },
+    )
+    if (res.status === 200) {
+        let json = await res.json()
+        return json.hash
+    } else {
+        throw Error("Withdraw request returned a non 200 status code.")
+    }
+}
+
+/**
  * Utility function to approve a token contract
  */
-
  export function sendTokenApproval (amount, contract, resultsTracker, callback) {
     let lamdenNetworkInfo = get(lamdenNetwork)
+    console.log('Amount: '+amount.toString())
+    console.log('Contract: '+contract)
     const txInfo = {
         networkType: lamdenNetworkInfo.networkType,
         contractName: contract,

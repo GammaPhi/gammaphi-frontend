@@ -9,6 +9,7 @@
     { name: "Approve", href: "/approve"},
     { name: "Redeem", href: "/redeem"},
 	{ name: "Profile", href: "/profile"},
+	{ name: "Lamnado", href: "/lamnado"},
   ];
 </script>
 

@@ -14,9 +14,8 @@ import Poker from './Poker.svelte';
 import UserPage from './UserPage.svelte';
 import { writable } from 'svelte/store';
 import { onMount } from 'svelte';
-import Checkers from '../components/Games/Board/Checkers.svelte'
 import Board from './Board.svelte';
-import Lamnado from '../components/Lamnado/Lamnado.svelte';
+import Lamnado from './Lamnado.svelte';
 export let address = null;
 
 const frenAddress = writable(address);
