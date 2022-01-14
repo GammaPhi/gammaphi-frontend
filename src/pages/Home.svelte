@@ -16,6 +16,7 @@ import { writable } from 'svelte/store';
 import { onMount } from 'svelte';
 import Checkers from '../components/Games/Board/Checkers.svelte'
 import Board from './Board.svelte';
+import Lamnado from '../components/Lamnado/Lamnado.svelte';
 export let address = null;
 
 const frenAddress = writable(address);
@@ -161,6 +162,10 @@ const gameInfo = [
 	{:else if $page === '/approve'}
 
 	<PreApprove />
+
+	{:else if $page === '/lamnado'}
+
+	<Lamnado />
 
 	{:else if $page === '/profile'}
 

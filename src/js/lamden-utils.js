@@ -192,7 +192,7 @@ export async function checkLamdenBalance() {
     }
 }
 
-function sendTransaction(txInfo, resultsTracker, callback) {
+export function sendTransaction(txInfo, resultsTracker, callback) {
     let walletController = get(lwc)
     walletController.sendTransaction(
         txInfo, 

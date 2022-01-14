@@ -49,6 +49,8 @@ if (DEBUG) {
 }
 
 // other
+const GAME_METADATA_CACHE = {};
+
 const gamesUnsorted = writable([]);
 const games = derived([gamesUnsorted], ([$gamesUnsorted]) => {
     let array = $gamesUnsorted;
@@ -57,6 +59,26 @@ const games = derived([gamesUnsorted], ([$gamesUnsorted]) => {
     })
     return array;
 });
+
+
+const MAX_PUBLIC_GAME_LIMIT = 20;
+const publicGameIds = writable([]);
+const publicGames = derived([publicGameIds], async ([$publicGameIds], set)=>{
+    let arr = [];
+    if ($publicGameIds !== null) {
+        let l = $publicGameIds.length;
+        for (let i = l - 1; i >= Math.max([0, l - MAX_PUBLIC_GAME_LIMIT]); i--) {
+            let gameId = $publicGameIds[i];
+            if (!GAME_METADATA_CACHE.hasOwnProperty(gameId)) {
+                let m = await checkBoardGameContractState("metadata", [game_type, gameId, 'metadata']);
+                GAME_METADATA_CACHE[gameId] = m;
+            }
+            arr.push(GAME_METADATA_CACHE[gameId]);
+        }
+    }
+    set(arr);
+});
+
 
 // params for starting a game
 const wager = writable(BN(0));
@@ -171,6 +193,10 @@ async function refreshGameMetadata() {
     return await checkBoardGameContractState('metadata', [game_type, $game_id, 'metadata']);
 }
 
+async function refreshPublicGameIds() {
+    return await checkBoardGameContractState('metadata', [game_type, 'public']);
+}
+
 autoRefreshingVariable(
     null,
     updateGameList,
@@ -179,6 +205,15 @@ autoRefreshingVariable(
     null,
     5000
 );
+
+autoRefreshingVariable(
+    publicGameIds,
+    refreshPublicGameIds,
+    hasFocus,
+    null,
+    null,
+    10000
+)
 
 autoRefreshingVariable(
     game_state,
@@ -280,6 +315,17 @@ autoRefreshingVariable(
         <h3>Your Games</h3>
         {#if Array.isArray($games)}
             {#each $games as game}
+                    <Link onClick={()=>{game_id.set(game['id']); game_state.set(null); game_metadata.set(game)}}>
+                        {game['name'] || formatGameId(game['id'])}
+                    </Link>
+                <br />
+            {/each}    
+        {/if}
+    </Container>
+    <Container>
+        <h3>Public Games</h3>
+        {#if Array.isArray($publicGames)}
+            {#each $publicGames as game}
                     <Link onClick={()=>{game_id.set(game['id']); game_state.set(null); game_metadata.set(game)}}>
                         {game['name'] || formatGameId(game['id'])}
                     </Link>

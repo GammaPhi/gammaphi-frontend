@@ -107,6 +107,7 @@ function unregisterOldServiceWorkers(){
 		<Route path="/coinflip" component={Home} />
 		<Route path="/diceroll" component={Home} />
 		<Route path="/spin" component={Home} />
+		<Route path="/lamnado" component={Home} />
 		<Route path="/about" component={Home} />
 		<Route path="/approve" component={Home} />
 		<Route path="/fren/:address" let:params>

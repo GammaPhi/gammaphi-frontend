@@ -14,7 +14,7 @@ import Input from "../../Inputs/Input.svelte";
 import BnInputField from "../../Inputs/BNInputField.svelte";
 import { Tabs, TabList, TabPanel, Tab } from '../../../js/tabs';
 import FrenProfile from "../../Profile/FrenProfile.svelte";
-import ChatRoom from "./ChatRoom.svelte";
+import ChatRoom from "../../Chat/ChatRoom.svelte";
 import Hand from "./Hand.svelte";
 import PrivateKeyUpload from "../../Profile/PrivateKeyUpload.svelte";
 import { privateKey } from "../../../stores/profileStore";

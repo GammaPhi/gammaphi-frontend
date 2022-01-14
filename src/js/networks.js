@@ -10,6 +10,21 @@ export const mainnet = {
         networkName: "Lamden Mainnet",
         network_symbol: "TAU",
         currentStampRatio: 65,
+        networkType: "mainnet",
+        lamnado_contracts: {
+            currency: {
+                100: 'con_lamnado_currency_100_v1',
+                1000: 'con_lamnado_currency_1000_v1',
+                10000: 'con_lamnado_currency_10000_v1',
+                100000: 'con_lamnado_currency_100000_v1',
+            },
+            phi: {
+                1000: 'con_lamnado_phi_1000_v1',
+                10000: 'con_lamnado_phi_10000_v1',
+                100000: 'con_lamnado_phi_100000_v1',
+                1000000: 'con_lamnado_phi_1000000_v1',
+            }
+        },
         games: {
             coinFlip: {
                 networkType: "mainnet",
@@ -84,6 +99,7 @@ export const mainnet = {
             poker: 2000,
             messenger: 1000,
             board: 2000,
+            lamnado_deposit: 2000,
         }
     }
 }
@@ -95,7 +111,22 @@ export const testnet = {
         masterNodeLink: "https://testnet-master-1.lamden.io",
         blockexplorer_tx: "transactions",
         blockexplorer_address: "addresses",
+        networkType: "testnet",
         wallet_install_url: "https://chrome.google.com/webstore/detail/lamden-wallet-browser-ext/fhfffofbcgbjjojdnpcfompojdjjhdim",
+        lamnado_contracts: {
+            currency: {
+                100: 'con_lamnado_currency_100_v1',
+                1000: 'con_lamnado_currency_1000_v1',
+                10000: 'con_lamnado_currency_10000_v1',
+                100000: 'con_lamnado_currency_100000_v1',
+            },
+            phi: {
+                1000: 'con_lamnado_phi_1000_v1',
+                10000: 'con_lamnado_phi_10000_v1',
+                100000: 'con_lamnado_phi_100000_v1',
+                1000000: 'con_lamnado_phi_1000000_v1',
+            }
+        },
         games: {
             coinFlip: {
                 networkType: "testnet",
@@ -173,6 +204,7 @@ export const testnet = {
             poker: 2000,
             messenger: 1000,
             board: 2000,
+            lamnado_deposit: 2000,
         }
     }
 }

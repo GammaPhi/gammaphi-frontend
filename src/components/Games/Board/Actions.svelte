@@ -6,9 +6,69 @@ import { payUpHelper, joinHelper, requestEndHelper, nextRoundHelper, playAgainHe
 import { lamden_vk } from "../../../stores/lamdenStores";
 import Errors from "../Poker/Errors.svelte";
 import Button from "../../Button.svelte";
+import ChatRoom from "../../Chat/ChatRoom.svelte";
+import { onMount } from "svelte";
+import { formatGameId, stringToFixed } from "../../../js/global-utils";
 
 export let game_id, game_type, game_metadata, game_state, makeMoveFunc, disableMakeMove;
 
+const playerNamesStores = writable({});
+const channelUsers = writable(null);
+const hasFocus = writable(false);
+
+onMount(()=>{
+    hasFocus.set(true);
+
+    getChannelUsers(gameName).then(v=>{
+        channelUsers.set(v);
+    })
+    return () => {
+        hasFocus.set(false);
+    }
+})
+
+const players = derived([game_metadata], ([$game_metadata]) => {
+    if ($game_metadata === null) {
+        return [];
+    }
+    let arr = [];
+    if ($game_metadata.hasOwnProperty('creator')) {
+        arr.push($game_metadata.creator);
+    }
+    if ($game_metadata.hasOwnProperty('opponent')) {
+        arr.push($game_metadata.opponent);
+    }
+    return arr;
+});
+
+const isJoinable = derived([game_metadata, lamden_vk], ([$game_metadata, $lamden_vk])=>{
+    if ($game_metadata === null) {
+        return false;
+    }
+    if ($game_metadata['public']) {
+        if ($game_metadata.hasOwnProperty('opponent')) {
+            return false;
+        }
+        if ($game_metadata.hasOwnProperty('creator')) {
+            if ($game_metadata.creator === $lamden_vk) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+});
+
+
+const channelName = derived([players], ([$players]) => {
+    let arr = $players
+    if (arr.length === 2) {
+        arr.sort();
+        return arr[0]+arr[1];
+    } else {
+        return null;
+    }
+});
 
 const roundCompleted = derived([game_state], ([$game_state]) => {
     return $game_state !== null && ($game_state.hasOwnProperty('winner') || (
@@ -184,48 +244,137 @@ const makeMoveInProgress = writable(false);
 const makeMove = async () => {
     await makeMoveFunc(makeMoveHandler, makeMoveErrors, makeMoveInProgress);
 }
+
+
+const createOrUpdateChannelHandler = writable({});
+const createOrUpdateChannelErrors = writable([]);
+const createOrUpdateChannelInProgress = writable(false);
+const createOrUpdateChannel = async () => {
+    createOrUpdateChannelInProgress.set(true);
+    createOrUpdateChannelErrors.set([]);
+    let kwargs = {
+        action: $channelUsers === null ? 'create_channel' : 'update_channel',
+        users: $players,
+        channel_name: $channelName
+    }
+    sendProfileAction('channel', kwargs, createOrUpdateChannelHandler, (txResults)=>{
+        createOrUpdateChannelInProgress.set(false);
+        if ($createOrUpdateChannelHandler.errors?.length > 0) {
+            createOrUpdateChannelErrors.set($createOrUpdateChannelHandler.errors)
+        } else {
+            console.log("Success");
+            console.log(txResults);
+            channelUsers.set($players);
+        }
+    });
+}
+
+
+function setupNameStores() {
+    console.log("Setting up name stores");
+    console.log(get(players));
+    setupArrayStore(
+        hasFocus,
+        players, 
+        playerNamesStores, 
+        '', 
+        (player)=>()=>hydrateProfileForAddress(player, "username", player),
+        false,
+        null,
+        10000
+    )
+}
+
+$: $players, setupNameStores();
+
+
 </script>
 
 
-{#if $iNeedToPay}
-    <Errors errors={payUpErrors} />
+{#if $isJoinable}
+    <Errors errors={joinErrors} />
     <Button
-        disabled={$payUpInProgress}
-        text={$payUpInProgress ? "Paying..." : "Pay Wager"}
-        clicked={payUp}
+        disabled={$joinInProgress}
+        text={$joinInProgress ? "Joining..." : "Join Game"}
+        clicked={join}
     />
 {:else}
-    {#if $gameCompleted}
-        <Errors errors={playAgainErrors} />
+    {#if $iNeedToPay}
+        <Errors errors={payUpErrors} />
         <Button
-            disabled={$playAgainInProgress}
-            text={$playAgainInProgress ? "Starting..." : "Play Again"}
-            clicked={playAgain}
+            disabled={$payUpInProgress}
+            text={$payUpInProgress ? "Paying..." : "Pay Wager"}
+            clicked={payUp}
         />
     {:else}
-        {#if $roundCompleted}
-            {#if $stalemate}
-            <p>Round ended in a draw.</p>
-            {:else}
-            <p>Winner: {$winner}</p>
-            {/if}
-            <Errors errors={nextRoundErrors} />
+        {#if $gameCompleted}
+            <Errors errors={playAgainErrors} />
             <Button
-                disabled={$nextRoundInProgress}
-                text={$nextRoundInProgress ? "Starting..." : "Next Round"}
-                clicked={nextRound}
+                disabled={$playAgainInProgress}
+                text={$playAgainInProgress ? "Starting..." : "Play Again"}
+                clicked={playAgain}
             />
         {:else}
-            {#if $isMyMove}
-                <Errors errors={makeMoveErrors} />
+            {#if $roundCompleted}
+                {#if $stalemate}
+                <p>Round ended in a draw.</p>
+                {:else}
+                <p>Winner: {$winner}</p>
+                {/if}
+                <Errors errors={nextRoundErrors} />
                 <Button
-                    disabled={$disableMakeMove || $makeMoveInProgress}
-                    text={$makeMoveInProgress ? "Moving..." : "Move"}
-                    clicked={makeMove}
+                    disabled={$nextRoundInProgress}
+                    text={$nextRoundInProgress ? "Starting..." : "Next Round"}
+                    clicked={nextRound}
                 />
-            {:else if $isWaitingOnMove}
-                <p>Waiting on your opponent...</p>
+            {:else}
+                {#if $isMyMove}
+                    <Errors errors={makeMoveErrors} />
+                    <Button
+                        disabled={$disableMakeMove || $makeMoveInProgress}
+                        text={$makeMoveInProgress ? "Moving..." : "Move"}
+                        clicked={makeMove}
+                    />
+                {:else if $isWaitingOnMove}
+                    <p>Waiting on your opponent...</p>
+                {/if}
             {/if}
         {/if}
     {/if}
 {/if}
+
+<h3>Game Info</h3>
+<p>Wager: {stringToFixed($wager.toString(), 0)}</p>
+{#if $players.length > 0}
+<p>Creator: {formatGameId($players[0])}</p>
+{/if}
+{#if $players.length > 1}
+<p>Opponent: {formatGameId($players[1])}</p>
+{/if}
+
+<h3>Chat</h3>
+{#if $players === null}
+    <p>Loading...</p>
+{:else}
+    {#if $channelName === null}
+        <p>Players have not been determined yet.</p>
+    {:else}
+        {#if $channelUsers === null}
+            <p>Private channel not created.</p>
+            <Errors errors={createOrUpdateChannelErrors} />
+            <Button
+                text={$createOrUpdateChannelInProgress ? "Creating..." : "Create Private Game Chat"}
+                clicked={createOrUpdateChannel}
+                disabled={$createOrUpdateChannelInProgress}
+            />
+        {:else}
+            <ChatRoom
+                channelName={$channelName}
+                channelUsers={$channelUsers}
+                usersNames={playerNamesStores}
+            />
+        {/if}
+    {/if}
+{/if}
+
+<br /><br />
