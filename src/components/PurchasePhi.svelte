@@ -73,15 +73,15 @@
 </style>
 
 <div class="card">
-    <h2 class="round1 row align-center buttons">
+    <h3 class="round1 row align-center buttons">
         Round 1 (1 TAU == {phiPerTauR1} PHI)
-    </h2>
+    </h3>
 
     {#if $remainingPhiR1 !== BN(0)}
 
-        <h3 class="row align-center buttons">
+        <h4 class="row align-center buttons">
             Remaining: {$remainingPhiR1} PHI
-        </h3>
+        </h4>
 
         <div class="row align-center buttons">
             <BNInputField 
@@ -120,13 +120,13 @@
 
 <div class="card">
 
-    <h2 class="row align-center buttons round2">
+    <h3 class="row align-center buttons round2">
         Round 2 (1 TAU == {phiPerTauR2} PHI)
-    </h2>
-
-    <h3 class="row align-center buttons">
-        Remaining: {$remainingPhiR2} PHI
     </h3>
+
+    <h4 class="row align-center buttons">
+        Remaining: {$remainingPhiR2} PHI
+    </h4>
 
     {#if $remainingPhiR1 !== BN(0)}
         <p>

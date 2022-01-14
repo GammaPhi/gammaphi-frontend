@@ -130,7 +130,7 @@ const depositFunc = async () => {
     <p>Your Note</p>
     <div class="note">
         {#if $note !== null}
-            {$note}
+            {$note.substring(0, 20)}...{$note.substring($note.length-20)}
         {/if}
     </div>
     <br /><br />
