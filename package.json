@@ -43,13 +43,14 @@
   "dependencies": {
     "axios": "^0.21.1",
     "big-number": "^2.0.0",
+    "browserify": "^16.5.0",
     "compression": "^1.7.1",
+    "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.0.0",
     "dotenv": "^9.0.2",
-    "browserify": "^16.5.0",
     "jsencrypt": "^3.2.1",
-    "lamden_wallet_controller": "^0.6.3",
     "lamden-js": "^1.6.1",
+    "lamden_wallet_controller": "^0.6.3",
     "netlify-lambda": "^2.0.6",
     "sirv": "^1.0.0",
     "sirv-cli": "^1.0.0",
@@ -59,9 +60,6 @@
     "svelte-web3": "^2.0.1",
     "web3": "^1.3.6",
     "web3-eth": "^1.3.5",
-    "web3-utils": "^1.3.5",
-    "snarkjs": "git+https://github.com/tornadocash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5",
-    "websnark": "git+https://github.com/tornadocash/websnark.git#4c0af6a8b65aabea3c09f377f63c44e7a58afa6d",
-    "circomlib": "git+https://github.com/tornadocash/circomlib.git#c372f14d324d57339c88451834bf2824e73bbdbc"
+    "web3-utils": "^1.3.5"
   }
 }

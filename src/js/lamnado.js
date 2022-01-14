@@ -3,6 +3,9 @@ import { sendTransaction } from './lamden-utils'
 import { lamdenNetwork } from '../stores/globalStores'
 import circomlib from 'circomlib'
 import { get } from 'svelte/store'
+import { bigInt } from 'snarkjs'
+import crypto from 'crypto'
+
 
 /** Generate random number of specified byte length */
 const rbigint = (nbytes) => bigInt.leBuff2int(crypto.randomBytes(nbytes))
