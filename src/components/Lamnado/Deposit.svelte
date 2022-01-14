@@ -21,6 +21,9 @@ const token = writable(tokens[0])
 const amount = writable('1000000')
 const deposit = writable(null)
 const note = derived([amount, token, deposit], ([$amount, $token, $deposit]) => {
+    if ($deposit === null) {
+        return null;
+    }
     return createNote($amount, $token, $deposit)
 })
 const contracts = derived([lamdenNetwork], ([$lamdenNetwork]) => {
@@ -94,7 +97,9 @@ const depositFunc = async () => {
     <br /><br />
     <p>Your Note</p>
     <div>
-        {$note}
+        {#if $note !== null}
+            {$note}
+        {/if}
     </div>
     <br /><br />
     <Errors errors={depositErrors} />

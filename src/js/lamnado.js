@@ -1,22 +1,23 @@
 
 import { sendTransaction } from './lamden-utils'
 import { lamdenNetwork } from '../stores/globalStores'
-import circomlib from 'circomlib'
+//import circomlib from 'circomlib'
 import { get } from 'svelte/store'
-import { bigInt } from 'snarkjs'
-import crypto from 'crypto'
+import forge from 'forge';
+var BigInteger = forge.jsbn.BigInteger;
 
 
 /** Generate random number of specified byte length */
-const rbigint = (nbytes) => bigInt.leBuff2int(crypto.randomBytes(nbytes))
+const rbigint = (nbytes) => forge.util.createBuffer(forge.random.getBytesSync(nbytes));
+
 
 /** Compute pedersen hash */
-const pedersenHash = (data) => circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0]
+//const pedersenHash = (data) => circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0]
 
 /** BigNumber to hex string of specified length */
 export const toHex = (number, length = 32) =>
   '0x' +
-  (number instanceof Buffer ? number.toString('hex') : bigInt(number).toString(16)).padStart(length * 2, '0')
+  (number instanceof Buffer ? number.toString('hex') : BigInteger(number).toString(16)).padStart(length * 2, '0')
 
 
 /**
@@ -24,9 +25,9 @@ export const toHex = (number, length = 32) =>
  */
 function createDeposit(nullifier, secret) {
     let deposit = { nullifier, secret }
-    deposit.preimage = Buffer.concat([deposit.nullifier.leInt2Buff(31), deposit.secret.leInt2Buff(31)])
+    deposit.preimage = Buffer.concat([deposit.nullifier, deposit.secret])
     deposit.commitment = pedersenHash(deposit.preimage)
-    deposit.nullifierHash = pedersenHash(deposit.nullifier.leInt2Buff(31))
+    deposit.nullifierHash = pedersenHash(deposit.nullifier)
     return deposit
 }
 
