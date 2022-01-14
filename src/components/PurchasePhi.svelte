@@ -89,7 +89,7 @@
                 startingValue={startingValue}
                 inputClass="primaryInput"
                 labelClass="label"
-                labelText="How many PHI would you like to purchase?"
+                labelText="Amount of PHI to purchase"
             />
         </div>
 
@@ -139,7 +139,7 @@
                 startingValue={startingValue}
                 inputClass="primaryInput"
                 labelClass="label"
-                labelText="How many PHI would you like to purchase?"
+                labelText="Amount of PHI to purchase"
             />
         </div>
 
