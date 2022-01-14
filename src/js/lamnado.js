@@ -4,6 +4,8 @@ import { lamdenNetwork } from '../stores/globalStores'
 //import circomlib from 'circomlib'
 import { get } from 'svelte/store'
 import forge from 'forge';
+import BN from 'bignumber.js'
+
 
 export const DEFAULT_RELAYER_URL = 'https://relayer.gammaphi.io' //'http://localhost:5000' //
 
@@ -160,20 +162,52 @@ export async function lamnadoWithdraw(note, recipient, relayer_url=DEFAULT_RELAY
 /**
  * Utility function to approve a token contract
  */
- export function sendTokenApproval (amount, contract, resultsTracker, callback) {
+ export function sendTokenApproval (amount, tokenContract, lamnadoContract, resultsTracker, callback) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     console.log('Amount: '+amount.toString())
-    console.log('Contract: '+contract)
+    console.log('Token Contract: '+tokenContract)
+    console.log('Lamnado Contract: '+lamnadoContract)
     const txInfo = {
         networkType: lamdenNetworkInfo.networkType,
-        contractName: contract,
+        contractName: tokenContract,
         methodName: 'approve',
         kwargs: {
             amount: { __fixed__: amount.toString() },
-            to: amount,
+            to: lamnadoContract,
         },
         stampLimit: lamdenNetworkInfo.stamps.approval,
     }
 
     sendTransaction(txInfo, resultsTracker, callback)
+}
+
+
+/** Return state for smart contract */
+export async function checkContractState(contract, variableName, keys, default_value) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        let url = `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}`;
+        if (keys.length > 0) {
+            url = `${url}?key=${keys.join(':')}`
+        }
+        const res = await fetch(
+            url, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
 }

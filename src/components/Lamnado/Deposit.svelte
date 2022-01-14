@@ -1,12 +1,13 @@
 <script>
 import { onMount } from "svelte";
-import { createRandomDeposit, toHex, createNote, sendTokenApproval, lamnadoDeposit } from '../../js/lamnado'
+import { createRandomDeposit, checkContractState, toHex, createNote, sendTokenApproval, lamnadoDeposit } from '../../js/lamnado'
 import { derived, writable } from "svelte/store";
 import { lamdenNetwork } from "../../stores/globalStores";
 import Container from "../Inputs/Container.svelte";
 import Button from "../Button.svelte";
 import Errors from "../Games/Poker/Errors.svelte";
 import BN from 'bignumber.js'
+import { lamden_vk } from "../../stores/lamdenStores";
 
 
 const tokens = ['PHI', 'TAU']
@@ -18,13 +19,17 @@ const symbols = {
     PHI: 'phi',
     TAU: 'currency',
 }
-const contracts = {
+const lamnadoContracts = {
     PHI: {
         '1000': 'con_lamnado_phi_1000_v1'
     },
     TAU: {
         '100': 'con_lamnado_currency_1000_v1'
     }
+}
+const tokenContracts = {
+    PHI: 'con_phi_lst001',
+    TAU: 'currency',
 }
 
 
@@ -36,6 +41,49 @@ const note = derived([amount, token, deposit], ([$amount, $token, $deposit]) => 
         return null;
     }
     return createNote($amount, symbols[$token], $deposit)
+})
+
+const denomination = derived([token, amount], async ([$token, $amount], set) => {
+    if ($token === null || $amount === null) {
+        set(null)
+        return;
+    }
+    const contract = lamnadoContracts[$token][$amount.toString()]
+    if (!contract) {
+        set(null);
+        return;
+    }
+    const d = await checkContractState(contract, 'denomination', [], null)
+    console.log(d);
+    set(d)
+    return;
+})
+
+const totalDepositBalance = derived([token, amount], async ([$token, $amount], set) => {
+    if ($token === null || $amount === null) {
+        set(null)
+        return;
+    }
+    const contract = lamnadoContracts[$token][$amount.toString()]
+    if (!contract) {
+        set(null);
+        return;
+    }
+    const d = await checkContractState(contract, 'total_deposit_balance', [], 0)
+    console.log(d);
+    set(d)
+    return;
+})
+
+const numDepositsInPool = derived([denomination, totalDepositBalance], ([$denomination, $totalDepositBalance]) => {
+    if ($denomination === null || $totalDepositBalance === null) {
+        return null;
+    }
+    try {
+        return parseInt($totalDepositBalance.toString(), 10) / parseInt($denomination.toString(), 10);
+    } catch(e) {
+        return null;
+    }
 })
 
 
@@ -67,25 +115,37 @@ const depositApprovalHandler = writable({});
 const depositErrors = writable([]);
 const depositInProgress = writable(false);
 const depositFunc = async () => {
-    // add_chips_to_game
     depositInProgress.set(true);
     depositErrors.set([]);
-    sendTokenApproval(BN($amount), contracts[$token][$amount.toString()], depositApprovalHandler, (txResults)=>{
-        if ($depositApprovalHandler.errors?.length > 0) {
+    // check if needs approval
+    const tokenContract = tokenContracts[$token];
+    const lamnadoContract = lamnadoContracts[$token][$amount.toString()];
+    const approved = BN(await checkContractState(tokenContract, 'balances', [$lamden_vk, lamnadoContract], 0))
+    console.log("Approved: "+approved.toString())
+    const f = () => {
+        lamnadoDeposit($amount, symbols[$token], $deposit, depositHandler, (txResults)=>{
             depositInProgress.set(false);
-            depositErrors.set($depositApprovalHandler.errors)
-        } else {
-            lamnadoDeposit($amount, symbols[$token], $deposit, depositHandler, (txResults)=>{
+            if ($depositHandler.errors?.length > 0) {
+                depositErrors.set($depositHandler.errors)
+            } else {
+                console.log("Success");
+                console.log(txResults);
+            }
+        });
+    };
+    if (BN($amount).comparedTo(approved) === 1) {
+        // requires approval
+        sendTokenApproval(BN($amount), tokenContract, lamnadoContract, depositApprovalHandler, (txResults)=>{
+            if ($depositApprovalHandler.errors?.length > 0) {
                 depositInProgress.set(false);
-                if ($depositHandler.errors?.length > 0) {
-                    depositErrors.set($depositHandler.errors)
-                } else {
-                    console.log("Success");
-                    console.log(txResults);
-                }
-            });
-        }
-    })
+                depositErrors.set($depositApprovalHandler.errors)
+            } else {
+                f()
+            }
+        })
+    } else {
+        f()
+    }
 }
 
 </script>
@@ -127,6 +187,8 @@ const depositFunc = async () => {
         </label>
     {/each}
     <br /><br />
+    <p>Deposits in Pool: {$numDepositsInPool === null ? "(Loading...)" : $numDepositsInPool.toString()}</p>
+    <br />
     <p>Your Note</p>
     <div class="note">
         {#if $note !== null}
@@ -134,15 +196,19 @@ const depositFunc = async () => {
         {/if}
     </div>
     <br /><br />
-    <Button
-        text={"Download Note"}
-        clicked={downloadNote}
-    /><br /><br />
-    <Errors errors={depositErrors} />
-    <Button
-        text={$depositInProgress ? "Depositing..." : "Deposit"}
-        clicked={depositFunc}
-        disabled={$depositInProgress || !$downloaded}
-    />
+    {#if $lamden_vk === null} 
+        <p>Connect Your Wallet</p>
+    {:else}
+        <Button
+            text={"Download Note"}
+            clicked={downloadNote}
+        /><br /><br />
+        <Errors errors={depositErrors} />
+        <Button
+            text={$depositInProgress ? "Depositing..." : "Deposit"}
+            clicked={depositFunc}
+            disabled={$depositInProgress || !$downloaded}
+        />
+    {/if}
     <br /><br />
 </Container>
