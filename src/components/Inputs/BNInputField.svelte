@@ -34,6 +34,9 @@ const handleInputChange = (e) => {
         margin-top: 1rem;
         text-align: center;
     }
+    label {
+        overflow-wrap: break-word;
+    }
 </style>
 
 <label class={labelClass}>{labelText}<br/>
