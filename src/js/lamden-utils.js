@@ -298,6 +298,53 @@ export function sendProfileAction (action, payload, resultsTracker, callback) {
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
+
+export function sendDaoAction (action, payload, resultsTracker, callback) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.dao.networkType,
+        contractName: lamdenNetworkInfo.dao.contractName,
+        methodName: 'interact',
+        kwargs: {
+            function: action,
+            payload: payload
+        },
+        stampLimit: lamdenNetworkInfo.stamps[action],
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+
+export async function getSportsBettingContract() {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    return await checkContractState(
+        lamdenNetworkInfo.dao.contractName, 'actions', ['sports_betting'], 'con_sports_betting_v1'
+    )
+}
+
+
+export function sendTokenApproval (amount, tokenContract, contract, resultsTracker, callback) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    console.log('Amount: '+amount.toString())
+    console.log('Token Contract: '+tokenContract)
+    console.log('Contract: '+contract)
+    const txInfo = {
+        networkType: lamdenNetworkInfo.networkType,
+        contractName: tokenContract,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: contract,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+
 export function sendMessageTo (message, to, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
 
@@ -613,4 +660,35 @@ function hasEnoughTauToSendTx(txName){
     let lamdenNetworkInfo = get(lamdenNetwork)
     let currencyBalance = get(lamdenCurrencyBalance)
     return currencyBalance.isGreaterThan(lamdenNetworkInfo.stamps[txName] / lamdenNetworkInfo.currentStampRatio)
+}
+
+
+/** Return state for smart contract */
+export async function checkContractState(contract, variableName, keys, default_value) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        let url = `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}`;
+        if (keys.length > 0) {
+            url = `${url}?key=${keys.join(':')}`
+        }
+        const res = await fetch(
+            url, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
 }

@@ -51,6 +51,10 @@ export const mainnet = {
                 contractName: "con_game_manager_v1"
             }
         },
+        dao: {
+            networkType: "mainnet",
+            contractName: "con_gamma_phi_dao"
+        },
         profile: {
             networkType: "mainnet",
             contractName: "con_gamma_phi_profile_v5",
@@ -100,6 +104,8 @@ export const mainnet = {
             messenger: 1000,
             board: 2000,
             lamnado_deposit: 2000,
+            add_event: 1000,
+            place_bet: 1000,
         }
     }
 }
@@ -153,6 +159,10 @@ export const testnet = {
                 contractName: "con_game_manager_v1"
             },
         },
+        dao: {
+            networkType: "testnet",
+            contractName: "con_gamma_phi_dao"
+        },
         profile: {
             networkType: "testnet",
             contractName: "con_gamma_phi_profile_v5",
@@ -205,6 +215,8 @@ export const testnet = {
             messenger: 1000,
             board: 2000,
             lamnado_deposit: 2000,
+            add_event: 1000,
+            place_bet: 1000,
         }
     }
 }

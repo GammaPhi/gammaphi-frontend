@@ -16,6 +16,7 @@ import { writable } from 'svelte/store';
 import { onMount } from 'svelte';
 import Board from './Board.svelte';
 import Lamnado from './Lamnado.svelte';
+import SportsBetting from './SportsBetting.svelte';
 export let address = null;
 
 const frenAddress = writable(address);
@@ -33,6 +34,11 @@ $: $page, updateAddress();
 
 // Games
 const gameInfo = [
+	{
+        name: 'Sports Betting',
+        link: '/sports',
+        description: "Use your PHI tokens to bet on your favorite sports games."
+    },
 	{
         name: 'Poker',
         link: '/poker',
@@ -165,6 +171,10 @@ const gameInfo = [
 	{:else if $page === '/lamnado'}
 
 	<Lamnado />
+
+	{:else if $page === '/sports'}
+
+	<SportsBetting />
 
 	{:else if $page === '/profile'}
 
