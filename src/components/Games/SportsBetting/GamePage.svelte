@@ -1,6 +1,6 @@
 <script>
 import { onMount } from "svelte";
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 import { listWagersForGame } from "../../../js/sports-betting-provider";
 import Button from "../../Button.svelte";
 import BNInputField from "../../Inputs/BNInputField.svelte";
@@ -13,6 +13,7 @@ import TabList from "../../Tabs/TabList.svelte";
 import Tab from "../../Tabs/Tab.svelte";
 import TabPanel from "../../Tabs/TabPanel.svelte";
 import { lamden_vk } from "../../../stores/lamdenStores";
+import forge from 'forge';
 
 
 export let game, goBack, startingValue = BN(10000);
@@ -23,6 +24,7 @@ const totals = writable([]);
 const selectedWager = writable(null);
 const moneyLineOptions = writable([]);
 const placeBetInputValue = writable(startingValue);
+const contractName = writable(null);
 
 onMount(() => {
     selectedWager.set(null);
@@ -37,7 +39,76 @@ onMount(() => {
     listWagersForGame(game, 'total').then(w=>{
         totals.set(w);
     })
+    getSportsBettingContract().then(w=>{
+        contractName.set(w);
+    })
 });
+
+const eventHash = derived([selectedWager], ([$selectedWager]) => {
+    if ($selectedWager === null) {
+        return null;
+    }
+    const wagerType = $selectedWager.name;
+    const wagerOptions = $selectedWager.options;
+    const toHash = [
+        game.sport, game.away_team, game.home_team, game.date, wagerType
+    ];
+
+    for (let i = 0; i < wagerOptions.length; i++) {
+        toHash.push(wagerOptions[i])
+    }
+
+    if (wagerType === 'spread') {
+        toHash.push($selectedWager.spreadStr)
+    } else if (wagerType === 'total') {
+        toHash.push($selectedWager.totalStr)
+    }
+    const toHashStr = toHash.join(",")
+    const md = forge.md.sha256.create();
+    md.update(toHashStr);
+    const hash = md.digest().toHex()
+    console.log("Hash: "+hash);
+    return hash;
+});
+
+const eventId = derived([eventHash, contractName], ([$eventHash, $contractName], set) => {
+    if ($contractName === null) {
+        return null;
+    }
+    if ($eventHash === null) {
+        return null;
+    }
+    checkContractState($contractName, 'events', [$eventHash], null).then(w=>{
+        set(w);
+    })
+});
+
+
+const priceInfo = derived([eventId], ([$eventId], set) => {
+    if ($eventId === null) {
+        return null;
+    }
+    console.log("Event id: "+$eventId);
+    const pInfo = {};
+    checkContractState($contractName, 'bets', [$eventId, 0], BN(0)).then(p0=>{
+        checkContractState($contractName, 'bets', [$eventId, 1], BN(0)).then(p1=>{
+            checkContractState($contractName, 'bets', [$eventId, 2], BN(0)).then(p2=>{
+                const total = p0.plus(p1).plus(p2);
+                if (total.comparedTo(BN(0)) === 0) {
+                    // no bets
+                } else {
+                    let odds0 = p0.div(total);
+                    let odds1 = p1.div(total);
+                    let odds2 = p2.div(total);
+                    pInfo['odds'] = [odds0, odds1, odds2]; 
+                    pInfo['total'] = total;                  
+                }
+                set(pInfo);
+            })
+        })
+    })
+})
+
 
 const getWagerDescription = (wager) => {
     let description = '';
@@ -73,7 +144,7 @@ const placeBetHandler = writable({});
 const placeBetErrors = writable([]);
 const placeBetInProgress = writable(false);
 const placeBet = async () => {
-    const contract = await getSportsBettingContract()
+    const contract = $contractName;
     if (contract === null) {
         alert("Could not find sports betting contract.")
         return;
@@ -81,7 +152,9 @@ const placeBet = async () => {
     placeBetInProgress.set(true);
     placeBetErrors.set([]);
     function placeBetHelper(event_id) {
+        console.log("placeBetHelper")
         sendTokenApproval(BN($placeBetInputValue), "con_phi_lst001", contract, placeBetHandler, (txResults)=>{
+            console.log("sendTokenApproval")
             if ($placeBetHandler.errors?.length > 0) {
                 placeBetInProgress.set(false);
                 placeBetErrors.set($placeBetHandler.errors)
@@ -99,6 +172,7 @@ const placeBet = async () => {
                     }
                 }
                 sendDaoAction('sports_betting', placeBetKwargs, placeBetHandler, (txResults)=>{
+                    console.log("sendDaoAction")
                     placeBetInProgress.set(false);
                     if ($placeBetHandler.errors?.length > 0) {
                         placeBetErrors.set($placeBetHandler.errors)
@@ -111,9 +185,10 @@ const placeBet = async () => {
         });
 
     }
-    let event_id = await checkContractState(contract, 'events', [game.sport, game.away_team, game.home_team, game.date], null)
+    let event_id = $eventId;
     if (event_id === null) {
         // need to create event
+        console.log("no event id")
         let wager = {
             name: $selectedWager.name,
             options: $selectedWager.options,        
@@ -137,15 +212,19 @@ const placeBet = async () => {
                 wager: wager
             }
         }
+        console.log("addEvent")
+        console.log(addEventKwargs)
         sendDaoAction('sports_betting', addEventKwargs, placeBetHandler, (txResults)=>{
+            console.log("sendDaoAction")
             if ($placeBetHandler.errors?.length > 0) {
                 placeBetInProgress.set(false);
                 placeBetErrors.set($placeBetHandler.errors)
             } else {
                 console.log("Success");
                 console.log(txResults);
-                event_id = parseInt(txResults.txBlockResult.returnResult, 10);
+                event_id = parseInt(txResults.resultInfo.returnResult, 10);
                 console.log("Event id: "+event_id)
+                eventId.set(event_id)
                 placeBetHelper(event_id);
             }
         });
@@ -283,6 +362,17 @@ const placeBet = async () => {
     <h2>Place Bet</h2>
 
     <p>{getWagerDescription($selectedWager)}</p>
+
+    {#if $priceInfo !== null}
+        {#if $priceInfo.hasOwnProperty('odds')}
+            <p>Percent: {$priceInfo.odds[$selectedWager.option_id]}</p>
+        {:else}
+            <p>No bets placed so far.</p>
+        {/if}
+    {:else}
+        <p>Loading odds...</p>
+    {/if}
+
     <div class="row align-center buttons">
         <BNInputField
             onInputChange={(value)=>placeBetInputValue.set(BN(value))}
@@ -291,7 +381,11 @@ const placeBet = async () => {
             labelClass="label"
             labelText="Your PHI Wager"
         />
-        <Errors errors={placeBetErrors} />
+        <br />
+        {#if $placeBetErrors.length > 0}
+            <br />
+            <Errors errors={placeBetErrors} />
+        {/if}
         {#if $lamden_vk === null}
             <p>Please connect your wallet.</p>
         {:else}

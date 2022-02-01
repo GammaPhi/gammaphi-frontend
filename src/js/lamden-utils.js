@@ -310,9 +310,9 @@ export function sendDaoAction (action, payload, resultsTracker, callback) {
             function: action,
             payload: payload
         },
-        stampLimit: lamdenNetworkInfo.stamps[action],
+        stampLimit: lamdenNetworkInfo.stamps[payload.function],
     }
-
+    console.log("Sending action "+action);
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
