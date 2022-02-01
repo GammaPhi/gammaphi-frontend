@@ -12,6 +12,7 @@ import Tabs from "../../Tabs/Tabs.svelte";
 import TabList from "../../Tabs/TabList.svelte";
 import Tab from "../../Tabs/Tab.svelte";
 import TabPanel from "../../Tabs/TabPanel.svelte";
+import { lamden_vk } from "../../../stores/lamdenStores";
 
 
 export let game, goBack, startingValue = BN(10000);
@@ -156,100 +157,124 @@ const placeBet = async () => {
 </script>
 
 
+<style>
+    .wager-card {
+        border: 2px solid var(--primary-color);
+        padding: 1em;
+        vertical-align: middle;
+        margin-top: auto;
+        margin-bottom: auto;
+        border-radius: 5px;    
+    }
+</style>
+
+
 {#if $selectedWager === null}
     <Link onClick={()=>goBack()}>Back to Game List</Link>
     <h2>Wagers</h2>
+    <p>Away: {game.away_team}</p>
+    <p>Home: {game.home_team}</p>
     <Tabs initialSelectedTabIndex={0}>
         <TabList>
             <Tab>Moneyline</Tab>
-            <Tab>Spreads</Tab>
-            <Tab>Totals</Tab>
+            {#if $spreads.length !== 0}
+                <Tab>Spreads</Tab>
+            {/if}
+            {#if $totals.length !== 0}
+                <Tab>Totals</Tab>
+            {/if}
         </TabList>
         <TabPanel>
             <h3>Moneyline</h3>
-            <Button
-                text="Bet on Away"
-                clicked={()=>selectedWager.set({
-                    option_id: 0,
-                    name: 'moneyline',
-                    options: $moneyLineOptions
-                })}
-            />
-            <Button
-                text="Bet on Home"
-                clicked={()=>selectedWager.set({
-                    option_id: 1,
-                    name: 'moneyline',
-                    options: $moneyLineOptions
-                })}
-            />
-            {#if $moneyLineOptions.length > 2}
+            <div class="wager-card">
                 <Button
-                    text="Bet on Draw"
+                    text="Bet on Away"
                     clicked={()=>selectedWager.set({
-                        option_id: 2,
+                        option_id: 0,
                         name: 'moneyline',
                         options: $moneyLineOptions
                     })}
                 />
-            {/if}
+                <Button
+                    text="Bet on Home"
+                    clicked={()=>selectedWager.set({
+                        option_id: 1,
+                        name: 'moneyline',
+                        options: $moneyLineOptions
+                    })}
+                />
+                {#if $moneyLineOptions.length > 2}
+                    <Button
+                        text="Bet on Draw"
+                        clicked={()=>selectedWager.set({
+                            option_id: 2,
+                            name: 'moneyline',
+                            options: $moneyLineOptions
+                        })}
+                    />
+                {/if}
+            </div>
+            <br />
         </TabPanel>
-        <TabPanel>
-            <h3>Spreads</h3>
-            {#if $spreads.length === 0}
-                <p>No spreads found.</p>
-            {:else}
+        {#if $spreads.length !== 0}
+            <TabPanel>
+                <h3>Spreads</h3>
                 {#each $spreads as wager}  
-                    <p>Spread: {wager.away_spread["$numberDecimal"]}</p>    
-                    <Button
-                        text="Bet on Away"
-                        clicked={()=>selectedWager.set({
-                            option_id: 0,
-                            name: 'spread',
-                            options: [game.away_team, game.home_team],
-                            spread: parseFloat(wager.away_spread["$numberDecimal"])
-                        })}
-                    />
-                    <Button
-                        text="Bet on Home"
-                        clicked={()=>selectedWager.set({
-                            option_id: 1,
-                            name: 'spread',
-                            options: [game.away_team, game.home_team],
-                            spread: parseFloat(wager.away_spread["$numberDecimal"])
-                        })}
-                    />
+                    <div class="wager-card">
+                        <p>Away Spread: {parseFloat(wager.away_spread["$numberDecimal"])}</p>    
+                        <p>Home Spread: {-parseFloat(wager.away_spread["$numberDecimal"])}</p>    
+                        <Button
+                            text="Bet on Away"
+                            clicked={()=>selectedWager.set({
+                                option_id: 0,
+                                name: 'spread',
+                                options: [game.away_team, game.home_team],
+                                spread: parseFloat(wager.away_spread["$numberDecimal"])
+                            })}
+                        />
+                        <Button
+                            text="Bet on Home"
+                            clicked={()=>selectedWager.set({
+                                option_id: 1,
+                                name: 'spread',
+                                options: [game.away_team, game.home_team],
+                                spread: parseFloat(wager.away_spread["$numberDecimal"])
+                            })}
+                        />
+                    </div>
+                    <br />
                 {/each}
-            {/if}
-        </TabPanel>
-        <TabPanel>           
+            </TabPanel>
+        {/if}
+        {#if $totals.length !== 0}
+            <TabPanel>           
             <h3>Totals</h3>
-            {#if $totals.length === 0}
-                <p>No totals found.</p>
-            {:else}
                 {#each $totals as wager}
-                    <p>Total: {wager.away_total["$numberDecimal"]}</p>    
-                    <Button
-                        text="Bet Over"
-                        clicked={()=>selectedWager.set({
-                            option_id: 0,
-                            name: 'total',
-                            options: [game.away_team, game.home_team],
-                            total: parseFloat(wager.away_total["$numberDecimal"])
-                        })}
-                    />
-                    <Button
-                        text="Bet Under"
-                        clicked={()=>selectedWager.set({
-                            option_id: 1,
-                            name: 'total',
-                            options: [game.away_team, game.home_team],
-                            total: parseFloat(wager.away_total["$numberDecimal"])
-                        })}
-                    />
+                    <div class="wager-card">
+                        <p>Total: {wager.away_total["$numberDecimal"]}</p>    
+                        <Button
+                            text="Bet Over"
+                            clicked={()=>selectedWager.set({
+                                option_id: 0,
+                                name: 'total',
+                                options: [game.away_team, game.home_team],
+                                total: parseFloat(wager.away_total["$numberDecimal"])
+                            })}
+                        />
+                        <Button
+                            text="Bet Under"
+                            clicked={()=>selectedWager.set({
+                                option_id: 1,
+                                name: 'total',
+                                options: [game.away_team, game.home_team],
+                                total: parseFloat(wager.away_total["$numberDecimal"])
+                            })}
+                        />
+                    </div>
+                    <br />
                 {/each}
-            {/if} 
-        </TabPanel>
+            </TabPanel>
+        {/if} 
     </Tabs>
 
 {:else}
@@ -267,10 +292,14 @@ const placeBet = async () => {
             labelText="Your PHI Wager"
         />
         <Errors errors={placeBetErrors} />
-        <Button
-            text={$placeBetInProgress ? "Betting..." : "Place Bet"}
-            clicked={placeBet}
-            disabled={$placeBetInProgress}
-        />    
+        {#if $lamden_vk === null}
+            <p>Please connect your wallet.</p>
+        {:else}
+            <Button
+                text={$placeBetInProgress ? "Betting..." : "Place Bet"}
+                clicked={placeBet}
+                disabled={$placeBetInProgress}
+            />    
+        {/if}
     </div>
 {/if}

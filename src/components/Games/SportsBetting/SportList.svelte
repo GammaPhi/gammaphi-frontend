@@ -13,13 +13,21 @@ const selectedSport = writable(null);
 
 <style>
     .sport-card {
-        margin-top: 2em;
+        border: 2px solid var(--primary-color);
+        padding: 1em;
+        vertical-align: middle;
+        margin-top: auto;
+        margin-bottom: auto;
+        padding-bottom: 2em;
+        border-radius: 5px;    
     }
+    
 </style>
 
 {#if $selectedSport === null}
+    <Link onClick={()=>selectedSport.set('')}>See All Events</Link>
+    <br />
     <h2>Available Sports</h2>
-
     {#each SPORTS_METADATA.sports as sport}
 
     <div class="sport-card">

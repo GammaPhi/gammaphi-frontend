@@ -76,7 +76,31 @@ export async function listWagersForGame(game, wagerType) {
         )
         if (res.status === 200) {
             let json = await res.json()
-            return json.data || []
+            const data = json.data || []
+            if (wagerType === 'spread') {
+                const spreadsSeen = new Set()
+                const ret = [];
+                for (let i = 0; i < data.length; i++) {
+                    let spread = data[i].away_spread["$numberDecimal"];
+                    if (!spreadsSeen.has(spread)) {
+                        ret.push(data[i]);
+                        spreadsSeen.add(spread);
+                    }
+                }
+                return ret;
+            } else if (wagerType === 'total') {
+                const totalsSeen = new Set()
+                const ret = [];
+                for (let i = 0; i < data.length; i++) {
+                    let total = data[i].away_total["$numberDecimal"];
+                    if (!totalsSeen.has(total)) {
+                        ret.push(data[i]);
+                        totalsSeen.add(total);
+                    }
+                }
+                return ret;
+            }
+            return data;
         } else {
             return []
         }
