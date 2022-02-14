@@ -35,17 +35,17 @@ $: $page, updateAddress();
 // Games
 const gameInfo = [
 	{
-        name: 'Sports Betting',
+        name: 'Sports Betting (In Progress)',
         link: '/sports',
         description: "Use your PHI tokens to bet on your favorite sports games."
     },
 	{
-        name: 'Poker',
+        name: 'Poker (Alpha)',
         link: '/poker',
         description: "Play decentralized poker with your friends or join a public table."
     },
 	{
-        name: 'Board Games',
+        name: 'Board Games (Alpha)',
         link: '/board',
         description: "Play decentralized go, chess, or checkers with a friend or join a public game."
     },
@@ -63,11 +63,6 @@ const gameInfo = [
         name: 'Prize Wheel',
         link: '/spin',
         description: "A truly fair, zero-commission spin the wheel game. Win up to 10x your wager."
-    },
-	{
-        name: 'PHI Lottery',
-        link: '/lottery',
-        description: "A truly fair, zero-commission lottery game. 1 PHI equals 1 lottery ticket. The winner receives the entire pot."
     }
 ]
 
@@ -135,10 +130,6 @@ const gameInfo = [
 	{#if $page === '/coinflip'}
 
 	<CoinFlip />
-
-	{:else if $page === '/lottery'}
-
-	<Lottery />
 
 	{:else if $page === '/poker'}
 

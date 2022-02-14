@@ -15,7 +15,7 @@ export async function checkPokerContractState(variableName, keys, default_value)
     }
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}?key=${keys.join(':')}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}/${keys.join(':')}`, {
                 method: 'GET',
             },
         )
@@ -41,7 +41,7 @@ export async function checkMessageContractState(variableName, keys, default_valu
     let contract = lamdenNetworkInfo.messenger.contractName;
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}?key=${keys.join(':')}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}/${keys.join(':')}`, {
                 method: 'GET',
             },
         )
@@ -67,7 +67,7 @@ export async function checkBoardGameContractState(variableName, keys, default_va
     let contract = lamdenNetworkInfo.games.board.contractName;
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}?key=${keys.join(':')}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}/${keys.join(':')}`, {
                 method: 'GET',
             },
         )
@@ -92,7 +92,7 @@ export async function checkContractVariable(contract, variableName) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}`, {
                 method: 'GET',
             },
         )
@@ -106,7 +106,7 @@ export async function checkLotteryTotal() {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.lottery.contractName}/total`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.games.lottery.contractName}/total`, {
                 method: 'GET',
             },
         )
@@ -121,7 +121,7 @@ export async function getLotteryBalance() {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.lottery.contractName}/balances?key=${vk}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.games.lottery.contractName}/balances/${vk}`, {
                 method: 'GET',
             },
         )
@@ -136,7 +136,7 @@ export async function checkTokenBalance(token) {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}`, {
                 method: 'GET',
             },
         )
@@ -152,7 +152,7 @@ export async function checkTokenApprovedBalance(token, contract) {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}:${contractName}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}:${contractName}`, {
                 method: 'GET',
             },
         )
@@ -166,7 +166,7 @@ export async function checkHousePHIBalance() {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.coins.phi.contractName}/balances?key=${lamdenNetworkInfo.games.coinFlip.contractName}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.coins.phi.contractName}/balances/${lamdenNetworkInfo.games.coinFlip.contractName}`, {
                 method: 'GET',
             },
         )
@@ -181,7 +181,7 @@ export async function checkLamdenBalance() {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/currency/balances/${vk}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/currency/balances/${vk}`, {
                 method: 'GET',
             },
         )
@@ -366,7 +366,7 @@ export async function getChannelUsers (channelName, default_value=null) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.profile.contractName}/channels?key=${channelName}:users`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/channels/${channelName}:users`, {
                 method: 'GET',
             },
         )
@@ -392,7 +392,7 @@ export async function hydrateProfile (key, default_value=null) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.profile.contractName}/metadata?key=${vk}:${key}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/metadata/${vk}:${key}`, {
                 method: 'GET',
             },
         )
@@ -418,7 +418,7 @@ export async function hydrateProfileForAddress(vk, key, default_value=null) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.profile.contractName}/metadata?key=${vk}:${key}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/metadata/${vk}:${key}`, {
                 method: 'GET',
             },
         )
@@ -443,7 +443,7 @@ export async function getAddressForUsername(username, default_value=null) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.profile.contractName}/usernames?key=${username}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/usernames/${username}`, {
                 method: 'GET',
             },
         )
@@ -667,9 +667,9 @@ function hasEnoughTauToSendTx(txName){
 export async function checkContractState(contract, variableName, keys, default_value) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
-        let url = `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}`;
+        let url = `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}`;
         if (keys.length > 0) {
-            url = `${url}?key=${keys.join(':')}`
+            url = `${url}/${keys.join(':')}`
         }
         const res = await fetch(
             url, {

@@ -186,7 +186,7 @@ export async function lamnadoWithdraw(note, recipient, relayer_url=DEFAULT_RELAY
 export async function checkContractState(contract, variableName, keys, default_value) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
-        let url = `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}`;
+        let url = `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}`;
         if (keys.length > 0) {
             url = `${url}?key=${keys.join(':')}`
         }

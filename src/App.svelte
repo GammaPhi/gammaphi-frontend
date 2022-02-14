@@ -101,7 +101,6 @@ function unregisterOldServiceWorkers(){
 		{/if}
 		<Route path="/" component={Home} />
 		<Route path="/purchase" component={Home} />
-		<Route path="/lottery" component={Home} />
 		<Route path="/poker" component={Home} />
 		<Route path="/board" component={Home} />
 		<Route path="/coinflip" component={Home} />

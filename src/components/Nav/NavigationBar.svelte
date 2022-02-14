@@ -7,7 +7,6 @@
     { name: "Purchase", href: "/purchase"},
     { name: "About", href: "/about"},
     { name: "Approve", href: "/approve"},
-    { name: "Redeem", href: "/redeem"},
 	{ name: "Profile", href: "/profile"},
 	{ name: "Lamnado", href: "/lamnado"},
   ];
