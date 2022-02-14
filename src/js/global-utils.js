@@ -1,4 +1,113 @@
 import BN from 'bignumber.js'
+import { get, writable } from 'svelte/store'
+import { lamden_vk } from '../stores/lamdenStores';
+
+
+// Set the name of the hidden property and the change event for visibility
+var hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
+
+let isVisible = true;
+
+function handleVisibilityChange() {
+  if (document[hidden]) {
+    isVisible = false;
+  } else {
+    isVisible = true;
+  }
+}
+
+// Warn if the browser doesn't support addEventListener or the Page Visibility API
+if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+  console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+} else {
+  // Handle page visibility change
+  document.addEventListener(visibilityChange, handleVisibilityChange, false);
+}
+
+export function setupArrayStore(hasFocus, array, storeDict, default_value, refresh_func, update=true, firstTimeCallback=null, interval=5000) {
+    let store = get(array);
+    for(var i = 0; i < store.length; i++) {
+        let elem = store[i];
+        if (!get(storeDict).hasOwnProperty(elem)) {
+            get(storeDict)[elem] = writable(default_value);
+            if (update) {
+                autoRefreshingVariable(
+                    get(storeDict)[elem], 
+                    refresh_func(elem),
+                    hasFocus,
+                    firstTimeCallback,
+                    storeDict,
+                    interval
+                );
+            } else {
+                refresh_func(elem)().then((v)=>{
+                    get(storeDict)[elem].set(v);
+                    storeDict.set(get(storeDict));
+                });
+            }
+        }
+    }
+}
+
+
+export const autoRefreshingVariable = (variable, refresh_func, hasFocus, firstTimeCallback=null, dictStore=null, interval=5000) => {
+    let calledFirstTimeCallback = false;
+    let f = () => {
+        setTimeout(()=>{
+            if (get(hasFocus) && (document.hasFocus() || isVisible)) {
+                refresh_func().then((v)=>{
+                    if (variable !== null) {
+                        variable.set(v)
+                    }
+                    if (!calledFirstTimeCallback && get(lamden_vk) !== null) {
+                        calledFirstTimeCallback = true;
+                        if (firstTimeCallback !== null) {
+                            firstTimeCallback(v);
+                        }
+                    }
+                    if (dictStore !== null) {
+                        dictStore.set(get(dictStore));
+                    }            
+                });
+            }
+            f();
+        }, interval);
+    }
+    refresh_func().then((v)=>{
+        if (get(hasFocus)) {
+            if (variable !== null) {
+                variable.set(v)
+            }
+            if (firstTimeCallback !== null && get(lamden_vk) !== null) {
+                firstTimeCallback(v);
+                calledFirstTimeCallback = true;
+            }
+            if (dictStore !== null) {
+                dictStore.set(get(dictStore));
+            }
+        }
+        f();
+    });
+};
+
+
+export function getValueFromDict(dict, key, default_value=null) {
+    if (!dict.hasOwnProperty(key)) {
+        return default_value;
+    }
+    return get(dict[key])
+}
+
 
 export function openURL(url){
 	window.open(url, '_blank');
@@ -6,6 +115,10 @@ export function openURL(url){
 
 export function isString(s) {
     return typeof s === 'string' || s instanceof String
+}
+
+export function formatGameId(game_id) {
+    return `${game_id.substring(0, 4)}...${game_id.substring(game_id.length-4)}`;
 }
 
 export const stringToFixed = (value, precision) => {

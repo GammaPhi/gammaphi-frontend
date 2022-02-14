@@ -5,7 +5,7 @@
     // Misc
     import BN from 'bignumber.js'
     import { wheelSpinInputValue, phiCurrencyApprovedBalance, phiCurrencyBalance, wheelSpinApprovalTxStatus, wheelSpinTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
-    import { sendWheelSpinApproval, sendWheelSpin } from '../../../js/lamden-utils.js'
+    import { sendHouseApproval, sendWheelSpin } from '../../../js/lamden-utils.js'
     import PhiTokenBalance from '../../PhiTokenBalance.svelte'
     import BNInputField from '../../Inputs/BNInputField.svelte'
     import { stringToFixed } from '../../../js/global-utils'
@@ -145,7 +145,7 @@
 
         if (BN($phiCurrencyApprovedBalance).comparedTo(BN($wheelSpinInputValue)) === -1) {
             console.log("Requires approval");
-            sendWheelSpinApproval($wheelSpinInputValue, wheelSpinApprovalTxStatus, (txResults)=>{
+            sendHouseApproval($wheelSpinInputValue, wheelSpinApprovalTxStatus, (txResults)=>{
                 if ($wheelSpinApprovalTxStatus.errors?.length > 0) {
                     status.set('error')
                     errors.set($wheelSpinApprovalTxStatus.errors)

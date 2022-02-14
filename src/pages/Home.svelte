@@ -9,9 +9,46 @@ import About from './About.svelte';
 import DiceRoll from './DiceRoll.svelte'
 import PreApprove from './PreApprove.svelte';
 import Redeem from './Redeem.svelte';
+import Profile from './Profile.svelte';
+import Poker from './Poker.svelte';
+import UserPage from './UserPage.svelte';
+import { writable } from 'svelte/store';
+import { onMount } from 'svelte';
+import Board from './Board.svelte';
+import Lamnado from './Lamnado.svelte';
+import SportsBetting from './SportsBetting.svelte';
+export let address = null;
+
+const frenAddress = writable(address);
+
+function updateAddress() {
+	if ($page.startsWith('/fren/')) {
+		frenAddress.set($page.replace("/fren/", "").trim());
+		console.log(address);
+	} else {
+		frenAddress.set(null);
+	}
+}
+
+$: $page, updateAddress();
 
 // Games
 const gameInfo = [
+	{
+        name: 'Sports Betting (In Progress)',
+        link: '/sports',
+        description: "Use your PHI tokens to bet on your favorite sports games."
+    },
+	{
+        name: 'Poker (Alpha)',
+        link: '/poker',
+        description: "Play decentralized poker with your friends or join a public table."
+    },
+	{
+        name: 'Board Games (Alpha)',
+        link: '/board',
+        description: "Play decentralized go, chess, or checkers with a friend or join a public game."
+    },
 	{
         name: 'Dice Roll',
         link: '/diceroll',
@@ -26,11 +63,6 @@ const gameInfo = [
         name: 'Prize Wheel',
         link: '/spin',
         description: "A truly fair, zero-commission spin the wheel game. Win up to 10x your wager."
-    },
-	{
-        name: 'PHI Lottery',
-        link: '/lottery',
-        description: "A truly fair, zero-commission lottery game. 1 PHI equals 1 lottery ticket. The winner receives the entire pot."
     }
 ]
 
@@ -99,9 +131,13 @@ const gameInfo = [
 
 	<CoinFlip />
 
-	{:else if $page === '/lottery'}
+	{:else if $page === '/poker'}
 
-	<Lottery />
+	<Poker />
+
+	{:else if $page === '/board'}
+
+	<Board />
 
 	{:else if $page === '/spin'}
 
@@ -122,6 +158,22 @@ const gameInfo = [
 	{:else if $page === '/approve'}
 
 	<PreApprove />
+
+	{:else if $page === '/lamnado'}
+
+	<Lamnado />
+
+	{:else if $page === '/sports'}
+
+	<SportsBetting />
+
+	{:else if $page === '/profile'}
+
+	<Profile />
+
+	{:else if $page.startsWith('/fren/')}
+
+	<UserPage user_address={$frenAddress} />
 
 	{:else if $page === '/redeem'}
 

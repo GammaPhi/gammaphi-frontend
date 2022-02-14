@@ -2132,6 +2132,21 @@
     "ansi-styles" "^4.1.0"
     "supports-color" "^7.1.0"
 
+"chart.js@^2.6.0", "chart.js@^3.0.0", "chart.js@^3.6.0":
+  "integrity" "sha512-iOzzDKePL+bj+ccIsVAgWQehCXv8xOKGbaU2fO/myivH736zcx535PGJzQGanvcSGVOqX6yuLZsN3ygcQ35UgQ=="
+  "resolved" "https://registry.npmjs.org/chart.js/-/chart.js-3.6.0.tgz"
+  "version" "3.6.0"
+
+"chartjs-plugin-datalabels@^2.0.0":
+  "integrity" "sha512-WBsWihphzM0Y8fmQVm89+iy99mmgejmj5/jcsYqwxSioLRL/zqJ4Scv/eXq5ZqvG3TpojlGzZLeaOaSvDm7fwA=="
+  "resolved" "https://registry.npmjs.org/chartjs-plugin-datalabels/-/chartjs-plugin-datalabels-2.0.0.tgz"
+  "version" "2.0.0"
+
+"chartjs-plugin-labels@^1.1.0":
+  "integrity" "sha512-ab1oiQT7oMnpYDn6h8biL7VZM0qIxtwfhQw1+qH7xe7Ia6lBKX/ks5rEhgI6CZ4PlRRgDFGK9Mf/T2SO9l+NCA=="
+  "resolved" "https://registry.npmjs.org/chartjs-plugin-labels/-/chartjs-plugin-labels-1.1.0.tgz"
+  "version" "1.1.0"
+
 "chokidar@^2.1.8":
   "integrity" "sha512-ZmZUazfOzf0Nve7duiCKD23PFSCs4JPoYyccjUFF3aQkQadqBhfzhjkwBH2mNOG9cTBwhamM37EIsIkZw3nRgg=="
   "resolved" "https://registry.npmjs.org/chokidar/-/chokidar-2.1.8.tgz"
@@ -2166,7 +2181,7 @@
   optionalDependencies:
     "fsevents" "~2.3.1"
 
-"chownr@^1.1.1":
+"chownr@^1.1.1", "chownr@^1.1.4":
   "integrity" "sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg=="
   "resolved" "https://registry.npmjs.org/chownr/-/chownr-1.1.4.tgz"
   "version" "1.1.4"
@@ -3227,7 +3242,7 @@
     "jsonfile" "^4.0.0"
     "universalify" "^0.1.0"
 
-"fs-minipass@^1.2.5":
+"fs-minipass@^1.2.7":
   "integrity" "sha512-GWSSJGFy4e9GUeCcbIkED+bgAoFyj7XF1mV8rma3QW4NIqX9Kyx79N/PF61H5udOV3aY1IaMLs6pGbH71nlCTA=="
   "resolved" "https://registry.npmjs.org/fs-minipass/-/fs-minipass-1.2.7.tgz"
   "version" "1.2.7"
@@ -3957,6 +3972,11 @@
   "resolved" "https://registry.npmjs.org/jsbn/-/jsbn-0.1.1.tgz"
   "version" "0.1.1"
 
+"jsencrypt@^3.2.1":
+  "integrity" "sha512-k1sD5QV0KPn+D8uG9AdGzTQuamt82QZ3A3l6f7TRwMU6Oi2Vg0BsL+wZIQBONcraO1pc78ExMdvmBBJ8WhNYUA=="
+  "resolved" "https://registry.npmjs.org/jsencrypt/-/jsencrypt-3.2.1.tgz"
+  "version" "3.2.1"
+
 "jsesc@^2.5.1":
   "integrity" "sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA=="
   "resolved" "https://registry.npmjs.org/jsesc/-/jsesc-2.5.2.tgz"
@@ -4373,7 +4393,7 @@
   "resolved" "https://registry.npmjs.org/minimist/-/minimist-1.2.5.tgz"
   "version" "1.2.5"
 
-"minipass@^2.6.0", "minipass@^2.8.6", "minipass@^2.9.0":
+"minipass@^2.6.0", "minipass@^2.9.0":
   "integrity" "sha512-wxfUjg9WebH+CUDX/CdbRlh5SmfZiy/hpkxaRI16Y9W56Pa75sWgd/rvFilSgrauD9NyFymP/+JFV3KwzIsJeg=="
   "resolved" "https://registry.npmjs.org/minipass/-/minipass-2.9.0.tgz"
   "version" "2.9.0"
@@ -4381,7 +4401,7 @@
     "safe-buffer" "^5.1.2"
     "yallist" "^3.0.0"
 
-"minizlib@^1.2.1":
+"minizlib@^1.3.3":
   "integrity" "sha512-6ZYMOEnmVsdCeTJVE0W9ZD+pVnE8h9Hma/iOwwRDsdQoePpoX56/8B6z3P9VNwppJuBKNRuFDRNRqRWexT9G9Q=="
   "resolved" "https://registry.npmjs.org/minizlib/-/minizlib-1.3.3.tgz"
   "version" "1.3.3"
@@ -4419,7 +4439,7 @@
   dependencies:
     "mkdirp" "*"
 
-"mkdirp@*", "mkdirp@^0.5.0", "mkdirp@^0.5.1", "mkdirp@^0.5.3":
+"mkdirp@*", "mkdirp@^0.5.1", "mkdirp@^0.5.3", "mkdirp@^0.5.5":
   "integrity" "sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ=="
   "resolved" "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.5.tgz"
   "version" "0.5.5"
@@ -5373,7 +5393,7 @@
   dependencies:
     "mri" "^1.1.0"
 
-"safe-buffer@^5.0.1", "safe-buffer@^5.1.0", "safe-buffer@^5.1.1", "safe-buffer@^5.1.2", "safe-buffer@^5.2.0":
+"safe-buffer@^5.0.1", "safe-buffer@^5.1.0", "safe-buffer@^5.1.1", "safe-buffer@^5.1.2", "safe-buffer@^5.2.0", "safe-buffer@^5.2.1":
   "integrity" "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ=="
   "resolved" "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz"
   "version" "5.2.1"
@@ -5832,12 +5852,24 @@
     "detect-indent" "^6.0.0"
     "strip-indent" "^3.0.0"
 
+"svelte-range-slider-pips@^2.0.0":
+  "integrity" "sha512-Gsjznv437zHD3HJtwJ4xODoFssLWiQZ0jGuNI6n3dw2rfiRPddW+0fT8ue0FKSwqCG4QTLKcXFsS01lhYjGOQw=="
+  "resolved" "https://registry.npmjs.org/svelte-range-slider-pips/-/svelte-range-slider-pips-2.0.0.tgz"
+  "version" "2.0.0"
+
 "svelte-routing@^1.6.0":
   "integrity" "sha512-+DbrSGttLA6lan7oWFz1MjyGabdn3tPRqn8Osyc471ut2UgCrzM5x1qViNMc2gahOP6fKbKK1aNtZMJEQP2vHQ=="
   "resolved" "https://registry.npmjs.org/svelte-routing/-/svelte-routing-1.6.0.tgz"
   "version" "1.6.0"
   dependencies:
     "svelte2tsx" "^0.1.157"
+
+"svelte-scrollto@^0.2.0":
+  "integrity" "sha512-l4K2E4jr6dXCODtZDCkpp/TzknVVoq8gecHM0UOOmihvLosczdyLuyDUhZ+U2HkhLWi7nnimuOstZSFKtXSpmA=="
+  "resolved" "https://registry.npmjs.org/svelte-scrollto/-/svelte-scrollto-0.2.0.tgz"
+  "version" "0.2.0"
+  dependencies:
+    "svelte" "3.x"
 
 "svelte-web3@^2.0.1":
   "integrity" "sha512-N2ZjBuCeKZmrdrF3JMAP5a004VcjQXAPHDOwb9MVmq+ENKNh4FUx0PWc+34Mjhol+ngV+NDcpktnswfhurtOwQ=="
@@ -5880,17 +5912,17 @@
   "version" "1.1.3"
 
 "tar@^4.0.2":
-  "integrity" "sha512-w2VwSrBoHa5BsSyH+KxEqeQBAllHhccyMFVHtGtdMpF4W7IRWfZjFiQceJPChOeTsSDVUpER2T8FA93pr0L+QA=="
-  "resolved" "https://registry.npmjs.org/tar/-/tar-4.4.13.tgz"
-  "version" "4.4.13"
+  "integrity" "sha512-a20gEsvHnWe0ygBY8JbxoM4w3SJdhc7ZAuxkLqh+nvNQN2IOt0B5lLgM490X5Hl8FF0dl0tOf2ewFYAlIFgzVA=="
+  "resolved" "https://registry.npmjs.org/tar/-/tar-4.4.19.tgz"
+  "version" "4.4.19"
   dependencies:
-    "chownr" "^1.1.1"
-    "fs-minipass" "^1.2.5"
-    "minipass" "^2.8.6"
-    "minizlib" "^1.2.1"
-    "mkdirp" "^0.5.0"
-    "safe-buffer" "^5.1.2"
-    "yallist" "^3.0.3"
+    "chownr" "^1.1.4"
+    "fs-minipass" "^1.2.7"
+    "minipass" "^2.9.0"
+    "minizlib" "^1.3.3"
+    "mkdirp" "^0.5.5"
+    "safe-buffer" "^5.2.1"
+    "yallist" "^3.1.1"
 
 "terser-webpack-plugin@^1.4.3":
   "integrity" "sha512-04Rfe496lN8EYruwi6oPQkG0vo8C+HT49X687FZnpPF0qMAIHONI6HEXYPKDOE8e5HjXTyKfqRd/agHtH0kOtw=="
@@ -6719,7 +6751,7 @@
   "resolved" "https://registry.npmjs.org/yaeti/-/yaeti-0.0.6.tgz"
   "version" "0.0.6"
 
-"yallist@^3.0.0", "yallist@^3.0.2", "yallist@^3.0.3":
+"yallist@^3.0.0", "yallist@^3.0.2", "yallist@^3.1.1":
   "integrity" "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="
   "resolved" "https://registry.npmjs.org/yallist/-/yallist-3.1.1.tgz"
   "version" "3.1.1"

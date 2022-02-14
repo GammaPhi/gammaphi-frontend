@@ -5,7 +5,7 @@
     // Misc
     import BN from 'bignumber.js'
     import { coinFlipInputValue, phiCurrencyApprovedBalance, phiCurrencyBalance, coinFlipApprovalTxStatus, coinFlipTxStatus, lamdenWalletInfo, lamden_vk, lwc, hasNetworkApproval, lamdenCurrencyBalance } from '../../../stores/lamdenStores.js';
-    import { sendCoinFlipApproval, sendCoinFlip } from '../../../js/lamden-utils.js'
+    import { sendHouseApproval, sendCoinFlip } from '../../../js/lamden-utils.js'
     import PhiTokenBalance from '../../PhiTokenBalance.svelte'
     import BNInputField from '../../Inputs/BNInputField.svelte'
     import CoinAnimation from './CoinAnimation.svelte'
@@ -61,7 +61,7 @@
         }
         if (BN($phiCurrencyApprovedBalance).comparedTo(BN($coinFlipInputValue)) === -1) {
             console.log("Requires approval");
-            sendCoinFlipApproval($coinFlipInputValue, coinFlipApprovalTxStatus, (txResults)=>{
+            sendHouseApproval($coinFlipInputValue, coinFlipApprovalTxStatus, (txResults)=>{
                 if ($coinFlipApprovalTxStatus.errors?.length > 0) {
                     status.set('error')
                     errors.set($coinFlipApprovalTxStatus.errors)

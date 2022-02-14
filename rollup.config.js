@@ -37,12 +37,12 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'public/build/bundle.js'
+		file: 'public/build/bundle.js',
 	},
 	plugins: [
 		json({
 			compact: true,
-		  }),
+		}),
 		svelte({
 			hydratable: true,
 			preprocess: sveltePreprocess({ sourceMap: !production }),

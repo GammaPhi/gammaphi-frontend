@@ -7,12 +7,92 @@ import { TransactionResultHandler } from './lamdenTxResultsHandler'
 export const LAMDEN_MOBILE_WALLET_URL = "https://lamdenwallet.com";
 
 
+export async function checkPokerContractState(variableName, keys, default_value) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let contract = lamdenNetworkInfo.games.poker.contractName;
+    if (get(lamden_vk)===null) {
+        return default_value;
+    }
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}/${keys.join(':')}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
+
+export async function checkMessageContractState(variableName, keys, default_value) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let contract = lamdenNetworkInfo.messenger.contractName;
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}/${keys.join(':')}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
+
+export async function checkBoardGameContractState(variableName, keys, default_value) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    let contract = lamdenNetworkInfo.games.board.contractName;
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}/${keys.join(':')}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
 
 export async function checkContractVariable(contract, variableName) {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${contract}/${variableName}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}`, {
                 method: 'GET',
             },
         )
@@ -26,7 +106,7 @@ export async function checkLotteryTotal() {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.lottery.contractName}/total`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.games.lottery.contractName}/total`, {
                 method: 'GET',
             },
         )
@@ -41,7 +121,7 @@ export async function getLotteryBalance() {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.games.lottery.contractName}/balances?key=${vk}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.games.lottery.contractName}/balances/${vk}`, {
                 method: 'GET',
             },
         )
@@ -56,7 +136,7 @@ export async function checkTokenBalance(token) {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}`, {
                 method: 'GET',
             },
         )
@@ -72,7 +152,7 @@ export async function checkTokenApprovedBalance(token, contract) {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}:${contractName}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.coins[token].contractName}/balances/${vk}:${contractName}`, {
                 method: 'GET',
             },
         )
@@ -86,7 +166,7 @@ export async function checkHousePHIBalance() {
     let lamdenNetworkInfo = get(lamdenNetwork)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.masterNodeLink}/contracts/${lamdenNetworkInfo.coins.phi.contractName}/balances?key=${lamdenNetworkInfo.games.coinFlip.contractName}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.coins.phi.contractName}/balances/${lamdenNetworkInfo.games.coinFlip.contractName}`, {
                 method: 'GET',
             },
         )
@@ -101,7 +181,7 @@ export async function checkLamdenBalance() {
     let vk = get(lamden_vk)
     try {
         const res = await fetch(
-            `${lamdenNetworkInfo.apiLink}/states/currency/balances/${vk}`, {
+            `${lamdenNetworkInfo.apiLink}/current/one/currency/balances/${vk}`, {
                 method: 'GET',
             },
         )
@@ -112,7 +192,7 @@ export async function checkLamdenBalance() {
     }
 }
 
-function sendTransaction(txInfo, resultsTracker, callback) {
+export function sendTransaction(txInfo, resultsTracker, callback) {
     let walletController = get(lwc)
     walletController.sendTransaction(
         txInfo, 
@@ -152,22 +232,6 @@ export function sendPhiPurchase (amount, round, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendCoinFlipApproval (amount, resultsTracker, callback){
-    let lamdenNetworkInfo = get(lamdenNetwork)
-
-    const txInfo = {
-        networkType: lamdenNetworkInfo.games.coinFlip.networkType,
-        contractName: lamdenNetworkInfo.coins.phi.contractName,
-        methodName: 'approve',
-        kwargs: {
-            amount: { __fixed__: amount.toString() },
-            to: lamdenNetworkInfo.games.coinFlip.contractName,
-        },
-        stampLimit: lamdenNetworkInfo.stamps.approval,
-    }
-
-    sendTransaction(txInfo, resultsTracker, callback)
-}
 
 export function sendCoinFlip (amount, odds, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
@@ -186,6 +250,219 @@ export function sendCoinFlip (amount, odds, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
+export function sendPokerTransaction (method, kwargs, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.poker.networkType,
+        contractName: lamdenNetworkInfo.games.poker.contractName,
+        methodName: method,
+        kwargs: kwargs,
+        stampLimit: lamdenNetworkInfo.stamps.poker,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendBoardGameTransaction (action, payload, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.games.board.networkType,
+        contractName: lamdenNetworkInfo.games.board.contractName,
+        methodName: 'interact',
+        kwargs: {
+            action: action,
+            payload: payload
+        },
+        stampLimit: lamdenNetworkInfo.stamps.board,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendProfileAction (action, payload, resultsTracker, callback) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.profile.networkType,
+        contractName: lamdenNetworkInfo.profile.contractName,
+        methodName: 'interact',
+        kwargs: {
+            action: action,
+            payload: payload
+        },
+        stampLimit: lamdenNetworkInfo.stamps.profile,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+
+export function sendDaoAction (action, payload, resultsTracker, callback) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.dao.networkType,
+        contractName: lamdenNetworkInfo.dao.contractName,
+        methodName: 'interact',
+        kwargs: {
+            function: action,
+            payload: payload
+        },
+        stampLimit: lamdenNetworkInfo.stamps[payload.function],
+    }
+    console.log("Sending action "+action);
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+
+export async function getSportsBettingContract() {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    return await checkContractState(
+        lamdenNetworkInfo.dao.contractName, 'actions', ['sports_betting'], 'con_sports_betting_v1'
+    )
+}
+
+
+export function sendTokenApproval (amount, tokenContract, contract, resultsTracker, callback) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    console.log('Amount: '+amount.toString())
+    console.log('Token Contract: '+tokenContract)
+    console.log('Contract: '+contract)
+    const txInfo = {
+        networkType: lamdenNetworkInfo.networkType,
+        contractName: tokenContract,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: contract,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+
+export function sendMessageTo (message, to, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.messenger.networkType,
+        contractName: lamdenNetworkInfo.messenger.contractName,
+        methodName: 'send_message',
+        kwargs: {
+            to: to,
+            message: message
+        },
+        stampLimit: lamdenNetworkInfo.stamps.messenger,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export async function getChannelUsers (channelName, default_value=null) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/channels/${channelName}:users`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
+
+export async function hydrateProfile (key, default_value=null) {
+    let vk = get(lamden_vk)
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/metadata/${vk}:${key}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
+
+
+export async function hydrateProfileForAddress(vk, key, default_value=null) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/metadata/${vk}:${key}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
+
+export async function getAddressForUsername(username, default_value=null) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        const res = await fetch(
+            `${lamdenNetworkInfo.apiLink}/current/one/${lamdenNetworkInfo.profile.contractName}/usernames/${username}`, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
 
 export function sendRedeemApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
@@ -218,22 +495,6 @@ export function sendRedeem (resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendDiceRollApproval (amount, resultsTracker, callback){
-    let lamdenNetworkInfo = get(lamdenNetwork)
-
-    const txInfo = {
-        networkType: lamdenNetworkInfo.games.diceRoll.networkType,
-        contractName: lamdenNetworkInfo.coins.phi.contractName,
-        methodName: 'approve',
-        kwargs: {
-            amount: { __fixed__: amount.toString() },
-            to: lamdenNetworkInfo.games.diceRoll.contractName,
-        },
-        stampLimit: lamdenNetworkInfo.stamps.approval,
-    }
-
-    sendTransaction(txInfo, resultsTracker, callback)
-}
 
 export function sendDiceRoll (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
@@ -284,18 +545,69 @@ export function sendLottery (amount, resultsTracker, callback){
     sendTransaction(txInfo, resultsTracker, callback)
 }
 
-export function sendWheelSpinApproval (amount, resultsTracker, callback){
+export function sendHouseApproval (amount, resultsTracker, callback){
     let lamdenNetworkInfo = get(lamdenNetwork)
 
     const txInfo = {
-        networkType: lamdenNetworkInfo.games.wheelSpin.networkType,
+        networkType: lamdenNetworkInfo.app.networkType,
         contractName: lamdenNetworkInfo.coins.phi.contractName,
         methodName: 'approve',
         kwargs: {
             amount: { __fixed__: amount.toString() },
-            to: lamdenNetworkInfo.games.wheelSpin.contractName,
+            to: lamdenNetworkInfo.app.contractName,
         },
         stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendPokerPHIApproval (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.app.networkType,
+        contractName: lamdenNetworkInfo.coins.phi.contractName,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: lamdenNetworkInfo.games.poker.contractName,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendBoardGameApproval (amount, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.app.networkType,
+        contractName: lamdenNetworkInfo.coins.phi.contractName,
+        methodName: 'approve',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: lamdenNetworkInfo.games.board.contractName,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.approval,
+    }
+
+    sendTransaction(txInfo, resultsTracker, callback)
+}
+
+export function sendPHI (amount, to, resultsTracker, callback){
+    let lamdenNetworkInfo = get(lamdenNetwork)
+
+    const txInfo = {
+        networkType: lamdenNetworkInfo.app.networkType,
+        contractName: lamdenNetworkInfo.coins.phi.contractName,
+        methodName: 'transfer',
+        kwargs: {
+            amount: { __fixed__: amount.toString() },
+            to: to,
+        },
+        stampLimit: lamdenNetworkInfo.stamps.transfer,
     }
 
     sendTransaction(txInfo, resultsTracker, callback)
@@ -348,4 +660,35 @@ function hasEnoughTauToSendTx(txName){
     let lamdenNetworkInfo = get(lamdenNetwork)
     let currencyBalance = get(lamdenCurrencyBalance)
     return currencyBalance.isGreaterThan(lamdenNetworkInfo.stamps[txName] / lamdenNetworkInfo.currentStampRatio)
+}
+
+
+/** Return state for smart contract */
+export async function checkContractState(contract, variableName, keys, default_value) {
+    let lamdenNetworkInfo = get(lamdenNetwork)
+    try {
+        let url = `${lamdenNetworkInfo.apiLink}/current/one/${contract}/${variableName}`;
+        if (keys.length > 0) {
+            url = `${url}/${keys.join(':')}`
+        }
+        const res = await fetch(
+            url, {
+                method: 'GET',
+            },
+        )
+        if (res.status === 200) {
+            let json = await res.json()
+            let value = json.value
+            if (value) {
+                if (value.__fixed__) return new BN(value.__fixed__)
+                else return value
+            } else {
+                return default_value
+            }
+        } else {
+            return default_value
+        }
+    } catch (error) {
+        return default_value;
+    }
 }

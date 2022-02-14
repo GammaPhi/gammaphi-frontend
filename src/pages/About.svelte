@@ -76,7 +76,7 @@ import { navigateLink, page } from '../js/navigation-utils'
     </h2>
     
     <p>
-        Gamma Phi is a suite of fair gambling games built on the Lamden blockchain.
+        Gamma Phi is a suite of fair games built on the Lamden blockchain.
     </p>
 
     <p>
@@ -256,6 +256,20 @@ import { navigateLink, page } from '../js/navigation-utils'
                     <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/core/con_gamma_phi_house_v2.py" target="_blank">con_gamma_phi_house_v1</a>
                     <br /> <br />
                     The contract where the House PHI is stored, and where the majority of game logic lives.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/core/con_poker_card_games_v4.py" target="_blank">con_poker_card_games_v4</a>
+                    <br /> <br />
+                    The contract to play and manage poker games.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="https://github.com/GammaPhi/gammaphi-contracts/blob/master/core/con_game_manager_v1.py" target="_blank">con_game_manager_v1</a>
+                    <br /> <br />
+                    The contract to play and manage board games.
                 </td>
             </tr>
             <tr>

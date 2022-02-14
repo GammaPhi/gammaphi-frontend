@@ -3,7 +3,7 @@ import BN from 'bignumber.js'
 import { onMount, getContext } from 'svelte';
 import { writable, derived, get } from "svelte/store";
 import BnInputField from '../components/Inputs/BNInputField.svelte';
-import { sendCoinFlipApproval } from '../js/lamden-utils';
+import { sendHouseApproval } from '../js/lamden-utils';
 import { phiCurrencyBalance, lamdenCurrencyBalance, phiCurrencyApprovedBalance } from '../stores/lamdenStores';
 
 let startingValue = BN('1000')
@@ -25,7 +25,7 @@ function approve() {
         status.set('ready')
         return
     } 
-    sendCoinFlipApproval($approvalInputValue, approvalTxStatus, (txResults)=>{
+    sendHouseApproval($approvalInputValue, approvalTxStatus, (txResults)=>{
         if ($approvalTxStatus.errors?.length > 0) {
             status.set('error')
             errors.set($approvalTxStatus.errors)
