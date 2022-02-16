@@ -4,12 +4,45 @@ import { derived, writable } from "svelte/store";
 import { checkContractState } from "../../../js/lamden-utils";
 import { listGames, SPORTS_METADATA } from "../../../js/sports-betting-provider";
 import Button from "../../Button.svelte";
-import DatePicker from "../../Dates/DatePicker.svelte";
+import { Datepicker } from 'svelte-calendar';
 import Link from "../../Link.svelte";
 import GamePage from "./GamePage.svelte";
+import dayjs from 'dayjs';
 
 export let sport, goBack;
 
+let theme = {
+  "calendar": {
+    "width": "280px",
+    "maxWidth": "100vw",
+    "legend": {
+      "height": "45px"
+    },
+    "shadow": "0px 10px 26px rgba(0, 0, 0, 0.25)",
+    "colors": {
+      "text": {
+        "primary": "#eee",
+        "highlight": "#fff"
+      },
+      "background": {
+        "primary": "#333",
+        "highlight": "#5829d6",
+        "hover": "#222"
+      },
+      "border": "#222"
+    },
+    "font": {
+      "regular": "0.8em",
+      "large": "5em"
+    },
+    "grid": {
+      "disabledOpacity": ".5",
+      "outsiderOpacity": ".7"
+    }
+  }
+}
+
+let store;
 const selectedDate = writable(new Date());
 const selectedGame = writable(null);
 const loading = writable(false);
@@ -27,8 +60,7 @@ const games = derived([selectedDate], ([$selectedDate], set) => {
     if ($selectedDate !== null) {
         filters['date'] = $selectedDate.toISOString().substring(0, 10)
     } else {
-        let date = new Date();
-        filters['date'] = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`
+        filters['date'] = dayjs(new Date()).format('YYYY-mm-dd')
     }
     loading.set(true);
 
@@ -84,13 +116,15 @@ const formatAwayScore = (event) => {
 
     <br /><br /><br />
 
-    <DatePicker
-    on:datechange={(d)=>selectedDate.set(d.detail)}
-    selected={$selectedDate}
-    isAllowed={date => {
-        return true;
-    }} />
-
+    <Datepicker {theme} selected={new Date()} bind:store let:key let:send let:receive>
+        <button in:receive|local={{ key }} out:send|local={{ key }}>
+            {#if $store?.hasChosen}
+                {(()=>{ selectedDate.set($store.selected); return dayjs($store.selected).format('ddd MMM D, YYYY')})()}
+            {:else}
+                {dayjs(new Date()).format('ddd MMM D, YYYY')}
+            {/if}
+        </button>
+    </Datepicker>
 
     {#if sport.length === 0}
         <h2>All Events</h2>
