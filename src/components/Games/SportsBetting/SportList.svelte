@@ -4,6 +4,7 @@ import { writable } from 'svelte/store';
 
 import { SPORTS_METADATA } from '../../../js/sports-betting-provider'
 import Button from '../../Button.svelte';
+import DatePicker from '../../Dates/DatePicker.svelte';
 import Link from '../../Link.svelte';
 import GameList from './GameList.svelte';
 
@@ -24,10 +25,15 @@ const selectedSport = writable(null);
     
 </style>
 
+
 {#if $selectedSport === null}
-    <Link onClick={()=>selectedSport.set('')}>See All Events</Link>
+
+    <div class="sport-card">
+        <h3>All Events</h3>
+        <Link onClick={()=>selectedSport.set('')}>See Events</Link>
+    </div>
     <br />
-    <h2>Available Sports</h2>
+
     {#each SPORTS_METADATA.sports as sport}
 
     <div class="sport-card">

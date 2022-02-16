@@ -4,24 +4,17 @@ import { derived, writable } from "svelte/store";
 import { checkContractState } from "../../../js/lamden-utils";
 import { listGames, SPORTS_METADATA } from "../../../js/sports-betting-provider";
 import Button from "../../Button.svelte";
+import DatePicker from "../../Dates/DatePicker.svelte";
 import Link from "../../Link.svelte";
 import GamePage from "./GamePage.svelte";
 
 export let sport, goBack;
 
-const getSecondsSinceEpoch = (date) => {
-    return Math.round(date.getTime() / 1000)
-}
-
-const filters = writable({});
-const startTimestamp = writable(getSecondsSinceEpoch(new Date()));
-const endTimestamp = writable(null);
+const selectedDate = writable(new Date());
 const selectedGame = writable(null);
-const games = writable([]);
 const loading = writable(false);
 
-onMount(()=>{
-    loading.set(true);
+const games = derived([selectedDate], ([$selectedDate], set) => {
     const filters = {}
     if (sport.length !== 0) {
         filters['sport'] = sport;
@@ -31,22 +24,46 @@ onMount(()=>{
             '$in': Object.keys(SPORTS_METADATA.subCategories[sport])
         }
     }
-    if ($startTimestamp !== null) {
-        filters['timestamp'] = {'$gte': $startTimestamp}
+    if ($selectedDate !== null) {
+        filters['date'] = $selectedDate.toISOString().substring(0, 10)
+    } else {
+        let date = new Date();
+        filters['date'] = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`
     }
-    if ($endTimestamp !== null) {
-        filters['timestamp'] = {'$lt': $endTimestamp}
-    }
+    loading.set(true);
+
     console.log("Using filters: ");
     console.log(filters);
     listGames(filters).then(results=>{
         console.log('Results:');
         console.log(results)
         results.sort((a, b) => a.timestamp - b.timestamp);
-        games.set(results);
+        set(results);
         loading.set(false);
     });    
 })
+
+const formatTime = (timestamp) => {
+    return new Date(timestamp * 1000).toLocaleTimeString();
+}
+
+const formatHomeScore = (event) => {
+    let results = event.results;
+    if (event.sport === 'tennis') {
+        return `${results.home_sets_won} Sets`
+    } else {
+        return `${results.home_score}`
+    }
+}
+
+const formatAwayScore = (event) => {
+    let results = event.results;
+    if (event.sport === 'tennis') {
+        return `${results.away_sets_won} Sets`
+    } else {
+        return `${results.away_score}`
+    }
+}
 
 </script>
 
@@ -64,6 +81,16 @@ onMount(()=>{
 
 {#if $selectedGame === null}
     <Link onClick={()=>goBack()}>Back to Sport List</Link>
+
+    <br /><br /><br />
+
+    <DatePicker
+    on:datechange={(d)=>selectedDate.set(d.detail)}
+    selected={$selectedDate}
+    isAllowed={date => {
+        return true;
+    }} />
+
 
     {#if sport.length === 0}
         <h2>All Events</h2>
@@ -84,9 +111,16 @@ onMount(()=>{
                             <h4>{SPORTS_METADATA.displayNames[game.sport.startsWith('soccer') ? 'soccer':game.sport]}</h4>
                         {/if}
                         <p>{game.date.substring(0, 10)}</p>
-                        <p>Away: {game.away_team}</p>
-                        <p>Home: {game.home_team}</p>
-                        <Link onClick={()=>selectedGame.set(game)}>Check Wagers</Link>
+                        {#if typeof game.winner_index !== 'undefined' && game.winner_index !== null}
+                            <p>Away: {game.away_team} - {formatAwayScore(game)}</p>
+                            <p>Home: {game.home_team} - {formatHomeScore(game)}</p>
+                            <p>Time: {formatTime(game.timestamp)}</p>
+                        {:else}
+                            <p>Away: {game.away_team}</p>
+                            <p>Home: {game.home_team}</p>
+                            <p>Time: {formatTime(game.timestamp)}</p>
+                           <Link onClick={()=>selectedGame.set(game)}>Check Wagers</Link>
+                        {/if}
                     </div>
                     <br />
                 {/each}
