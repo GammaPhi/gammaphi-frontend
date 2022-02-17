@@ -16,7 +16,7 @@ import { lamden_vk } from "../../../stores/lamdenStores";
 import forge from 'forge';
 
 
-export let game, goBack, startingValue = BN(10000);
+export let game, goBack, startingValue = BN(100);
 
 const spreads = writable([]);
 const totals = writable([]);
@@ -51,13 +51,8 @@ const eventHash = derived([selectedWager], ([$selectedWager]) => {
     const wagerType = $selectedWager.name;
     const wagerOptions = $selectedWager.options;
     const toHash = [
-        game.sport, game.away_team, game.home_team, game.date, wagerType
+        game.sport, game.away_team, game.home_team, game.date, wagerType, wagerOptions.length.toString()
     ];
-
-    for (let i = 0; i < wagerOptions.length; i++) {
-        toHash.push(wagerOptions[i])
-    }
-
     if (wagerType === 'spread') {
         toHash.push($selectedWager.spreadStr)
     } else if (wagerType === 'total') {
@@ -153,7 +148,7 @@ const placeBet = async () => {
     placeBetErrors.set([]);
     function placeBetHelper(event_id) {
         console.log("placeBetHelper")
-        sendTokenApproval(BN($placeBetInputValue), "con_phi_lst001", contract, placeBetHandler, (txResults)=>{
+        sendTokenApproval(BN($placeBetInputValue), "currency", contract, placeBetHandler, (txResults)=>{
             console.log("sendTokenApproval")
             if ($placeBetHandler.errors?.length > 0) {
                 placeBetInProgress.set(false);
@@ -183,7 +178,6 @@ const placeBet = async () => {
                 });
             }
         });
-
     }
     let event_id = $eventId;
     if (event_id === null) {
@@ -193,24 +187,23 @@ const placeBet = async () => {
             name: $selectedWager.name,
             options: $selectedWager.options,        
         }
-        if (wager.name === 'spread') {
-            wager.spread = $selectedWager.spread
-        } else if (wager.name === 'total') {
-            wager.total = $selectedWager.total
-        }
         let addEventKwargs = {
             function: 'add_event',
             kwargs: {
-                metadata: {
-                    away_team: game.away_team,
-                    home_team: game.home_team,
-                    date: game.date,
-                    timestamp: game.timestamp,
-                    sport: game.sport,
-                },
+                away_team: game.away_team,
+                home_team: game.home_team,
+                date: game.date,
                 timestamp: game.timestamp,
-                wager: wager
+                sport: game.sport,
+                timestamp: game.timestamp,
+                wager_name: wager.name,
+                num_wager_options: wager.options.length
             }
+        }
+        if (wager.name === 'spread') {
+            addEventKwargs.kwargs.spread = $selectedWager.spread
+        } else if (wager.name === 'total') {
+            addEventKwargs.kwargs.total = $selectedWager.total
         }
         console.log("addEvent")
         console.log(addEventKwargs)
@@ -222,9 +215,9 @@ const placeBet = async () => {
             } else {
                 console.log("Success");
                 console.log(txResults);
-                event_id = parseInt(txResults.resultInfo.returnResult, 10);
+                event_id = parseInt(JSON.parse(txResults.resultInfo.returnResult), 10);
                 console.log("Event id: "+event_id)
-                eventId.set(event_id)
+                selectedWager.set($selectedWager)
                 placeBetHelper(event_id);
             }
         });
@@ -379,7 +372,7 @@ const placeBet = async () => {
             startingValue={startingValue}
             inputClass="primaryInput"
             labelClass="label"
-            labelText="Your PHI Wager"
+            labelText="Your TAU Wager"
         />
         <br />
         {#if $placeBetErrors.length > 0}

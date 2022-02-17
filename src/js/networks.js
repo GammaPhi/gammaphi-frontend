@@ -52,7 +52,10 @@ export const mainnet = {
         },
         dao: {
             networkType: "mainnet",
-            contractName: "con_gamma_phi_dao"
+            contractName: "con_gamma_phi_dao_v1",
+            actions: {
+                sports_betting: "con_sports_betting_event_action_v3"
+            }
         },
         profile: {
             networkType: "mainnet",

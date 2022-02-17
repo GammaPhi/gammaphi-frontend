@@ -307,7 +307,7 @@ export function sendDaoAction (action, payload, resultsTracker, callback) {
         contractName: lamdenNetworkInfo.dao.contractName,
         methodName: 'interact',
         kwargs: {
-            function: action,
+            action: action,
             payload: payload
         },
         stampLimit: lamdenNetworkInfo.stamps[payload.function],
@@ -320,7 +320,7 @@ export function sendDaoAction (action, payload, resultsTracker, callback) {
 export async function getSportsBettingContract() {
     let lamdenNetworkInfo = get(lamdenNetwork)
     return await checkContractState(
-        lamdenNetworkInfo.dao.contractName, 'actions', ['sports_betting'], 'con_sports_betting_v1'
+        lamdenNetworkInfo.dao.contractName, 'actions', ['sports_betting'], lamdenNetworkInfo.dao.actions.sports_betting
     )
 }
 
@@ -633,6 +633,8 @@ function handleTxResults(txResults, resultsTracker, callback){
     if (!txResults.data) 
         resultsTracker.set({loading:false, errors: ["Transaction result unavailable."]})
     else {
+        console.log('raw transaction')
+        console.log(txResults)
         txResults = txResults.data
         let lamdenTxResultsHandler = TransactionResultHandler()
         lamdenTxResultsHandler.parseTxResult(txResults, resultsTracker, callback)

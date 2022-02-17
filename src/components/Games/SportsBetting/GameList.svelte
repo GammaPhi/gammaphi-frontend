@@ -43,7 +43,9 @@ let theme = {
 }
 
 let store;
-const selectedDate = writable(new Date());
+const today = new Date();
+console.log("Today: "+today.toISOString());
+const selectedDate = writable(today);
 const selectedGame = writable(null);
 const loading = writable(false);
 
@@ -57,11 +59,8 @@ const games = derived([selectedDate], ([$selectedDate], set) => {
             '$in': Object.keys(SPORTS_METADATA.subCategories[sport])
         }
     }
-    if ($selectedDate !== null) {
-        filters['date'] = $selectedDate.toISOString().substring(0, 10)
-    } else {
-        filters['date'] = dayjs(new Date()).format('YYYY-mm-dd')
-    }
+    
+    filters['date'] = dayjs($selectedDate).format('YYYY-MM-DD')
     loading.set(true);
 
     console.log("Using filters: ");
