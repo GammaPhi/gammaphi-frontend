@@ -8,6 +8,9 @@ import { Datepicker } from 'svelte-calendar';
 import Link from "../../Link.svelte";
 import GamePage from "./GamePage.svelte";
 import dayjs from 'dayjs';
+import { formatTime } from "../../../js/sports-betting-provider";
+import { formatHomeScore } from "../../../js/sports-betting-provider";
+import { formatAwayScore } from "../../../js/sports-betting-provider";
 
 export let sport, goBack;
 
@@ -73,28 +76,6 @@ const games = derived([selectedDate], ([$selectedDate], set) => {
         loading.set(false);
     });    
 })
-
-const formatTime = (timestamp) => {
-    return new Date(timestamp * 1000).toLocaleTimeString();
-}
-
-const formatHomeScore = (event) => {
-    let results = event.results;
-    if (event.sport === 'tennis') {
-        return `${results.home_sets_won} Sets`
-    } else {
-        return `${results.home_score}`
-    }
-}
-
-const formatAwayScore = (event) => {
-    let results = event.results;
-    if (event.sport === 'tennis') {
-        return `${results.away_sets_won} Sets`
-    } else {
-        return `${results.away_score}`
-    }
-}
 
 </script>
 

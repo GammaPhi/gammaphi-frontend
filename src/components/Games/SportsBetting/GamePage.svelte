@@ -14,6 +14,7 @@ import Tab from "../../Tabs/Tab.svelte";
 import TabPanel from "../../Tabs/TabPanel.svelte";
 import { lamden_vk } from "../../../stores/lamdenStores";
 import forge from 'forge';
+import { getWagerDescription } from "../../../js/sports-betting-provider";
 
 
 export let game, goBack, startingValue = BN(100);
@@ -68,10 +69,12 @@ const eventHash = derived([selectedWager], ([$selectedWager]) => {
 
 const eventId = derived([eventHash, contractName], ([$eventHash, $contractName], set) => {
     if ($contractName === null) {
-        return null;
+        set(null);
+        return
     }
     if ($eventHash === null) {
-        return null;
+        set(null);
+        return
     }
     checkContractState($contractName, 'events', [$eventHash], null).then(w=>{
         set(w);
@@ -81,7 +84,8 @@ const eventId = derived([eventHash, contractName], ([$eventHash, $contractName],
 
 const priceInfo = derived([eventId], ([$eventId], set) => {
     if ($eventId === null) {
-        return null;
+        set(null);
+        return
     }
     console.log("Event id: "+$eventId);
     const pInfo = {};
@@ -103,37 +107,6 @@ const priceInfo = derived([eventId], ([$eventId], set) => {
         })
     })
 })
-
-
-const getWagerDescription = (wager) => {
-    let description = '';
-    if (wager.name === 'moneyline') {
-        if (wager.option_id === 0) {
-            description = `${game.away_team} wins`
-        } else if (wager.option_id === 1) {
-            description = `${game.home_team} wins`
-        } else if (wager.option_id === 2) {
-            description = 'Draw'
-        }
-
-    } else if (wager.name === 'spread') {
-        if (wager.option_id === 0) {
-            description = `${game.away_team} beats ${wager.spread} spread`
-
-        } else if (wager.option_id === 1) {
-            description = `${game.home_team} beats ${-wager.spread} spread`
-        }
-
-    } else if (wager.name === 'total') {
-        if (wager.option_id === 0) {
-            description = `Over ${wager.total}`
-        } else if (wager.option_id === 1) {
-            description = `Under ${wager.total}`
-        }
-    }
-    return description;
-};
-
 
 const placeBetHandler = writable({});
 const placeBetErrors = writable([]);
@@ -354,7 +327,7 @@ const placeBet = async () => {
 
     <h2>Place Bet</h2>
 
-    <p>{getWagerDescription($selectedWager)}</p>
+    <p>{getWagerDescription(game, $selectedWager)}</p>
 
     {#if $priceInfo !== null}
         {#if $priceInfo.hasOwnProperty('odds')}

@@ -2,6 +2,61 @@
 const DEFAULT_PROVIDER_URL = "https://bet.gammaphi.io"
 
 
+export const formatTime = (timestamp) => {
+    return new Date(timestamp * 1000).toLocaleTimeString();
+}
+
+
+export const formatHomeScore = (event) => {
+    let results = event.results;
+    if (event.sport === 'tennis') {
+        return `${results.home_sets_won} Sets`
+    } else {
+        return `${results.home_score}`
+    }
+}
+
+
+export const formatAwayScore = (event) => {
+    let results = event.results;
+    if (event.sport === 'tennis') {
+        return `${results.away_sets_won} Sets`
+    } else {
+        return `${results.away_score}`
+    }
+}
+
+
+export const getWagerDescription = (game, wager) => {
+    let description = '';
+    if (wager.name === 'moneyline') {
+        if (wager.option_id === 0) {
+            description = `${game.away_team} wins`
+        } else if (wager.option_id === 1) {
+            description = `${game.home_team} wins`
+        } else if (wager.option_id === 2) {
+            description = 'Draw'
+        }
+
+    } else if (wager.name === 'spread') {
+        if (wager.option_id === 0) {
+            description = `${game.away_team} beats ${wager.spread} spread`
+
+        } else if (wager.option_id === 1) {
+            description = `${game.home_team} beats ${-wager.spread} spread`
+        }
+
+    } else if (wager.name === 'total') {
+        if (wager.option_id === 0) {
+            description = `Over ${wager.total}`
+        } else if (wager.option_id === 1) {
+            description = `Under ${wager.total}`
+        }
+    }
+    return description;
+};
+
+
 export const SPORTS_METADATA = {
     sports: [
         'boxing',
