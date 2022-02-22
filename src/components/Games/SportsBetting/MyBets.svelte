@@ -3,7 +3,7 @@ import { onMount } from "svelte";
 
 import { derived, writable } from "svelte/store";
 import { checkContractState, getSportsBettingContract } from "../../../js/lamden-utils";
-import { formatAwayScore, formatHomeScore, formatTime, getWagerDescription } from "../../../js/sports-betting-provider";
+import { formatAwayScore, formatDate, formatHomeScore, formatTime, getWagerDescription } from "../../../js/sports-betting-provider";
 import { lamden_vk } from "../../../stores/lamdenStores";
 import Button from "../../Button.svelte";
 import Link from "../../Link.svelte";
@@ -49,26 +49,83 @@ const bets = derived([lamden_vk, numBets, contractName], ([$lamden_vk, $numBets,
     const promises = []
     for (let i = $numBets-1; i >= 0; i--) {
         promises.push(new Promise((resolve, reject) => {
-            checkContractState($contractName, 'bets', [$lamden_vk, 'bet', i], null).then((bet)=>{
-                if (bet !== null) {
-                    const eventId = bet.event_id;
-                    checkContractState($contractName, 'events', [eventId, 'metadata'], null).then(metadata=>{
-                        if (metadata !== null) {
-                            bet = {...bet, ...metadata}
-                            checkContractState($contractName, 'events', [eventId, 'wager'], null).then(wager=>{
-                                if (wager !== null) {
-                                    bet = {...bet, ...wager}
-                                    checkContractState($contractName, 'events', [eventId, 'winning_option_id'], null).then(winningOptionId=>{
-                                        bet.winningOptionId = winningOptionId
-                                        resolve(bet)
-                                    })
-                                } else {
-                                    resolve(bet)
-                                }
-                            })
-                        } else {
-                            resolve(bet)
+            checkContractState($contractName, 'bets', [$lamden_vk, 'bet', i, 'event_id'], null).then((event_id)=>{
+                if (event_id !== null) {
+                    let bet = {
+                        event_id: event_id
+                    };
+                    checkContractState($contractName, 'bets', [$lamden_vk, 'bet', i, 'option_id'], null).then((option_id)=>{
+                        bet = {
+                            option_id: option_id,
+                            ...bet
                         }
+                        checkContractState($contractName, 'bets', [$lamden_vk, 'bet', i, 'amount'], null).then((amount)=>{
+                            bet = {
+                                amount: amount,
+                                ...bet
+                            }
+                            checkContractState($contractName, 'events', [event_id, 'metadata', 'away_team'], null).then(away_team=>{
+                                bet = {
+                                    away_team: away_team,
+                                    ...bet
+                                }
+                                checkContractState($contractName, 'events', [event_id, 'metadata', 'home_team'], null).then(home_team=>{
+                                    bet = {
+                                        home_team: home_team,
+                                        ...bet
+                                    }
+                                    checkContractState($contractName, 'events', [event_id, 'metadata', 'sport'], null).then(sport=>{
+                                        bet = {
+                                            sport: sport,
+                                            ...bet
+                                        }
+                                        checkContractState($contractName, 'events', [event_id, 'metadata', 'date'], null).then(date=>{
+                                            bet = {
+                                                date: date,
+                                                ...bet
+                                            }
+                                            checkContractState($contractName, 'events', [event_id, 'metadata', 'timestamp'], null).then(timestamp=>{
+                                                bet = {
+                                                    timestamp: timestamp,
+                                                    ...bet
+                                                }
+                                                checkContractState($contractName, 'events', [event_id, 'wager', 'name'], null).then(name=>{
+                                                    bet = {
+                                                        name: name,
+                                                        ...bet
+                                                    }
+                                                    checkContractState($contractName, 'events', [event_id, 'wager', 'num_options'], null).then(num_options=>{
+                                                        bet = {
+                                                            num_options: num_options,
+                                                            ...bet
+                                                        }
+                                                        checkContractState($contractName, 'events', [event_id, 'total', 'num_options'], null).then(total=>{
+                                                            bet = {
+                                                                total: total,
+                                                                ...bet
+                                                            }
+                                                            checkContractState($contractName, 'events', [event_id, 'wager', 'spread'], null).then(spread=>{
+                                                                bet = {
+                                                                    spread: spread,
+                                                                    ...bet
+                                                                }
+                                                                checkContractState($contractName, 'events', [event_id, 'winning_option_id'], null).then(winning_option_id=>{
+                                                                    bet = {
+                                                                        winning_option_id: winning_option_id,
+                                                                        ...bet
+                                                                    }
+                                                                    resolve(bet)
+                                                                })
+                                                            })
+                                                        })
+                                                    })
+                                                })
+                                            })
+                                        })
+                                    })
+                                })
+                            })
+                        })
                     })
                 } else {
                     resolve(null)
@@ -117,15 +174,13 @@ const showDisputeToggle = writable(null);
 
 </script>
 
-<h2>My Bets</h2>
-
 {#each $bets as bet}
 
-    <p>{bet.date.substring(0, 10)}</p>
+    <p>Local Date: {formatDate(bet.timestamp)}</p>
+    <p>Local Time: {formatTime(bet.timestamp)}</p>
     {#if typeof bet.winningOptionId !== 'undefined' && bet.winningOptionId !== null}
         <p>Away: {bet.away_team} - {formatAwayScore(bet)}</p>
         <p>Home: {bet.home_team} - {formatHomeScore(bet)}</p>
-        <p>Time: {formatTime(bet.timestamp)}</p>
         <br />
         {#if $claimBetErrors.length > 0}
             <br />
@@ -162,11 +217,9 @@ const showDisputeToggle = writable(null);
                 {/if}
             {/if}
         {/if}
-
     {:else}
         <p>Away: {bet.away_team}</p>
         <p>Home: {bet.home_team}</p>
-        <p>Time: {formatTime(bet.timestamp)}</p>
     {/if}
     <p>{getWagerDescription(bet, bet)}</p>
     <p>Amount: {bet.amount}</p>

@@ -2,7 +2,7 @@
 import { onMount } from "svelte";
 import { derived, writable } from "svelte/store";
 import { checkContractState } from "../../../js/lamden-utils";
-import { listGames, SPORTS_METADATA } from "../../../js/sports-betting-provider";
+import { formatDate, formatDateTime, listGames, SPORTS_METADATA } from "../../../js/sports-betting-provider";
 import Button from "../../Button.svelte";
 import { Datepicker } from 'svelte-calendar';
 import Link from "../../Link.svelte";
@@ -124,16 +124,21 @@ const games = derived([selectedDate], ([$selectedDate], set) => {
                         {#if sport.length === 0}
                             <h4>{SPORTS_METADATA.displayNames[game.sport.startsWith('soccer') ? 'soccer':game.sport]}</h4>
                         {/if}
-                        <p>{game.date.substring(0, 10)}</p>
                         {#if typeof game.winner_index !== 'undefined' && game.winner_index !== null}
                             <p>Away: {game.away_team} - {formatAwayScore(game)}</p>
                             <p>Home: {game.home_team} - {formatHomeScore(game)}</p>
-                            <p>Time: {formatTime(game.timestamp)}</p>
+                            <p>Local Date: {formatDate(game.timestamp)}</p>
+                            <p>Local Time: {formatTime(game.timestamp)}</p>
                         {:else}
                             <p>Away: {game.away_team}</p>
                             <p>Home: {game.home_team}</p>
-                            <p>Time: {formatTime(game.timestamp)}</p>
-                           <Link onClick={()=>selectedGame.set(game)}>Check Wagers</Link>
+                            <p>Local Date: {formatDate(game.timestamp)}</p>
+                            <p>Local Time: {formatTime(game.timestamp)}</p>
+                            {#if game.timestamp > Math.round(Date.now() / 1000)}
+                               <Link onClick={()=>selectedGame.set(game)}>Check Wagers</Link>
+                            {:else}
+                                <p>Game Result Not Yet Recorded.</p>
+                            {/if}
                         {/if}
                     </div>
                     <br />

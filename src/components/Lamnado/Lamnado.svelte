@@ -10,6 +10,8 @@ import Withdraw from './Withdraw.svelte'
 <style>
     
 </style>
+
+<h2>(Work In Progress)</h2>
 <div class="buttons" align="middle">
     <Tabs initialSelectedTabIndex={0}>
         <TabList>

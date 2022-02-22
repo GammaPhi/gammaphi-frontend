@@ -22,10 +22,13 @@ const selectedSport = writable(null);
         vertical-align: middle;
         margin-top: auto;
         margin-bottom: auto;
-        padding-bottom: 2em;
         border-radius: 5px;    
+        cursor: pointer;
     }
     
+    .sport-card:hover {
+        border: 2px solid var(--accent-color);
+    }
 </style>
 
 
@@ -38,17 +41,15 @@ const selectedSport = writable(null);
         <br /><br />
         {#if $selectedSport === null}
 
-            <div class="sport-card">
-                <h3>All Events</h3>
-                <Link onClick={()=>selectedSport.set('')}>See Events</Link>
+            <div on:click={()=>selectedSport.set('')} class="sport-card">
+                <Link onClick={()=>{}}>All Events</Link>
             </div>
             <br />
         
             {#each SPORTS_METADATA.sports as sport}
         
-            <div class="sport-card">
-                <h3>{SPORTS_METADATA.displayNames[sport]}</h3>
-                <Link onClick={()=>selectedSport.set(sport)}>See Events</Link>
+            <div on:click={()=>selectedSport.set(sport)} class="sport-card">
+                <Link onClick={()=>{}}>{SPORTS_METADATA.displayNames[sport]}</Link>
             </div>
             <br />
             {/each}

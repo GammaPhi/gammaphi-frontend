@@ -6,6 +6,13 @@ export const formatTime = (timestamp) => {
     return new Date(timestamp * 1000).toLocaleTimeString();
 }
 
+export const formatDateTime = (timestamp) => {
+    return new Date(timestamp * 1000).toLocaleString();
+}
+
+export const formatDate = (timestamp) => {
+    return new Date(timestamp * 1000).toLocaleDateString();    
+}
 
 export const formatHomeScore = (event) => {
     let results = event.results;
