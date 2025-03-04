@@ -10,6 +10,7 @@ import Link from "../../Link.svelte";
 import Errors from "../Poker/Errors.svelte";
 import CreateDisputeForm from "./CreateDisputeForm.svelte";
 import Dispute from "./Dispute.svelte";
+import BN from 'bignumber.js'
 
 
 const contractName = writable(null);
@@ -64,57 +65,75 @@ const bets = derived([lamden_vk, numBets, contractName], ([$lamden_vk, $numBets,
                                 amount: amount,
                                 ...bet
                             }
-                            checkContractState($contractName, 'events', [event_id, 'metadata', 'away_team'], null).then(away_team=>{
+                            checkContractState($contractName, 'bets', [event_id], null).then(amount=>{
                                 bet = {
-                                    away_team: away_team,
+                                    total_amount_in_event: amount,
                                     ...bet
                                 }
-                                checkContractState($contractName, 'events', [event_id, 'metadata', 'home_team'], null).then(home_team=>{
+                                checkContractState($contractName, 'bets', [event_id, option_id], null).then(amount=>{
                                     bet = {
-                                        home_team: home_team,
+                                        total_amount_in_option: amount,
                                         ...bet
                                     }
-                                    checkContractState($contractName, 'events', [event_id, 'metadata', 'sport'], null).then(sport=>{
+                                    checkContractState($contractName, 'bets', [event_id, option_id, $lamden_vk], null).then(amount=>{
                                         bet = {
-                                            sport: sport,
+                                            amount_in_option: amount,
                                             ...bet
                                         }
-                                        checkContractState($contractName, 'events', [event_id, 'metadata', 'date'], null).then(date=>{
+                                        checkContractState($contractName, 'events', [event_id, 'metadata', 'away_team'], null).then(away_team=>{
                                             bet = {
-                                                date: date,
+                                                away_team: away_team,
                                                 ...bet
                                             }
-                                            checkContractState($contractName, 'events', [event_id, 'metadata', 'timestamp'], null).then(timestamp=>{
+                                            checkContractState($contractName, 'events', [event_id, 'metadata', 'home_team'], null).then(home_team=>{
                                                 bet = {
-                                                    timestamp: timestamp,
+                                                    home_team: home_team,
                                                     ...bet
                                                 }
-                                                checkContractState($contractName, 'events', [event_id, 'wager', 'name'], null).then(name=>{
+                                                checkContractState($contractName, 'events', [event_id, 'metadata', 'sport'], null).then(sport=>{
                                                     bet = {
-                                                        name: name,
+                                                        sport: sport,
                                                         ...bet
                                                     }
-                                                    checkContractState($contractName, 'events', [event_id, 'wager', 'num_options'], null).then(num_options=>{
+                                                    checkContractState($contractName, 'events', [event_id, 'metadata', 'date'], null).then(date=>{
                                                         bet = {
-                                                            num_options: num_options,
+                                                            date: date,
                                                             ...bet
                                                         }
-                                                        checkContractState($contractName, 'events', [event_id, 'total', 'num_options'], null).then(total=>{
+                                                        checkContractState($contractName, 'events', [event_id, 'metadata', 'timestamp'], null).then(timestamp=>{
                                                             bet = {
-                                                                total: total,
+                                                                timestamp: timestamp,
                                                                 ...bet
                                                             }
-                                                            checkContractState($contractName, 'events', [event_id, 'wager', 'spread'], null).then(spread=>{
+                                                            checkContractState($contractName, 'events', [event_id, 'wager', 'name'], null).then(name=>{
                                                                 bet = {
-                                                                    spread: spread,
+                                                                    name: name,
                                                                     ...bet
                                                                 }
-                                                                checkContractState($contractName, 'events', [event_id, 'winning_option_id'], null).then(winning_option_id=>{
+                                                                checkContractState($contractName, 'events', [event_id, 'wager', 'num_options'], null).then(num_options=>{
                                                                     bet = {
-                                                                        winning_option_id: winning_option_id,
+                                                                        num_options: num_options,
                                                                         ...bet
                                                                     }
-                                                                    resolve(bet)
+                                                                    checkContractState($contractName, 'events', [event_id, 'total', 'num_options'], null).then(total=>{
+                                                                        bet = {
+                                                                            total: total,
+                                                                            ...bet
+                                                                        }
+                                                                        checkContractState($contractName, 'events', [event_id, 'wager', 'spread'], null).then(spread=>{
+                                                                            bet = {
+                                                                                spread: spread,
+                                                                                ...bet
+                                                                            }
+                                                                            checkContractState($contractName, 'events', [event_id, 'winning_option_id'], null).then(winning_option_id=>{
+                                                                                bet = {
+                                                                                    winning_option_id: winning_option_id,
+                                                                                    ...bet
+                                                                                }
+                                                                                resolve(bet)
+                                                                            })
+                                                                        })
+                                                                    })
                                                                 })
                                                             })
                                                         })
@@ -178,7 +197,7 @@ const showDisputeToggle = writable(null);
 
     <p>Local Date: {formatDate(bet.timestamp)}</p>
     <p>Local Time: {formatTime(bet.timestamp)}</p>
-    {#if typeof bet.winningOptionId !== 'undefined' && bet.winningOptionId !== null}
+    {#if typeof bet.winning_option_id !== 'undefined' && bet.winning_option_id !== null}
         <p>Away: {bet.away_team} - {formatAwayScore(bet)}</p>
         <p>Home: {bet.home_team} - {formatHomeScore(bet)}</p>
         <br />
@@ -189,12 +208,16 @@ const showDisputeToggle = writable(null);
         {#if $lamden_vk === null}
             <p>Please connect your wallet.</p>
         {:else}
-            {#if bet.winningOptionId === bet.option_id}
-                <Button 
-                    clicked={()=>claimBet(bet)} 
-                    text={$claimBetInProgress ? "Claiming..." : "Claim"}
-                    disabled={$claimBetInProgress}
-                />
+            {#if bet.winning_option_id === bet.option_id}
+                {#if bet.amount_in_option !== null && BN(0).comparedTo(BN(bet.amount_in_option)) === 1}
+                    <Button 
+                        clicked={()=>claimBet(bet)} 
+                        text={$claimBetInProgress ? "Claiming..." : "Claim"}
+                        disabled={$claimBetInProgress}
+                    />
+                {:else}
+                    <p>Already claimed.</p>
+                {/if}
             {:else}
                 <p>You Lost :(</p>                
             {/if}
